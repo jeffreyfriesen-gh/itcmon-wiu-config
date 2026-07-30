@@ -1,0 +1,32 @@
+{
+ "version": "1.0",
+ "description": "Trip-correlated UP Columbus WIU decoders",
+ "waysides": {
+    "780206500203": {
+      "name": "CP B040",
+      "sig": "UP",
+     "ind": [
+        {"signal": "1"},
+        {"signal": "1W"},
+        {"signal": "3"},
+        {"signal": "4"},
+        {"signal": "NN"},
+        {"signal": "6"}
+      ],
+      "atcs": {
+        "mcp": "8802686240003",
+        "proto": "s",
+        "ibitsn": 32,
+        "ibits": "1WGK,1EGK,NXK,SXK,2EXK,2WXK,1EXK,1WXK,1WAK,LAK,2LAK,1LAK,SGK,NGK,2WGK,2EGK,BWAK,AEAK,AWAK,NAK,SAK,2EAK,2WAK,1EAK,,,,,,ANAK,ASAK,BEAK"
+      }
+    },
+    "780206500404": {
+      "name": "Unresolved UP Columbus site 004 device 04",
+      "sig": "UP",
+     "ind": [
+        {"signal": "1"},
+        {"signal": "2"}
+      ]
+    }
+ }
+}

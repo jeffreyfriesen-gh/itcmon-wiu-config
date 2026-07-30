@@ -1,0 +1,36 @@
+{
+    "schema":  "itcmon.config.manifest.v1",
+    "version":  "2026-07-30.2",
+    "generated_utc":  "2026-07-30T19:02:00.0000000Z",
+    "wiu_count":  52,
+    "files":  [
+                  {
+                      "path":  "wius/076/076457.json",
+                      "sha256":  "C3BADD845818355D9D5348C3A65E62CEEBD7030F325437DE9E4450E590ABEEC3"
+                  },
+                  {
+                      "path":  "wius/076/076483.json",
+                      "sha256":  "5B95EADC808A7706EA5F51095752564E68FD8AF04E16080106401207ABFBB16A"
+                  },
+                  {
+                      "path":  "wius/076/076498.json",
+                      "sha256":  "E90281C0F53F5F2E9828723717FEB9BFBCBE45F7E5EF556E549AA2DABF93A301"
+                  },
+                  {
+                      "path":  "wius/802/802001.json",
+                      "sha256":  "2FB67D4897CC6D74C3A5EB485B657A4F4ADC01CFBF41214FDCF1034DCF99AC6B"
+                  },
+                  {
+                      "path":  "wius/802/802027.json",
+                      "sha256":  "FA1DA0DF0A8878E6897F3D118757659238FAD6FFF0BF63366DE995FD55D764BA"
+                  },
+                  {
+                      "path":  "wius/802/802065.json",
+                      "sha256":  "534DD0A14A8BAEEA330D8942188F0D6394F6AE8B7F8F7FF2CE16F4BABE536733"
+                  },
+                  {
+                      "path":  "wius/802/802870.json",
+                      "sha256":  "5BEEB7E8355ECC0E3124D1B4DFE42E235984ABEC1E020678BAB11250B6844287"
+                  }
+              ]
+}

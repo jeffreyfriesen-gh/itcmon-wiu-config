@@ -1,0 +1,4 @@
+config-backups/
+.config-stage-*/
+*.zip
+

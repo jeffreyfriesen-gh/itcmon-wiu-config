@@ -1,0 +1,28 @@
+{
+ "version": "1.0",
+ "description": "Auto-generated + merged WIU decoders",
+ "waysides": {
+    "780287036103": {
+      "name": "",
+      "sig": "UP",
+     "ind": [
+        {"switch": "1"},
+        {"switch": "2"},
+        {"switch": "3"},
+        {"switch": "4"},
+        {"switch": "5"},
+        {"switch": "6"},
+        {"switch": "7"},
+        {"switch": "8"},
+        {"switch": "9"},
+        {"signal": "1"},
+        {"signal": "2"},
+        {"signal": "3"},
+        {"signal": "4"},
+        {"signal": "5"},
+        {"signal": "6"},
+        {"signal": "7"}
+      ]
+    }
+ }
+}

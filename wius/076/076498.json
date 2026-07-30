@@ -1,0 +1,23 @@
+{
+ "version": "1.0",
+ "description": "Auto-generated + merged WIU decoders",
+ "waysides": {
+    "707649804505": {
+      "name": "",
+      "sig": "BNSF",
+     "ind": [
+        {"switch": "1"},
+        {"switch": "2"},
+        {"signal": "1"}
+      ]
+    },
+    "707649806005": {
+      "name": "",
+      "sig": "BNSF",
+     "ind": [
+        {"signal": "1"},
+        {"signal": "2"}
+      ]
+    }
+ }
+}
