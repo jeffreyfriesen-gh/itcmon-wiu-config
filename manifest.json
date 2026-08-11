@@ -1,9 +1,48 @@
 {
     "schema":  "itcmon.config.manifest.v1",
-    "version":  "2026-07-30.2",
-    "generated_utc":  "2026-07-30T19:02:00.0000000Z",
+    "version":  "2026-08-10.1",
+    "generated_utc":  "2026-08-11T02:51:39.3283836Z",
     "wiu_count":  52,
+    "rrdata_path":  "rrdata.json",
+    "profiles":  [
+                      {
+                          "name":  "truck-vm201",
+                          "path":  "profiles/truck-vm201/profile.json",
+                          "sha256":  "DE7D6D46F35B8C2346038DEF6E9B14970DA599C15E1DD3BBA4516D28A0F79955",
+                          "server_count":  52
+                      },
+                      {
+                          "name":  "truck-client",
+                          "path":  "profiles/truck-client/profile.json",
+                          "sha256":  "051E47712C7E2F92096433DA87125571469863E3F8B817D687BE0B9892D3D486",
+                          "server_count":  52
+                      }
+                  ],
     "files":  [
+                  {
+                      "path":  "rrdata.json",
+                      "sha256":  "7EB40B97CEC28F24112E00DE504EFF190CD6CA8C7B0B3039F9A985EE6E16D1DB"
+                  },
+                  {
+                      "path":  "profiles/truck-vm201/profile.json",
+                      "sha256":  "DE7D6D46F35B8C2346038DEF6E9B14970DA599C15E1DD3BBA4516D28A0F79955"
+                  },
+                  {
+                      "path":  "profiles/truck-client/profile.json",
+                      "sha256":  "051E47712C7E2F92096433DA87125571469863E3F8B817D687BE0B9892D3D486"
+                  },
+                  {
+                      "path":  "scripts/Install-ITCMon-Truck-Client.ps1",
+                      "sha256":  "F0048FE61F7EFD18724BFB73386E8F5492A5A13C1CAC6C1655753A9DF4EA31F5"
+                  },
+                  {
+                      "path":  "scripts/Start-ITCMon-With-Update.ps1",
+                      "sha256":  "B74DAEE70AFFE21EC37F9FE76AE0507FB09AAE8BB7B182FDF7B1807781222FBF"
+                  },
+                  {
+                      "path":  "scripts/Start-ITCMon-With-Update.cmd",
+                      "sha256":  "BEC34A714AB5A04E0F76F85DED7A23785BC95F13E6A2728FA0276821377117C0"
+                  },
                   {
                       "path":  "wius/076/076457.json",
                       "sha256":  "C3BADD845818355D9D5348C3A65E62CEEBD7030F325437DE9E4450E590ABEEC3"

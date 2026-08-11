@@ -1,8 +1,10 @@
 # Hash-validated configuration files must not be rewritten by Git on Windows.
 wius/**/*.json binary
+rrdata.json binary
+profiles/**/*.json binary
+scripts/*.ps1 binary
+scripts/*.cmd binary
 
 # Human-authored files have explicit, predictable line endings.
 manifest.json text eol=lf
 README.md text eol=lf
-*.ps1 text eol=crlf
-*.cmd text eol=crlf
