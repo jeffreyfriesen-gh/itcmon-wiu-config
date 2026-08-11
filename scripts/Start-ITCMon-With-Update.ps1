@@ -71,7 +71,10 @@ function Save-RemoteFile {
     $lastGrowthSeconds = 0
 
     function Wait-DownloadJob {
-        param([Parameter(Mandatory)]$Job)
+        param(
+            [Parameter(Mandatory)]$Job,
+            [string]$HeartbeatDescription = $Description
+        )
 
         $nextHeartbeatSeconds = 10
         while ($Job.State -in @('NotStarted', 'Running')) {
@@ -104,7 +107,7 @@ function Save-RemoteFile {
                 ''
             }
             Write-Host ("[download] {0}: running {1:c}, {2} received{3}." -f `
-                $Description, $downloadStarted.Elapsed, $sizeText, $growthText)
+                $HeartbeatDescription, $downloadStarted.Elapsed, $sizeText, $growthText)
             $nextHeartbeatSeconds = $elapsedSeconds + 10
         }
 
@@ -117,37 +120,94 @@ function Save-RemoteFile {
 
     $curl = Get-Command curl.exe -ErrorAction SilentlyContinue
     if ($curl) {
-        Write-Host "[download] ${Description}: started with curl retry support (maximum 10 minutes)."
-        $job = Start-Job -ScriptBlock {
-            param($CurlPath, $SourceUri, $OutputPath)
-            $nativeOutput = @(& $CurlPath `
-                '--fail' '--location' '--silent' '--show-error' `
-                '--connect-timeout' '20' '--max-time' '600' `
-                '--retry' '4' '--retry-delay' '2' '--retry-connrefused' `
-                '--output' $OutputPath $SourceUri 2>&1)
-            $nativeExitCode = $LASTEXITCODE
-            [pscustomobject]@{
-                Succeeded = ($nativeExitCode -eq 0)
-                ExitCode = $nativeExitCode
-                Detail = (($nativeOutput | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine)
+        $maximumAttempts = 5
+        $downloadSucceeded = $false
+        $exitCode = -1
+        $detail = ''
+        Write-Host "[download] ${Description}: resumable curl transfer started (up to $maximumAttempts attempts)."
+        for ($attempt = 1; $attempt -le $maximumAttempts; $attempt++) {
+            $retainedLength = if (Test-Path -LiteralPath $Destination -PathType Leaf) {
+                (Get-Item -LiteralPath $Destination).Length
+            } else {
+                0L
             }
-        } -ArgumentList $curl.Source, $Uri, $Destination
-        $jobResult = @(Wait-DownloadJob -Job $job)
-        $downloadResult = @($jobResult | Where-Object { $_.PSObject.Properties.Name -contains 'Succeeded' } |
-            Select-Object -Last 1)
-        $exitCode = if ($downloadResult.Count -eq 1) { [int]$downloadResult[0].ExitCode } else { -1 }
-        if ($downloadResult.Count -ne 1 -or -not [bool]$downloadResult[0].Succeeded -or
-            -not (Test-Path -LiteralPath $Destination -PathType Leaf) -or
-            (Get-Item -LiteralPath $Destination).Length -le 0) {
-            if (Test-Path -LiteralPath $Destination) {
-                Remove-Item -LiteralPath $Destination -Force
+            $retainedText = if ($retainedLength -lt 1MB) {
+                '{0:N1} KiB' -f ($retainedLength / 1KB)
+            } else {
+                '{0:N1} MiB' -f ($retainedLength / 1MB)
+            }
+            if ($retainedLength -gt 0) {
+                Write-Host "[download] ${Description}: attempt $attempt of $maximumAttempts resuming after $retainedText."
+            } else {
+                Write-Host "[download] ${Description}: attempt $attempt of $maximumAttempts starting at byte zero."
+            }
+            $job = Start-Job -ScriptBlock {
+                param($CurlPath, $SourceUri, $OutputPath, $Resume)
+                $arguments = @(
+                    '--fail', '--location', '--silent', '--show-error',
+                    '--connect-timeout', '20', '--max-time', '600'
+                )
+                if ($Resume) {
+                    $arguments += @('--continue-at', '-')
+                }
+                $arguments += @('--output', $OutputPath, $SourceUri)
+                $nativeOutput = @(& $CurlPath @arguments 2>&1)
+                $nativeExitCode = $LASTEXITCODE
+                [pscustomobject]@{
+                    Succeeded = ($nativeExitCode -eq 0)
+                    ExitCode = $nativeExitCode
+                    Detail = (($nativeOutput | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine)
+                }
+            } -ArgumentList $curl.Source, $Uri, $Destination, ($retainedLength -gt 0)
+            $attemptLabel = "${Description} attempt $attempt/$maximumAttempts"
+            $jobResult = @(Wait-DownloadJob -Job $job -HeartbeatDescription $attemptLabel)
+            $downloadResult = @($jobResult |
+                Where-Object { $_.PSObject.Properties.Name -contains 'Succeeded' } |
+                Select-Object -Last 1)
+            $exitCode = if ($downloadResult.Count -eq 1) {
+                [int]$downloadResult[0].ExitCode
+            } else {
+                -1
             }
             $detail = if ($downloadResult.Count -eq 1) {
                 [string]$downloadResult[0].Detail
             } else {
                 'The background download worker returned no status record.'
             }
-            throw "${Description} download failed from $Uri (curl exit $exitCode).$([Environment]::NewLine)$detail"
+            if ($downloadResult.Count -eq 1 -and [bool]$downloadResult[0].Succeeded -and
+                (Test-Path -LiteralPath $Destination -PathType Leaf) -and
+                (Get-Item -LiteralPath $Destination).Length -gt 0) {
+                $downloadSucceeded = $true
+                break
+            }
+
+            $partialLength = if (Test-Path -LiteralPath $Destination -PathType Leaf) {
+                (Get-Item -LiteralPath $Destination).Length
+            } else {
+                0L
+            }
+            if ($exitCode -eq 33 -and $partialLength -gt 0) {
+                Write-Host "[download] ${Description}: server rejected resume; discarding the partial file before retry."
+                Remove-Item -LiteralPath $Destination -Force
+            } elseif ($partialLength -gt 0) {
+                $partialText = if ($partialLength -lt 1MB) {
+                    '{0:N1} KiB' -f ($partialLength / 1KB)
+                } else {
+                    '{0:N1} MiB' -f ($partialLength / 1MB)
+                }
+                Write-Host "[download] ${Description}: attempt $attempt ended with curl exit $exitCode; retaining $partialText for resume."
+            } else {
+                Write-Host "[download] ${Description}: attempt $attempt ended with curl exit $exitCode and no partial file."
+            }
+            if ($attempt -lt $maximumAttempts) {
+                Start-Sleep -Seconds 2
+            }
+        }
+        if (-not $downloadSucceeded) {
+            if (Test-Path -LiteralPath $Destination) {
+                Remove-Item -LiteralPath $Destination -Force
+            }
+            throw "${Description} download failed after $maximumAttempts attempts from $Uri (last curl exit $exitCode).$([Environment]::NewLine)$detail"
         }
     } else {
         $lastError = $null
@@ -166,7 +226,8 @@ function Save-RemoteFile {
                     [pscustomobject]@{ Succeeded = $false; ExitCode = 1; Detail = $_.Exception.Message }
                 }
             } -ArgumentList $Uri, $Destination
-            $jobResult = @(Wait-DownloadJob -Job $job)
+            $jobResult = @(Wait-DownloadJob -Job $job `
+                -HeartbeatDescription "${Description} Invoke-WebRequest attempt $attempt/3")
             $downloadResult = @($jobResult | Where-Object { $_.PSObject.Properties.Name -contains 'Succeeded' } |
                 Select-Object -Last 1)
             if ($downloadResult.Count -eq 1 -and [bool]$downloadResult[0].Succeeded -and
@@ -184,6 +245,7 @@ function Save-RemoteFile {
                     Remove-Item -LiteralPath $Destination -Force
                 }
                 if ($attempt -lt 3) {
+                    Write-Host "[download] ${Description}: Invoke-WebRequest cannot resume this partial file; retry will restart at byte zero."
                     Start-Sleep -Seconds (3 * $attempt)
                 }
             }
