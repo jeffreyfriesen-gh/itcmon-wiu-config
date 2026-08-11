@@ -37,6 +37,17 @@ $backupRoot = $null
 $previousMoved = $false
 $newInstalled = $false
 $success = $false
+$currentStage = 'initial validation'
+
+function Write-InstallStage {
+    param(
+        [Parameter(Mandatory)][int]$Number,
+        [Parameter(Mandatory)][string]$Description
+    )
+
+    $script:currentStage = "stage $Number of 7: $Description"
+    Write-Host "[stage $Number/7] $Description"
+}
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$Path)
@@ -58,45 +69,120 @@ function Save-RemoteFile {
         Remove-Item -LiteralPath $Destination -Force
     }
 
+    $downloadStarted = [Diagnostics.Stopwatch]::StartNew()
+    $lastLength = -1L
+    $lastGrowthSeconds = 0
+
+    function Wait-DownloadJob {
+        param([Parameter(Mandatory)]$Job)
+
+        $nextHeartbeatSeconds = 10
+        while ($Job.State -in @('NotStarted', 'Running')) {
+            Wait-Job -Job $Job -Timeout 2 | Out-Null
+            if ($Job.State -notin @('NotStarted', 'Running')) {
+                break
+            }
+            $elapsedSeconds = [int][Math]::Floor($downloadStarted.Elapsed.TotalSeconds)
+            if ($elapsedSeconds -lt $nextHeartbeatSeconds) {
+                continue
+            }
+            $length = if (Test-Path -LiteralPath $Destination -PathType Leaf) {
+                (Get-Item -LiteralPath $Destination).Length
+            } else {
+                0L
+            }
+            if ($length -ne $lastLength) {
+                $lastLength = $length
+                $lastGrowthSeconds = $elapsedSeconds
+            }
+            $sizeText = if ($length -lt 1MB) {
+                '{0:N1} KiB' -f ($length / 1KB)
+            } else {
+                '{0:N1} MiB' -f ($length / 1MB)
+            }
+            $quietSeconds = $elapsedSeconds - $lastGrowthSeconds
+            $growthText = if ($quietSeconds -ge 30) {
+                "; no file growth for ${quietSeconds}s (the client may be retrying)"
+            } else {
+                ''
+            }
+            Write-Host ("[download] {0}: running {1:c}, {2} received{3}." -f `
+                $Description, $downloadStarted.Elapsed, $sizeText, $growthText)
+            $nextHeartbeatSeconds = $elapsedSeconds + 10
+        }
+
+        try {
+            return @(Receive-Job -Job $Job -Wait)
+        } finally {
+            Remove-Job -Job $Job -Force -ErrorAction SilentlyContinue
+        }
+    }
+
     $curl = Get-Command curl.exe -ErrorAction SilentlyContinue
     if ($curl) {
-        Write-Host "${Description}: downloading with retry support (maximum 10 minutes)..."
-        $arguments = @(
-            '--fail', '--location', '--silent', '--show-error',
-            '--connect-timeout', '20', '--max-time', '600',
-            '--retry', '4', '--retry-delay', '2', '--retry-connrefused',
-            '--output', $Destination, $Uri
-        )
-        $previousErrorAction = $ErrorActionPreference
-        try {
-            $ErrorActionPreference = 'Continue'
-            $output = @(& $curl.Source @arguments 2>&1)
-            $exitCode = $LASTEXITCODE
-        } finally {
-            $ErrorActionPreference = $previousErrorAction
-        }
-        if ($exitCode -ne 0 -or
+        Write-Host "[download] ${Description}: started with curl retry support (maximum 10 minutes)."
+        $job = Start-Job -ScriptBlock {
+            param($CurlPath, $SourceUri, $OutputPath)
+            $nativeOutput = @(& $CurlPath `
+                '--fail' '--location' '--silent' '--show-error' `
+                '--connect-timeout' '20' '--max-time' '600' `
+                '--retry' '4' '--retry-delay' '2' '--retry-connrefused' `
+                '--output' $OutputPath $SourceUri 2>&1)
+            $nativeExitCode = $LASTEXITCODE
+            [pscustomobject]@{
+                Succeeded = ($nativeExitCode -eq 0)
+                ExitCode = $nativeExitCode
+                Detail = (($nativeOutput | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine)
+            }
+        } -ArgumentList $curl.Source, $Uri, $Destination
+        $jobResult = @(Wait-DownloadJob -Job $job)
+        $downloadResult = @($jobResult | Where-Object { $_.PSObject.Properties.Name -contains 'Succeeded' } |
+            Select-Object -Last 1)
+        $exitCode = if ($downloadResult.Count -eq 1) { [int]$downloadResult[0].ExitCode } else { -1 }
+        if ($downloadResult.Count -ne 1 -or -not [bool]$downloadResult[0].Succeeded -or
             -not (Test-Path -LiteralPath $Destination -PathType Leaf) -or
             (Get-Item -LiteralPath $Destination).Length -le 0) {
             if (Test-Path -LiteralPath $Destination) {
                 Remove-Item -LiteralPath $Destination -Force
             }
-            $detail = ($output | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine
+            $detail = if ($downloadResult.Count -eq 1) {
+                [string]$downloadResult[0].Detail
+            } else {
+                'The background download worker returned no status record.'
+            }
             throw "${Description} download failed from $Uri (curl exit $exitCode).$([Environment]::NewLine)$detail"
         }
     } else {
         $lastError = $null
         for ($attempt = 1; $attempt -le 3; $attempt++) {
-            Write-Host "${Description}: download attempt $attempt of 3 (10-minute timeout)..."
-            try {
-                Invoke-WebRequest -UseBasicParsing -Uri $Uri -OutFile $Destination -TimeoutSec 600
-                if ((Get-Item -LiteralPath $Destination).Length -le 0) {
-                    throw 'The server returned an empty file.'
+            Write-Host "[download] ${Description}: Invoke-WebRequest attempt $attempt of 3 started (10-minute timeout)."
+            $downloadStarted.Restart()
+            $lastLength = -1L
+            $lastGrowthSeconds = 0
+            $job = Start-Job -ScriptBlock {
+                param($SourceUri, $OutputPath)
+                $ErrorActionPreference = 'Stop'
+                try {
+                    Invoke-WebRequest -UseBasicParsing -Uri $SourceUri -OutFile $OutputPath -TimeoutSec 600
+                    [pscustomobject]@{ Succeeded = $true; ExitCode = 0; Detail = '' }
+                } catch {
+                    [pscustomobject]@{ Succeeded = $false; ExitCode = 1; Detail = $_.Exception.Message }
                 }
+            } -ArgumentList $Uri, $Destination
+            $jobResult = @(Wait-DownloadJob -Job $job)
+            $downloadResult = @($jobResult | Where-Object { $_.PSObject.Properties.Name -contains 'Succeeded' } |
+                Select-Object -Last 1)
+            if ($downloadResult.Count -eq 1 -and [bool]$downloadResult[0].Succeeded -and
+                (Test-Path -LiteralPath $Destination -PathType Leaf) -and
+                (Get-Item -LiteralPath $Destination).Length -gt 0) {
                 $lastError = $null
                 break
-            } catch {
-                $lastError = $_
+            } else {
+                $lastError = if ($downloadResult.Count -eq 1) {
+                    [string]$downloadResult[0].Detail
+                } else {
+                    'The background download worker returned no status record.'
+                }
                 if (Test-Path -LiteralPath $Destination) {
                     Remove-Item -LiteralPath $Destination -Force
                 }
@@ -106,15 +192,17 @@ function Save-RemoteFile {
             }
         }
         if ($lastError) {
-            throw "${Description} download failed after 3 attempts from $Uri. $($lastError.Exception.Message)"
+            throw "${Description} download failed after 3 attempts from $Uri. $lastError"
         }
     }
 
     $length = (Get-Item -LiteralPath $Destination).Length
     if ($length -lt 1MB) {
-        Write-Host ("{0}: downloaded {1:N1} KiB." -f $Description, ($length / 1KB))
+        Write-Host ("[download] {0}: completed in {1:c}; downloaded {2:N1} KiB." -f `
+            $Description, $downloadStarted.Elapsed, ($length / 1KB))
     } else {
-        Write-Host ("{0}: downloaded {1:N1} MiB." -f $Description, ($length / 1MB))
+        Write-Host ("[download] {0}: completed in {1:c}; downloaded {2:N1} MiB." -f `
+            $Description, $downloadStarted.Elapsed, ($length / 1MB))
     }
 }
 
@@ -192,7 +280,9 @@ if (@(Get-Process -Name itcmon, itcwatch -ErrorAction SilentlyContinue).Count -n
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 New-Item -ItemType Directory -Path $workRoot -Force | Out-Null
+Write-Host ("[install] ITCMon truck client provisioning started at {0}." -f (Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz'))
 try {
+    Write-InstallStage -Number 1 -Description 'Acquire and validate the truck configuration catalog.'
     if ([string]::IsNullOrWhiteSpace($ConfigurationSourceRoot)) {
         Save-RemoteFile -Uri $configurationUrl -Destination $configurationArchive `
             -Description 'Truck configuration package'
@@ -218,6 +308,7 @@ try {
     $itcWatchUrl = [string]$itcWatchApplication.url
     $itcWatchSHA256 = ([string]$itcWatchApplication.executable_sha256).ToUpperInvariant()
 
+    Write-InstallStage -Number 2 -Description "Acquire and validate ITCMon $releaseVersion."
     if ([string]::IsNullOrWhiteSpace($ReleaseArchivePath)) {
         Save-RemoteFile -Uri $releaseArchiveUrl -Destination $releaseArchive `
             -Description "ITCMon $releaseVersion package"
@@ -234,6 +325,7 @@ try {
         throw "Official ITCMon $releaseVersion executable failed SHA-256 validation."
     }
 
+    Write-InstallStage -Number 3 -Description "Acquire and validate ITCWatch $itcWatchVersion."
     if ([string]::IsNullOrWhiteSpace($ITCWatchExecutablePath)) {
         Save-RemoteFile -Uri $itcWatchUrl -Destination $itcWatchDownload `
             -Description "ITCWatch $itcWatchVersion package"
@@ -253,6 +345,7 @@ try {
         }
     }
 
+    Write-InstallStage -Number 4 -Description 'Install application files and preserve prior local data.'
     New-Item -ItemType Directory -Path $installParent -Force | Out-Null
     if (Test-Path -LiteralPath $installFull) {
         $backupParent = Join-Path $installParent 'ITCMon-backups'
@@ -299,11 +392,13 @@ try {
     if ($profileHash -ne ([string]$profileEntry[0].sha256).ToUpperInvariant()) {
         throw "Truck-client profile failed manifest acceptance: $profileHash"
     }
+    Write-InstallStage -Number 5 -Description 'Apply the truck endpoint, WIUs, railroad data, and automatic updater.'
     & $updaterInstalled -InstallRoot $installFull -SourceRoot $configurationRoot `
         -ProfileName $profileName -ServerHostOverride $TruckHost `
         -UpdateApplications -ITCMonArchivePath $releaseArchive `
         -ITCWatchExecutablePath $itcWatchDownload -NoLaunch
 
+    Write-InstallStage -Number 6 -Description 'Create the ITCMon and ITCWatch truck launchers and desktop shortcuts.'
     $truckCommand = Join-Path $installFull 'Start ITCMon - Truck.cmd'
     $truckCommandText = @"
 @echo off
@@ -398,6 +493,7 @@ exit /b 1
         }
     }
 
+    Write-InstallStage -Number 7 -Description 'Run final acceptance checks and record installation status.'
     $connectivity = [ordered]@{
         host = $TruckHost
         fr_18101 = Test-TcpEndpoint -HostName $TruckHost -Port 18101
@@ -429,10 +525,15 @@ exit /b 1
     )
     $success = $true
     $result | Format-List
+    Write-Host ("[complete] Provisioning finished successfully at {0}." -f (Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz'))
 
     if (-not $NoLaunch) {
         Start-Process -FilePath (Join-Path $installFull 'itcmon.exe') -WorkingDirectory $installFull
     }
+} catch {
+    Write-Host "[failed] Installer stopped during $currentStage" -ForegroundColor Red
+    Write-Host "[failed] $($_.Exception.Message)" -ForegroundColor Red
+    throw
 } finally {
     if (-not $success -and $newInstalled) {
         if (Test-Path -LiteralPath $installFull) {

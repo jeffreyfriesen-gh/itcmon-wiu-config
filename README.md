@@ -34,9 +34,12 @@ ITCWatch packages when their published hashes change, update the launcher,
 selected application. If ITCMon is already running, the ITCWatch shortcut opens
 ITCWatch immediately and defers updates until the next stopped-stack launch.
 Large downloads use `curl.exe` with redirects, connection limits, bounded
-runtime, and automatic retry when available. Each stage names the package and
-reports its downloaded size; Windows PowerShell's `Invoke-WebRequest` is only a
-three-attempt fallback when `curl.exe` is absent.
+runtime, and automatic retry when available. The installer prints numbered
+stages plus a download heartbeat every ten seconds with elapsed time and bytes
+received. After 30 seconds without file growth, the heartbeat marks that the
+client may be retrying. A failure names the active stage and its final error.
+Windows PowerShell's `Invoke-WebRequest` is only a three-attempt fallback when
+`curl.exe` is absent, and it uses the same heartbeat reporting.
 
 The truck-client profile uses `telemetry-node.lan`. The GL.iNet truck router
 must be the laptop's DNS server and must resolve that alias to the receiver VM.
