@@ -54,6 +54,10 @@ public repository still documents the service port pattern. Use
 - `profiles/truck-vm201/profile.json`: local VM201 profile.
 - `rrdata.json`: railroad-number and signal-aspect mappings.
 - `wius/`: reviewed WIU decoder definitions.
+- `wius/802/802001.json`: reviewed Omaha-corridor definitions, including the
+  v0.9 `MP` field on 13 WIUs whose working site assignment has a known
+  milepost. No `MP` value is synthesized for unresolved WIUs or for 57th
+  Street because its WIU has not yet been observed.
 - `manifest.json`: expected counts and SHA-256 for every distributed machine
   file plus the reviewed ITCMon and ITCWatch application packages.
 - `scripts/Install-ITCMon-Truck-Client.ps1`: complete Windows client installer.
