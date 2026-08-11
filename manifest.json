@@ -1,9 +1,14 @@
 {
     "schema":  "itcmon.config.manifest.v1",
-    "version":  "2026-08-10.1",
-    "generated_utc":  "2026-08-11T02:51:39.3283836Z",
+    "version":  "2026-08-10.2",
+    "generated_utc":  "2026-08-11T03:47:47.8853461Z",
     "wiu_count":  52,
     "rrdata_path":  "rrdata.json",
+    "itcwatch":  {
+                     "version":  "v0.4.0",
+                     "url":  "https://github.com/katsojuna/itcwatch/releases/download/v0.4.0/ITC.Watch.0.4.0.exe",
+                     "sha256":  "11F0DDA9E1B61DE85760FFB3D5AC1F9CA05FC263F468341FA66F64A256409CF5"
+                 },
     "profiles":  [
                       {
                           "name":  "truck-vm201",
@@ -33,7 +38,7 @@
                   },
                   {
                       "path":  "scripts/Install-ITCMon-Truck-Client.ps1",
-                      "sha256":  "F0048FE61F7EFD18724BFB73386E8F5492A5A13C1CAC6C1655753A9DF4EA31F5"
+                      "sha256":  "2FB4F66CA5E986F8A21527487658C27CA4FD6D506D2B9D0104192A9AABE197FA"
                   },
                   {
                       "path":  "scripts/Start-ITCMon-With-Update.ps1",

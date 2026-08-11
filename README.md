@@ -1,7 +1,8 @@
 # ITCMon configuration distribution
 
 This repository distributes the reviewed ITCMon WIU definitions, railroad data,
-truck server profiles, update launcher, and a net-new Windows laptop installer.
+truck server profiles, update launcher, and a net-new Windows laptop installer
+for both ITCMon and ITCWatch.
 
 ## Net-new Windows laptop
 
@@ -13,10 +14,13 @@ Invoke-WebRequest 'https://raw.githubusercontent.com/jeffreyfriesen-gh/itcmon-wi
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
 ```
 
-The installer downloads and validates the official ITCMon v0.9 Windows package,
-installs it under `%LOCALAPPDATA%\Programs\ITCMon-v0.9`, applies the truck-client
-profile, `rrdata.json`, and 52 reviewed WIU definitions, and creates an
-`ITCMon - Truck` desktop shortcut.
+The installer downloads and validates the official ITCMon v0.9 Windows package
+and the official [ITCWatch v0.4.0 release](https://github.com/katsojuna/itcwatch/releases/tag/v0.4.0).
+It installs both under `%LOCALAPPDATA%\Programs\ITCMon-v0.9`, applies the
+truck-client profile, `rrdata.json`, and 52 reviewed WIU definitions, and
+creates `ITCMon - Truck` and `ITCWatch - Truck` desktop shortcuts. ITCWatch
+shares ITCMon's `rrdata.json` and `wius` directory. Its shortcut starts ITCMon
+first when necessary because ITCWatch consumes ITCMon's local `zjpub` stream.
 
 The truck-client profile uses `telemetry-node.lan`. The GL.iNet truck router
 must be the laptop's DNS server and must resolve that alias to the receiver VM.

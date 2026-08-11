@@ -6,6 +6,8 @@ param(
 
     [string]$ReleaseArchivePath,
 
+    [string]$ITCWatchExecutablePath,
+
     [string]$ConfigurationSourceRoot,
 
     [switch]$NoDesktopShortcut,
@@ -19,11 +21,15 @@ $releaseVersion = 'v0.9'
 $releaseArchiveUrl = 'https://raw.githubusercontent.com/katsojuna/itcmon/v0.9/windows/itcmon-v09.zip'
 $releaseArchiveSHA256 = '850AAFF5EB55987347FCEE870B57F972B62AD37C40FCA868014B45DBAD1557DD'
 $releaseITCMonSHA256 = 'FE9EEC2D239ED42B74FB50AEAD1DD99EFF837DA7631CB2F0D5A5EFA363422241'
+$itcWatchVersion = 'v0.4.0'
+$itcWatchUrl = 'https://github.com/katsojuna/itcwatch/releases/download/v0.4.0/ITC.Watch.0.4.0.exe'
+$itcWatchSHA256 = '11F0DDA9E1B61DE85760FFB3D5AC1F9CA05FC263F468341FA66F64A256409CF5'
 $configurationUrl = 'https://github.com/jeffreyfriesen-gh/itcmon-wiu-config/archive/refs/heads/main.zip'
 $profileName = 'truck-client'
 $stamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
 $workRoot = Join-Path $env:TEMP "itcmon-truck-client-$PID-$stamp"
 $releaseArchive = "$workRoot-release.zip"
+$itcWatchDownload = "$workRoot-itcwatch.exe"
 $configurationArchive = "$workRoot-config.zip"
 $packageRoot = Join-Path $workRoot 'package'
 $configurationExtract = Join-Path $workRoot 'configuration'
@@ -76,8 +82,8 @@ if ($installFull.StartsWith(
 )) {
     throw 'Refusing to install ITCMon under the Windows system directory.'
 }
-if (@(Get-Process -Name itcmon -ErrorAction SilentlyContinue).Count -ne 0) {
-    throw 'ITCMon is running. Close it before provisioning or updating the client.'
+if (@(Get-Process -Name itcmon, itcwatch -ErrorAction SilentlyContinue).Count -ne 0) {
+    throw 'ITCMon or ITCWatch is running. Close both before provisioning or updating the client.'
 }
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -96,6 +102,16 @@ try {
     $releasedExecutable = Join-Path $packageRoot 'itcmon.exe'
     if ((Get-FileHash -LiteralPath $releasedExecutable -Algorithm SHA256).Hash -ne $releaseITCMonSHA256) {
         throw "Official ITCMon $releaseVersion executable failed SHA-256 validation."
+    }
+
+    if ([string]::IsNullOrWhiteSpace($ITCWatchExecutablePath)) {
+        Invoke-WebRequest -UseBasicParsing -Uri $itcWatchUrl -OutFile $itcWatchDownload
+    } else {
+        Copy-Item -LiteralPath (Resolve-Path -LiteralPath $ITCWatchExecutablePath).Path -Destination $itcWatchDownload
+    }
+    $itcWatchDownloadHash = (Get-FileHash -LiteralPath $itcWatchDownload -Algorithm SHA256).Hash
+    if ($itcWatchDownloadHash -ne $itcWatchSHA256) {
+        throw "Official ITCWatch $itcWatchVersion executable failed SHA-256 validation: $itcWatchDownloadHash"
     }
 
     if ([string]::IsNullOrWhiteSpace($ConfigurationSourceRoot)) {
@@ -130,6 +146,13 @@ try {
     }
     Move-Item -LiteralPath $packageRoot -Destination $installFull
     $newInstalled = $true
+
+    $itcWatchInstalled = Join-Path $installFull 'itcwatch.exe'
+    Copy-Item -LiteralPath $itcWatchDownload -Destination $itcWatchInstalled -Force
+    $itcWatchInstalledHash = (Get-FileHash -LiteralPath $itcWatchInstalled -Algorithm SHA256).Hash
+    if ($itcWatchInstalledHash -ne $itcWatchSHA256) {
+        throw 'Installed ITCWatch executable failed SHA-256 acceptance.'
+    }
 
     if ($backupRoot) {
         foreach ($name in @('packets.hex', 'config-backups')) {
@@ -173,6 +196,29 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-
         (New-Object Text.ASCIIEncoding)
     )
 
+    $itcWatchCommand = Join-Path $installFull 'Start ITCWatch - Truck.cmd'
+    $itcWatchCommandText = @"
+@echo off
+powershell.exe -NoProfile -Command "if (Get-Process -Name itcmon -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
+if not errorlevel 1 goto launch_watch
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-Update.ps1" -InstallRoot "%~dp0" -ServerProfilePath "%~dp0truck-client-profile.json" -ExpectedServerProfileSHA256 "$profileHash" -ServerHostOverride "$TruckHost" -NoLaunch
+if errorlevel 1 goto launch_failed
+start "" "%~dp0itcmon.exe"
+timeout /t 2 /nobreak >nul
+:launch_watch
+start "" "%~dp0itcwatch.exe"
+exit /b 0
+:launch_failed
+echo ITCMon configuration update failed; ITCWatch was not started.
+pause
+exit /b 1
+"@
+    [IO.File]::WriteAllText(
+        $itcWatchCommand,
+        $itcWatchCommandText.Replace("`n", "`r`n"),
+        (New-Object Text.ASCIIEncoding)
+    )
+
     $installedProfile = Read-JsonFile -Path (Join-Path $installFull 'itcmon.json')
     $installedServers = @($installedProfile.servers)
     $installedHosts = @($installedServers.ip | Sort-Object -Unique)
@@ -208,6 +254,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-
     }
 
     $desktopShortcut = $null
+    $itcWatchDesktopShortcut = $null
     if (-not $NoDesktopShortcut) {
         $desktop = [Environment]::GetFolderPath('Desktop')
         if (-not [string]::IsNullOrWhiteSpace($desktop)) {
@@ -218,6 +265,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-
             $shortcut.WorkingDirectory = $installFull
             $shortcut.IconLocation = (Join-Path $installFull 'itcmon.exe')
             $shortcut.Save()
+
+            $itcWatchDesktopShortcut = Join-Path $desktop 'ITCWatch - Truck.lnk'
+            $itcWatchShortcut = $shell.CreateShortcut($itcWatchDesktopShortcut)
+            $itcWatchShortcut.TargetPath = $itcWatchCommand
+            $itcWatchShortcut.WorkingDirectory = $installFull
+            $itcWatchShortcut.IconLocation = $itcWatchInstalled
+            $itcWatchShortcut.Save()
         }
     }
 
@@ -230,6 +284,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-
         schema = 'itcmon.truck-client.install.v1'
         installed_at = (Get-Date).ToUniversalTime().ToString('o')
         itcmon_release = $releaseVersion
+        itcwatch_release = $itcWatchVersion
+        itcwatch_sha256 = $itcWatchInstalledHash
+        itcwatch_executable = $itcWatchInstalled
         install_root = $installFull
         rollback_root = $backupRoot
         server_profile = $profileName
@@ -239,6 +296,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-
         wius = $wiuIDs.Count
         rrdata_sha256 = $installedRRDataHash
         desktop_shortcut = $desktopShortcut
+        itcwatch_desktop_shortcut = $itcWatchDesktopShortcut
         connectivity = $connectivity
     }
     [IO.File]::WriteAllText(
@@ -261,7 +319,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-
             Move-Item -LiteralPath $backupRoot -Destination $installFull
         }
     }
-    foreach ($temporary in @($releaseArchive, $configurationArchive, $workRoot)) {
+    foreach ($temporary in @($releaseArchive, $itcWatchDownload, $configurationArchive, $workRoot)) {
         if (Test-Path -LiteralPath $temporary) {
             Remove-Item -LiteralPath $temporary -Recurse -Force
         }
