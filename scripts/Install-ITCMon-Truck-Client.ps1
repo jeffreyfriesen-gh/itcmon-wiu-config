@@ -111,7 +111,11 @@ function Save-RemoteFile {
     }
 
     $length = (Get-Item -LiteralPath $Destination).Length
-    Write-Host ("{0}: downloaded {1:N1} MiB." -f $Description, ($length / 1MB))
+    if ($length -lt 1MB) {
+        Write-Host ("{0}: downloaded {1:N1} KiB." -f $Description, ($length / 1KB))
+    } else {
+        Write-Host ("{0}: downloaded {1:N1} MiB." -f $Description, ($length / 1MB))
+    }
 }
 
 function Get-ApplicationEntry {
