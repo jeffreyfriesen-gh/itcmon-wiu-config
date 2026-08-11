@@ -10,6 +10,8 @@ param(
 
     [string]$ConfigurationSourceRoot,
 
+    [string]$DesktopPath,
+
     [switch]$NoDesktopShortcut,
 
     [switch]$NoLaunch
@@ -17,13 +19,6 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$releaseVersion = 'v0.9'
-$releaseArchiveUrl = 'https://raw.githubusercontent.com/katsojuna/itcmon/v0.9/windows/itcmon-v09.zip'
-$releaseArchiveSHA256 = '850AAFF5EB55987347FCEE870B57F972B62AD37C40FCA868014B45DBAD1557DD'
-$releaseITCMonSHA256 = 'FE9EEC2D239ED42B74FB50AEAD1DD99EFF837DA7631CB2F0D5A5EFA363422241'
-$itcWatchVersion = 'v0.4.0'
-$itcWatchUrl = 'https://github.com/katsojuna/itcwatch/releases/download/v0.4.0/ITC.Watch.0.4.0.exe'
-$itcWatchSHA256 = '11F0DDA9E1B61DE85760FFB3D5AC1F9CA05FC263F468341FA66F64A256409CF5'
 $configurationUrl = 'https://github.com/jeffreyfriesen-gh/itcmon-wiu-config/archive/refs/heads/main.zip'
 $profileName = 'truck-client'
 $stamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
@@ -46,6 +41,111 @@ $success = $false
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$Path)
     return [IO.File]::ReadAllText($Path).TrimStart([char]0xFEFF) | ConvertFrom-Json
+}
+
+function Save-RemoteFile {
+    param(
+        [Parameter(Mandatory)][string]$Uri,
+        [Parameter(Mandatory)][string]$Destination,
+        [Parameter(Mandatory)][string]$Description
+    )
+
+    $parent = Split-Path -Parent $Destination
+    if (-not [string]::IsNullOrWhiteSpace($parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+    if (Test-Path -LiteralPath $Destination) {
+        Remove-Item -LiteralPath $Destination -Force
+    }
+
+    $curl = Get-Command curl.exe -ErrorAction SilentlyContinue
+    if ($curl) {
+        Write-Host "${Description}: downloading with retry support (maximum 10 minutes)..."
+        $arguments = @(
+            '--fail', '--location', '--silent', '--show-error',
+            '--connect-timeout', '20', '--max-time', '600',
+            '--retry', '4', '--retry-delay', '2', '--retry-connrefused',
+            '--output', $Destination, $Uri
+        )
+        $previousErrorAction = $ErrorActionPreference
+        try {
+            $ErrorActionPreference = 'Continue'
+            $output = @(& $curl.Source @arguments 2>&1)
+            $exitCode = $LASTEXITCODE
+        } finally {
+            $ErrorActionPreference = $previousErrorAction
+        }
+        if ($exitCode -ne 0 -or
+            -not (Test-Path -LiteralPath $Destination -PathType Leaf) -or
+            (Get-Item -LiteralPath $Destination).Length -le 0) {
+            if (Test-Path -LiteralPath $Destination) {
+                Remove-Item -LiteralPath $Destination -Force
+            }
+            $detail = ($output | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine
+            throw "${Description} download failed from $Uri (curl exit $exitCode).$([Environment]::NewLine)$detail"
+        }
+    } else {
+        $lastError = $null
+        for ($attempt = 1; $attempt -le 3; $attempt++) {
+            Write-Host "${Description}: download attempt $attempt of 3 (10-minute timeout)..."
+            try {
+                Invoke-WebRequest -UseBasicParsing -Uri $Uri -OutFile $Destination -TimeoutSec 600
+                if ((Get-Item -LiteralPath $Destination).Length -le 0) {
+                    throw 'The server returned an empty file.'
+                }
+                $lastError = $null
+                break
+            } catch {
+                $lastError = $_
+                if (Test-Path -LiteralPath $Destination) {
+                    Remove-Item -LiteralPath $Destination -Force
+                }
+                if ($attempt -lt 3) {
+                    Start-Sleep -Seconds (3 * $attempt)
+                }
+            }
+        }
+        if ($lastError) {
+            throw "${Description} download failed after 3 attempts from $Uri. $($lastError.Exception.Message)"
+        }
+    }
+
+    $length = (Get-Item -LiteralPath $Destination).Length
+    Write-Host ("{0}: downloaded {1:N1} MiB." -f $Description, ($length / 1MB))
+}
+
+function Get-ApplicationEntry {
+    param(
+        [Parameter(Mandatory)]$Manifest,
+        [Parameter(Mandatory)][string]$Name,
+        [Parameter(Mandatory)][string]$PackageType,
+        [Parameter(Mandatory)][string]$Executable
+    )
+
+    $match = @($Manifest.applications | Where-Object name -eq $Name)
+    if ($match.Count -ne 1) {
+        throw "Configuration manifest has no unique '$Name' application entry."
+    }
+    $entry = $match[0]
+    if ([string]$entry.package_type -ne $PackageType -or [string]$entry.executable -ne $Executable) {
+        throw "Application '$Name' has an unsupported package definition."
+    }
+    foreach ($field in @('version', 'url', 'sha256', 'executable_sha256')) {
+        if ([string]::IsNullOrWhiteSpace([string]$entry.$field)) {
+            throw "Application '$Name' has no $field value."
+        }
+    }
+    if ([string]$entry.sha256 -notmatch '^[A-Fa-f0-9]{64}$' -or
+        [string]$entry.executable_sha256 -notmatch '^[A-Fa-f0-9]{64}$') {
+        throw "Application '$Name' has an invalid SHA-256 value."
+    }
+    $uri = [Uri]([string]$entry.url)
+    if ($uri.Scheme -ne 'https' -or
+        $uri.Host -notin @('github.com', 'raw.githubusercontent.com') -or
+        -not $uri.AbsolutePath.StartsWith('/katsojuna/', [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Application '$Name' does not use an allowed official katsojuna GitHub URL."
+    }
+    return $entry
 }
 
 function Test-TcpEndpoint {
@@ -89,8 +189,34 @@ if (@(Get-Process -Name itcmon, itcwatch -ErrorAction SilentlyContinue).Count -n
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 New-Item -ItemType Directory -Path $workRoot -Force | Out-Null
 try {
+    if ([string]::IsNullOrWhiteSpace($ConfigurationSourceRoot)) {
+        Save-RemoteFile -Uri $configurationUrl -Destination $configurationArchive `
+            -Description 'Truck configuration package'
+        Expand-Archive -LiteralPath $configurationArchive -DestinationPath $configurationExtract
+        $configurationRoots = @(Get-ChildItem -LiteralPath $configurationExtract -Directory)
+        if ($configurationRoots.Count -ne 1) {
+            throw "The configuration archive contained $($configurationRoots.Count) roots; expected one."
+        }
+        $configurationRoot = $configurationRoots[0].FullName
+    } else {
+        $configurationRoot = (Resolve-Path -LiteralPath $ConfigurationSourceRoot).Path
+    }
+    $manifest = Read-JsonFile -Path (Join-Path $configurationRoot 'manifest.json')
+    $itcmonApplication = Get-ApplicationEntry -Manifest $manifest -Name 'itcmon' `
+        -PackageType 'zip' -Executable 'itcmon.exe'
+    $itcWatchApplication = Get-ApplicationEntry -Manifest $manifest -Name 'itcwatch' `
+        -PackageType 'file' -Executable 'itcwatch.exe'
+    $releaseVersion = [string]$itcmonApplication.version
+    $releaseArchiveUrl = [string]$itcmonApplication.url
+    $releaseArchiveSHA256 = ([string]$itcmonApplication.sha256).ToUpperInvariant()
+    $releaseITCMonSHA256 = ([string]$itcmonApplication.executable_sha256).ToUpperInvariant()
+    $itcWatchVersion = [string]$itcWatchApplication.version
+    $itcWatchUrl = [string]$itcWatchApplication.url
+    $itcWatchSHA256 = ([string]$itcWatchApplication.executable_sha256).ToUpperInvariant()
+
     if ([string]::IsNullOrWhiteSpace($ReleaseArchivePath)) {
-        Invoke-WebRequest -UseBasicParsing -Uri $releaseArchiveUrl -OutFile $releaseArchive
+        Save-RemoteFile -Uri $releaseArchiveUrl -Destination $releaseArchive `
+            -Description "ITCMon $releaseVersion package"
     } else {
         Copy-Item -LiteralPath (Resolve-Path -LiteralPath $ReleaseArchivePath).Path -Destination $releaseArchive
     }
@@ -105,7 +231,8 @@ try {
     }
 
     if ([string]::IsNullOrWhiteSpace($ITCWatchExecutablePath)) {
-        Invoke-WebRequest -UseBasicParsing -Uri $itcWatchUrl -OutFile $itcWatchDownload
+        Save-RemoteFile -Uri $itcWatchUrl -Destination $itcWatchDownload `
+            -Description "ITCWatch $itcWatchVersion package"
     } else {
         Copy-Item -LiteralPath (Resolve-Path -LiteralPath $ITCWatchExecutablePath).Path -Destination $itcWatchDownload
     }
@@ -114,17 +241,6 @@ try {
         throw "Official ITCWatch $itcWatchVersion executable failed SHA-256 validation: $itcWatchDownloadHash"
     }
 
-    if ([string]::IsNullOrWhiteSpace($ConfigurationSourceRoot)) {
-        Invoke-WebRequest -UseBasicParsing -Uri $configurationUrl -OutFile $configurationArchive
-        Expand-Archive -LiteralPath $configurationArchive -DestinationPath $configurationExtract
-        $configurationRoots = @(Get-ChildItem -LiteralPath $configurationExtract -Directory)
-        if ($configurationRoots.Count -ne 1) {
-            throw "The configuration archive contained $($configurationRoots.Count) roots; expected one."
-        }
-        $configurationRoot = $configurationRoots[0].FullName
-    } else {
-        $configurationRoot = (Resolve-Path -LiteralPath $ConfigurationSourceRoot).Path
-    }
     $updaterSource = Join-Path $configurationRoot 'scripts\Start-ITCMon-With-Update.ps1'
     $commandSource = Join-Path $configurationRoot 'scripts\Start-ITCMon-With-Update.cmd'
     foreach ($required in @($updaterSource, $commandSource, (Join-Path $configurationRoot 'manifest.json'))) {
@@ -155,7 +271,7 @@ try {
     }
 
     if ($backupRoot) {
-        foreach ($name in @('packets.hex', 'config-backups')) {
+        foreach ($name in @('packets.hex', 'config-backups', 'application-backups')) {
             $preserved = Join-Path $backupRoot $name
             if (Test-Path -LiteralPath $preserved) {
                 Copy-Item -LiteralPath $preserved -Destination (Join-Path $installFull $name) -Recurse -Force
@@ -168,7 +284,6 @@ try {
     Copy-Item -LiteralPath $updaterSource -Destination $updaterInstalled -Force
     Copy-Item -LiteralPath $commandSource -Destination $commandInstalled -Force
 
-    $manifest = Read-JsonFile -Path (Join-Path $configurationRoot 'manifest.json')
     $profileEntry = @($manifest.profiles | Where-Object name -eq $profileName)
     if ($profileEntry.Count -ne 1) {
         throw "Configuration manifest has no unique '$profileName' profile."
@@ -181,14 +296,14 @@ try {
         throw "Truck-client profile failed manifest acceptance: $profileHash"
     }
     & $updaterInstalled -InstallRoot $installFull -SourceRoot $configurationRoot `
-        -ServerProfilePath $profilePath `
-        -ExpectedServerProfileSHA256 $profileHash `
-        -ServerHostOverride $TruckHost -NoLaunch
+        -ProfileName $profileName -ServerHostOverride $TruckHost `
+        -UpdateApplications -ITCMonArchivePath $releaseArchive `
+        -ITCWatchExecutablePath $itcWatchDownload -NoLaunch
 
     $truckCommand = Join-Path $installFull 'Start ITCMon - Truck.cmd'
     $truckCommandText = @"
 @echo off
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-Update.ps1" -InstallRoot "%~dp0" -ServerProfilePath "%~dp0truck-client-profile.json" -ExpectedServerProfileSHA256 "$profileHash" -ServerHostOverride "$TruckHost" %*
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-Update.ps1" -InstallRoot "%~dp0" -ProfileName "$profileName" -ServerHostOverride "$TruckHost" -UpdateApplications -LaunchTarget ITCMon %*
 "@
     [IO.File]::WriteAllText(
         $truckCommand,
@@ -201,10 +316,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-
 @echo off
 powershell.exe -NoProfile -Command "if (Get-Process -Name itcmon -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
 if not errorlevel 1 goto launch_watch
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-Update.ps1" -InstallRoot "%~dp0" -ServerProfilePath "%~dp0truck-client-profile.json" -ExpectedServerProfileSHA256 "$profileHash" -ServerHostOverride "$TruckHost" -NoLaunch
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-Update.ps1" -InstallRoot "%~dp0" -ProfileName "$profileName" -ServerHostOverride "$TruckHost" -UpdateApplications -LaunchTarget ITCWatch
 if errorlevel 1 goto launch_failed
-start "" "%~dp0itcmon.exe"
-timeout /t 2 /nobreak >nul
+exit /b 0
 :launch_watch
 start "" "%~dp0itcwatch.exe"
 exit /b 0
@@ -256,8 +370,13 @@ exit /b 1
     $desktopShortcut = $null
     $itcWatchDesktopShortcut = $null
     if (-not $NoDesktopShortcut) {
-        $desktop = [Environment]::GetFolderPath('Desktop')
+        $desktop = if ([string]::IsNullOrWhiteSpace($DesktopPath)) {
+            [Environment]::GetFolderPath('Desktop')
+        } else {
+            [IO.Path]::GetFullPath($DesktopPath)
+        }
         if (-not [string]::IsNullOrWhiteSpace($desktop)) {
+            New-Item -ItemType Directory -Path $desktop -Force | Out-Null
             $desktopShortcut = Join-Path $desktop 'ITCMon - Truck.lnk'
             $shell = New-Object -ComObject WScript.Shell
             $shortcut = $shell.CreateShortcut($desktopShortcut)

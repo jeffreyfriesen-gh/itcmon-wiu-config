@@ -10,7 +10,13 @@ Connect the laptop to the truck LAN and use Windows PowerShell 5.1 or newer:
 
 ```powershell
 $installer = Join-Path $env:TEMP 'Install-ITCMon-Truck-Client.ps1'
-Invoke-WebRequest 'https://raw.githubusercontent.com/jeffreyfriesen-gh/itcmon-wiu-config/main/scripts/Install-ITCMon-Truck-Client.ps1' -OutFile $installer
+$installerUrl = 'https://raw.githubusercontent.com/jeffreyfriesen-gh/itcmon-wiu-config/main/scripts/Install-ITCMon-Truck-Client.ps1'
+if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+  & curl.exe --fail --location --retry 4 --connect-timeout 20 --max-time 120 --output $installer $installerUrl
+  if ($LASTEXITCODE -ne 0) { throw "Installer download failed with curl exit $LASTEXITCODE." }
+} else {
+  Invoke-WebRequest -UseBasicParsing -TimeoutSec 120 -Uri $installerUrl -OutFile $installer
+}
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
 ```
 
@@ -21,6 +27,16 @@ truck-client profile, `rrdata.json`, and 52 reviewed WIU definitions, and
 creates `ITCMon - Truck` and `ITCWatch - Truck` desktop shortcuts. ITCWatch
 shares ITCMon's `rrdata.json` and `wius` directory. Its shortcut starts ITCMon
 first when necessary because ITCWatch consumes ITCMon's local `zjpub` stream.
+Both shortcuts are update-first launchers: while the applications are closed,
+they fetch and validate the current manifest, update the reviewed ITCMon and
+ITCWatch packages when their published hashes change, update the launcher,
+`rrdata.json`, WIUs, and the truck-client server profile, and then start the
+selected application. If ITCMon is already running, the ITCWatch shortcut opens
+ITCWatch immediately and defers updates until the next stopped-stack launch.
+Large downloads use `curl.exe` with redirects, connection limits, bounded
+runtime, and automatic retry when available. Each stage names the package and
+reports its downloaded size; Windows PowerShell's `Invoke-WebRequest` is only a
+three-attempt fallback when `curl.exe` is absent.
 
 The truck-client profile uses `telemetry-node.lan`. The GL.iNet truck router
 must be the laptop's DNS server and must resolve that alias to the receiver VM.
@@ -36,7 +52,7 @@ public repository still documents the service port pattern. Use
 - `rrdata.json`: railroad-number and signal-aspect mappings.
 - `wius/`: reviewed WIU decoder definitions.
 - `manifest.json`: expected counts and SHA-256 for every distributed machine
-  file.
+  file plus the reviewed ITCMon and ITCWatch application packages.
 - `scripts/Install-ITCMon-Truck-Client.ps1`: complete Windows client installer.
 - `scripts/Start-ITCMon-With-Update.ps1`: validation, update, and launch wrapper.
 
@@ -47,7 +63,10 @@ From an ITCMon directory, run:
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -File .\Start-ITCMon-With-Update.ps1 `
-  -InstallRoot .
+  -InstallRoot . `
+  -ProfileName truck-client `
+  -ServerHostOverride telemetry-node.lan `
+  -UpdateApplications
 ```
 
 If Git is installed, the wrapper performs a fast-forward-only pull into a
@@ -55,11 +74,13 @@ per-user cache. If Git is unavailable, it downloads the selected GitHub branch
 archive over HTTPS. Native Git status text is captured separately, so it cannot
 be mistaken for the repository-root return value.
 
-The wrapper refuses to update while `itcmon.exe` is running. It validates every
-published file, updates `rrdata.json` and the WIUs, and keeps a timestamped
-backup before replacement. A server profile can regenerate `itcmon.json` when
-its expected SHA-256 is supplied; without a profile, the existing server list
-is preserved.
+The wrapper refuses to update while ITCMon or ITCWatch is running. It validates
+every published file, refreshes itself, updates the reviewed application
+packages, `rrdata.json`, WIUs, and selected server profile, and keeps
+timestamped configuration and application backups before replacement. Software
+updates are deliberately manifest-controlled: a newly released upstream build
+is installed only after its version, URL, and hashes are published here. This
+prevents an unreviewed upstream change from silently replacing the truck client.
 
 For an offline bootstrap, `-SourceRoot <path>` applies a previously extracted
 copy of this repository without contacting GitHub.
