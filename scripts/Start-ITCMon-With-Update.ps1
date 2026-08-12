@@ -447,6 +447,21 @@ function Test-RepositoryConfiguration {
             if (-not $wiuIDs.Add([string]$property.Name)) {
                 throw "Duplicate WIU ID $($property.Name) in $($wiuFile.FullName)."
             }
+            $displayName = [string]$property.Value.name
+            if ([string]$property.Value.sig -eq 'UP' -and
+                -not [string]::IsNullOrWhiteSpace($displayName) -and
+                -not $displayName.StartsWith('UP ', [StringComparison]::Ordinal)) {
+                throw "WIU $($property.Name) is a named UP wayside; prefix its display name with 'UP '."
+            }
+            if ($displayName -match '(?i)\bMP\s*[0-9]') {
+                throw "WIU $($property.Name) embeds a milepost in its name; store it in the MP property instead."
+            }
+            if ($displayName -match '(?i)(?:^|[\s-])M[12](?:$|[\s-])') {
+                throw "WIU $($property.Name) abbreviates a track as M1/M2; use Main 1/Main 2."
+            }
+            if ($displayName -match '(?i)\bCP\s+B[0-9]+' -and -not $property.Value.atcs) {
+                throw "WIU $($property.Name) uses a CP designation without a confirmed ATCSMon/MCP mapping."
+            }
         }
     }
     if ($wiuIDs.Count -ne [int]$manifest.wiu_count) {
@@ -577,6 +592,35 @@ function Get-ApplicationCatalog {
     return $catalog
 }
 
+function Get-TargetClientProcesses {
+    param([Parameter(Mandatory)][string]$TargetRoot)
+
+    $installFull = [IO.Path]::GetFullPath($TargetRoot).TrimEnd(
+        [IO.Path]::DirectorySeparatorChar,
+        [IO.Path]::AltDirectorySeparatorChar
+    )
+    $expectedPaths = @{
+        itcmon = Join-Path $installFull 'itcmon.exe'
+        itcwatch = Join-Path $installFull 'itcwatch.exe'
+    }
+    return @(
+        Get-Process -Name itcmon, itcwatch -ErrorAction SilentlyContinue |
+            Where-Object {
+                try {
+                    [string]::Equals(
+                        $_.Path,
+                        $expectedPaths[$_.ProcessName.ToLowerInvariant()],
+                        [StringComparison]::OrdinalIgnoreCase
+                    )
+                } catch {
+                    # If Windows denies the executable path, block the update rather than
+                    # risk replacing a file that may belong to this installation.
+                    $true
+                }
+            }
+    )
+}
+
 function Update-ClientApplications {
     param(
         [Parameter(Mandatory)][string]$TargetRoot,
@@ -619,7 +663,7 @@ function Update-ClientApplications {
             }
         )
     }
-    if (@(Get-Process -Name itcmon, itcwatch -ErrorAction SilentlyContinue).Count -ne 0) {
+    if (@(Get-TargetClientProcesses -TargetRoot $installFull).Count -ne 0) {
         throw 'ITCMon or ITCWatch is running. Close both before applying software updates.'
     }
 
@@ -762,7 +806,11 @@ function Sync-ClientScripts {
 
     foreach ($relative in @(
         'scripts/Start-ITCMon-With-Update.ps1',
-        'scripts/Start-ITCMon-With-Update.cmd'
+        'scripts/Start-ITCMon-With-Update.cmd',
+        'scripts/Launch-ITCM-Truck-Client.ps1',
+        'scripts/Start ITCMon - Truck.cmd',
+        'scripts/Start ITCWatch - Truck.cmd',
+        'scripts/Diagnose ITCM Truck Client.cmd'
     )) {
         if (-not $Validated.ManifestPaths.ContainsKey($relative)) {
             throw "Configuration manifest does not publish required client script: $relative"
@@ -799,7 +847,7 @@ function Install-Configuration {
     if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
         throw "ITCMon executable does not exist: $executable"
     }
-    if (@(Get-Process -Name itcmon, itcwatch -ErrorAction SilentlyContinue).Count -ne 0) {
+    if (@(Get-TargetClientProcesses -TargetRoot $installFull).Count -ne 0) {
         throw 'ITCMon or ITCWatch is already running. Close both before applying configuration.'
     }
 
