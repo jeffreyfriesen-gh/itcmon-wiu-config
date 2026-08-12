@@ -1,23 +1,138 @@
 {
- "version": "1.0",
- "description": "Auto-generated + merged WIU decoders",
- "waysides": {
+  "version": "1.0",
+  "description": "Auto-generated + merged WIU decoders",
+  "waysides": {
+    "707649804005": {
+      "name": "BNSF Unresolved district 498 site 040 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
     "707649804505": {
       "name": "",
       "sig": "BNSF",
-     "ind": [
-        {"switch": "1"},
-        {"switch": "2"},
-        {"signal": "1"}
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "signal": "1"
+        }
+      ]
+    },
+    "707649805005": {
+      "name": "BNSF Unresolved district 498 site 050 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
+      ]
+    },
+    "707649805505": {
+      "name": "BNSF Unresolved district 498 site 055 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
       ]
     },
     "707649806005": {
       "name": "",
       "sig": "BNSF",
-     "ind": [
-        {"signal": "1"},
-        {"signal": "2"}
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "707649808005": {
+      "name": "BNSF Unresolved district 498 site 080 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
+      ]
+    },
+    "707649814505": {
+      "name": "BNSF Unresolved district 498 site 145 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "signal": "1"
+        }
+      ]
+    },
+    "707649815005": {
+      "name": "BNSF Unresolved district 498 site 150 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        },
+        {
+          "signal": "5"
+        }
       ]
     }
- }
+  }
 }

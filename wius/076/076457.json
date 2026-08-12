@@ -1,65 +1,393 @@
 {
- "version": "1.0",
- "description": "Auto-generated + merged WIU decoders",
- "waysides": {
+  "version": "1.0",
+  "description": "Auto-generated + merged WIU decoders",
+  "waysides": {
+    "707645705005": {
+      "name": "BNSF Unresolved district 457 site 050 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        }
+      ]
+    },
+    "707645705605": {
+      "name": "BNSF Unresolved district 457 site 056 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "707645705606": {
+      "name": "BNSF Unresolved district 457 site 056 device 06",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "707645706005": {
+      "name": "BNSF Unresolved district 457 site 060 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        }
+      ]
+    },
+    "707645706505": {
+      "name": "BNSF Unresolved district 457 site 065 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        }
+      ]
+    },
+    "707645707005": {
+      "name": "BNSF Unresolved district 457 site 070 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        }
+      ]
+    },
     "707645708005": {
       "name": "",
       "sig": "BNSF",
-     "ind": [
-        {"switch": "1"},
-        {"switch": "2"},
-        {"switch": "3"},
-        {"switch": "4"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"},
-        {"signal": "4"}
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        }
       ]
     },
     "707645709505": {
       "name": "",
       "sig": "BNSF",
-     "ind": [
-        {"switch": "1"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"}
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
       ]
     },
     "707645710005": {
       "name": "",
       "sig": "BNSF",
-     "ind": [
-        {"switch": "1"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"}
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
       ]
     },
     "707645711505": {
       "name": "",
       "sig": "BNSF",
-     "ind": [
-        {"signal": "1"},
-        {"signal": "2"}
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
       ]
     },
     "707645711506": {
       "name": "",
       "sig": "BNSF",
-     "ind": [
-        {"signal": "1"},
-        {"signal": "2"}
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
       ]
     },
     "707645712005": {
       "name": "",
       "sig": "BNSF",
-     "ind": [
-        {"switch": "1"},
-        {"switch": "2"},
-        {"signal": "1"}
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "signal": "1"
+        }
+      ]
+    },
+    "707645712006": {
+      "name": "BNSF Unresolved district 457 site 120 device 06",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "707645713005": {
+      "name": "BNSF Unresolved district 457 site 130 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "707645713505": {
+      "name": "BNSF Unresolved district 457 site 135 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
+      ]
+    },
+    "707645714005": {
+      "name": "BNSF Unresolved district 457 site 140 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        }
+      ]
+    },
+    "707645714505": {
+      "name": "BNSF Unresolved district 457 site 145 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        }
+      ]
+    },
+    "707645715705": {
+      "name": "BNSF Unresolved district 457 site 157 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
+      ]
+    },
+    "707645718505": {
+      "name": "BNSF Unresolved district 457 site 185 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "707645719005": {
+      "name": "BNSF Unresolved district 457 site 190 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "signal": "1"
+        }
+      ]
+    },
+    "707645720505": {
+      "name": "BNSF Unresolved district 457 site 205 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
       ]
     }
- }
+  }
 }

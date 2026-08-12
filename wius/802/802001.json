@@ -6,59 +6,176 @@
       "name": "",
       "sig": "UP",
       "ind": [
-        {"switch": "1"},
-        {"switch": "2"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"},
-        {"signal": "4"},
-        {"signal": "5"},
-        {"signal": "6"}
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        },
+        {
+          "signal": "5"
+        },
+        {
+          "signal": "6"
+        }
       ]
     },
     "780200119503": {
       "name": "",
       "sig": "UP",
       "ind": [
-        {"switch": "1"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"}
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
       ]
     },
     "780200119603": {
       "name": "",
       "sig": "UP",
       "ind": [
-        {"switch": "1"},
-        {"switch": "2"},
-        {"switch": "3"},
-        {"switch": "4"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"},
-        {"signal": "4"},
-        {"signal": "5"},
-        {"signal": "6"}
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        },
+        {
+          "signal": "5"
+        },
+        {
+          "signal": "6"
+        }
       ]
     },
     "780200119703": {
       "name": "",
       "sig": "UP",
       "ind": [
-        {"switch": "1"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"}
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
       ]
+    },
+    "780200119803": {
+      "name": "UP Unresolved Omaha site 198 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "780200119903": {
+      "name": "UP Unresolved Omaha site 199 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
+      ]
+    },
+    "780200120003": {
+      "name": "UP 57th Street",
+      "sig": "UP",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        }
+      ],
+      "MP": "7.7"
     },
     "780200120103": {
       "name": "UP 75th Street - Main 1",
       "MP": "9.2",
       "sig": "UP",
       "ind": [
-        {"signal": "1W"},
-        {"signal": "1E"}
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
       ]
     },
     "780200120104": {
@@ -66,9 +183,15 @@
       "MP": "9.2",
       "sig": "UP",
       "ind": [
-        {"signal": "2W"},
-        {"signal": "2E"},
-        {"signal": "3"}
+        {
+          "signal": "2W"
+        },
+        {
+          "signal": "2E"
+        },
+        {
+          "signal": "3"
+        }
       ]
     },
     "780200120203": {
@@ -76,10 +199,18 @@
       "MP": "10.9",
       "sig": "UP",
       "ind": [
-        {"signal": "1W"},
-        {"signal": "1E"},
-        {"signal": "2W"},
-        {"signal": "2E"}
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        },
+        {
+          "signal": "2W"
+        },
+        {
+          "signal": "2E"
+        }
       ]
     },
     "780200120303": {
@@ -87,8 +218,12 @@
       "MP": "13.1",
       "sig": "UP",
       "ind": [
-        {"signal": "1W"},
-        {"signal": "1E"}
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
       ]
     },
     "780200120304": {
@@ -96,8 +231,12 @@
       "MP": "13.1",
       "sig": "UP",
       "ind": [
-        {"signal": "2W"},
-        {"signal": "2E"}
+        {
+          "signal": "2W"
+        },
+        {
+          "signal": "2E"
+        }
       ]
     },
     "780200120403": {
@@ -105,8 +244,12 @@
       "MP": "14.9",
       "sig": "UP",
       "ind": [
-        {"signal": "1W"},
-        {"signal": "1E"}
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
       ]
     },
     "780200120404": {
@@ -114,10 +257,18 @@
       "MP": "14.9",
       "sig": "UP",
       "ind": [
-        {"switch": "1"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "2E"}
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "2E"
+        }
       ],
       "atcs": {
         "mcp": "8802680070012",
@@ -131,14 +282,30 @@
       "MP": "17.4",
       "sig": "UP",
       "ind": [
-        {"switch": "1"},
-        {"switch": "2"},
-        {"switch": "3"},
-        {"switch": "4"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"},
-        {"signal": "2E"}
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "2E"
+        }
       ],
       "atcs": {
         "mcp": "8802680070013",
@@ -152,8 +319,12 @@
       "MP": "19.8",
       "sig": "UP",
       "ind": [
-        {"signal": "1W"},
-        {"signal": "1E"}
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
       ]
     },
     "780200120604": {
@@ -161,9 +332,15 @@
       "MP": "19.8",
       "sig": "UP",
       "ind": [
-        {"signal": "2W"},
-        {"signal": "2E"},
-        {"signal": "3"}
+        {
+          "signal": "2W"
+        },
+        {
+          "signal": "2E"
+        },
+        {
+          "signal": "3"
+        }
       ]
     },
     "780200120703": {
@@ -171,8 +348,12 @@
       "MP": "21.0",
       "sig": "UP",
       "ind": [
-        {"signal": "1W"},
-        {"signal": "1E"}
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
       ]
     },
     "780200120704": {
@@ -180,8 +361,12 @@
       "MP": "21.0",
       "sig": "UP",
       "ind": [
-        {"signal": "2W"},
-        {"signal": "2E"}
+        {
+          "signal": "2W"
+        },
+        {
+          "signal": "2E"
+        }
       ]
     },
     "780200120803": {
@@ -189,8 +374,12 @@
       "MP": "22.7",
       "sig": "UP",
       "ind": [
-        {"signal": "1W"},
-        {"signal": "1E"}
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
       ]
     },
     "780200120804": {
@@ -198,8 +387,24 @@
       "MP": "22.7",
       "sig": "UP",
       "ind": [
-        {"signal": "2W"},
-        {"signal": "2E"}
+        {
+          "signal": "2W"
+        },
+        {
+          "signal": "2E"
+        }
+      ]
+    },
+    "780200120903": {
+      "name": "UP Unresolved Omaha site 209 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
       ]
     },
     "780200120904": {
@@ -207,79 +412,189 @@
       "MP": "24.7",
       "sig": "UP",
       "ind": [
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"}
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
+      ]
+    },
+    "780200121003": {
+      "name": "UP Unresolved Omaha site 210 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
       ]
     },
     "780200121004": {
       "name": "UP Unresolved Omaha site 210 device 04",
       "sig": "UP",
       "ind": [
-        {"signal": "1"},
-        {"signal": "2"}
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
       ]
     },
     "780200121104": {
       "name": "UP Unresolved Omaha site 211 device 04",
       "sig": "UP",
       "ind": [
-        {"signal": "1"},
-        {"signal": "2"}
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "780200121203": {
+      "name": "UP Unresolved Omaha site 212 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "780200121403": {
+      "name": "UP Unresolved Omaha site 214 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
       ]
     },
     "780200121503": {
       "name": "UP Unresolved Omaha site 215 device 03",
       "sig": "UP",
       "ind": [
-        {"switch": "1"},
-        {"switch": "2"},
-        {"switch": "3"},
-        {"switch": "4"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"},
-        {"signal": "4"}
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        }
       ]
     },
     "780200121604": {
       "name": "UP Unresolved Omaha site 216 device 04",
       "sig": "UP",
       "ind": [
-        {"signal": "1"},
-        {"signal": "2"}
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
       ]
     },
     "780200121703": {
       "name": "UP Unresolved Omaha site 217 device 03",
       "sig": "UP",
       "ind": [
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"}
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
       ]
     },
     "780200121704": {
       "name": "UP Unresolved Omaha site 217 device 04",
       "sig": "UP",
       "ind": [
-        {"signal": "1"},
-        {"signal": "2"}
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "780200123203": {
+      "name": "UP Unresolved Omaha site 232 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
       ]
     },
     "780200123303": {
       "name": "UP Unresolved Omaha site 233 device 03",
       "sig": "UP",
       "ind": [
-        {"switch": "1"},
-        {"switch": "2"},
-        {"switch": "3"},
-        {"switch": "4"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"},
-        {"signal": "4"},
-        {"signal": "5"}
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        },
+        {
+          "signal": "5"
+        }
       ]
     }
   }

@@ -1,27 +1,137 @@
 {
- "version": "1.0",
- "description": "Auto-generated + merged WIU decoders",
- "waysides": {
+  "version": "1.0",
+  "description": "Auto-generated + merged WIU decoders",
+  "waysides": {
+    "780202700703": {
+      "name": "UP Unresolved Blair site 007 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
+      ]
+    },
     "780202701003": {
       "name": "",
       "sig": "UP",
-     "ind": [
-        {"switch": "1"},
-        {"switch": "2"},
-        {"switch": "3"},
-        {"switch": "4"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"},
-        {"signal": "4"}
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        }
+      ]
+    },
+    "780202701103": {
+      "name": "UP Unresolved Blair site 011 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "780202701203": {
+      "name": "UP Unresolved Blair site 012 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "780202701303": {
+      "name": "UP Unresolved Blair site 013 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        }
+      ]
+    },
+    "780202701403": {
+      "name": "UP Unresolved Blair site 014 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
       ]
     },
     "780202701503": {
       "name": "UP East Fremont - Main 1",
       "sig": "UP",
-     "ind": [
-        {"signal": "1W"},
-        {"signal": "1E"}
+      "ind": [
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
       ],
       "atcs": {
         "mcp": "8802680070018",
@@ -30,63 +140,125 @@
         "ibits": "3EXK,2WXK,2EXK,1WXK,2RWK,2NWK,1RWK,1NWK,1WAK,2TK,1TK,2WGK,2EGK,1WGK,1EGK,1EXK,CEAK,BWAK,BEAK,AWAK,1EAK,3EAK,2WAK,2EAK,LCK,P0K,SMK,SWCURRK,,,,AEAK"
       }
     },
-    "780202701403": {
-      "name": "UP Unresolved Blair site 014 device 03",
+    "780202701603": {
+      "name": "UP Unresolved Blair site 016 device 03",
       "sig": "UP",
-     "ind": [
-        {"switch": "1"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"}
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    },
+    "780202701703": {
+      "name": "UP Unresolved Blair site 017 device 03",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
       ]
     },
     "780202701903": {
       "name": "UP Unresolved Blair site 019 device 03",
       "sig": "UP",
-     "ind": [
-        {"signal": "1"},
-        {"signal": "2"}
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
       ]
     },
     "780202701904": {
       "name": "UP Unresolved Blair site 019 device 04",
       "sig": "UP",
-     "ind": [
-        {"signal": "1"},
-        {"signal": "2"}
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
       ]
     },
     "780202702003": {
       "name": "UP E Fremont plant candidate site 020",
       "sig": "UP",
-     "ind": [
-        {"switch": "1"},
-        {"switch": "2"},
-        {"switch": "3"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"},
-        {"signal": "4"},
-        {"signal": "5"}
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        },
+        {
+          "signal": "5"
+        }
       ]
     },
     "780202702103": {
       "name": "UP Fremont plant candidate site 021",
       "sig": "UP",
-     "ind": [
-        {"switch": "1"},
-        {"switch": "2"},
-        {"switch": "3"},
-        {"switch": "4"},
-        {"switch": "5"},
-        {"switch": "6"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"},
-        {"signal": "4"},
-        {"signal": "5"},
-        {"signal": "6"}
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "switch": "5"
+        },
+        {
+          "switch": "6"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        },
+        {
+          "signal": "5"
+        },
+        {
+          "signal": "6"
+        }
       ]
     }
- }
+  }
 }

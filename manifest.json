@@ -1,111 +1,115 @@
 {
-    "schema":  "itcmon.config.manifest.v1",
-    "version":  "2026-08-12.2",
-    "generated_utc":  "2026-08-12T22:45:07.8627873Z",
-    "wiu_count":  52,
-    "rrdata_path":  "rrdata.json",
-    "applications":  [
-                          {
-                              "name":  "itcmon",
-                              "version":  "v0.9",
-                              "package_type":  "zip",
-                              "url":  "https://raw.githubusercontent.com/katsojuna/itcmon/v0.9/windows/itcmon-v09.zip",
-                              "sha256":  "850AAFF5EB55987347FCEE870B57F972B62AD37C40FCA868014B45DBAD1557DD",
-                              "executable":  "itcmon.exe",
-                              "executable_sha256":  "FE9EEC2D239ED42B74FB50AEAD1DD99EFF837DA7631CB2F0D5A5EFA363422241"
-                          },
-                          {
-                              "name":  "itcwatch",
-                              "version":  "v0.4.0",
-                              "package_type":  "file",
-                              "url":  "https://github.com/katsojuna/itcwatch/releases/download/v0.4.0/ITC.Watch.0.4.0.exe",
-                              "sha256":  "11F0DDA9E1B61DE85760FFB3D5AC1F9CA05FC263F468341FA66F64A256409CF5",
-                              "executable":  "itcwatch.exe",
-                              "executable_sha256":  "11F0DDA9E1B61DE85760FFB3D5AC1F9CA05FC263F468341FA66F64A256409CF5"
-                          }
-                      ],
-    "profiles":  [
-                      {
-                          "name":  "truck-vm201",
-                          "path":  "profiles/truck-vm201/profile.json",
-                          "sha256":  "DE7D6D46F35B8C2346038DEF6E9B14970DA599C15E1DD3BBA4516D28A0F79955",
-                          "server_count":  52
-                      },
-                      {
-                          "name":  "truck-client",
-                          "path":  "profiles/truck-client/profile.json",
-                          "sha256":  "051E47712C7E2F92096433DA87125571469863E3F8B817D687BE0B9892D3D486",
-                          "server_count":  52
-                      }
-                  ],
-    "files":  [
-                  {
-                      "path":  "rrdata.json",
-                      "sha256":  "7EB40B97CEC28F24112E00DE504EFF190CD6CA8C7B0B3039F9A985EE6E16D1DB"
-                  },
-                  {
-                      "path":  "profiles/truck-vm201/profile.json",
-                      "sha256":  "DE7D6D46F35B8C2346038DEF6E9B14970DA599C15E1DD3BBA4516D28A0F79955"
-                  },
-                  {
-                      "path":  "profiles/truck-client/profile.json",
-                      "sha256":  "051E47712C7E2F92096433DA87125571469863E3F8B817D687BE0B9892D3D486"
-                  },
-                  {
-                      "path":  "scripts/Install-ITCMon-Truck-Client.ps1",
-                      "sha256":  "1EBE54925E8406E226760A4C88E0A7C50BAD31B6D1B939583731E0F1EC21774C"
-                  },
-                  {
-                      "path":  "scripts/Start-ITCMon-With-Update.ps1",
-                      "sha256":  "764AF6C68D32B904AFC43F128E98FF3150888E79593AA5312E224023E60D5609"
-                  },
-                  {
-                      "path":  "scripts/Start-ITCMon-With-Update.cmd",
-                      "sha256":  "BEC34A714AB5A04E0F76F85DED7A23785BC95F13E6A2728FA0276821377117C0"
-                  },
-                  {
-                      "path":  "scripts/Launch-ITCM-Truck-Client.ps1",
-                      "sha256":  "B007C62D4C7E2C23B5F7418B7080473B0A38056FCD0F3634BD2255E1B668E3BB"
-                  },
-                  {
-                      "path":  "scripts/Start ITCMon - Truck.cmd",
-                      "sha256":  "A74C66398514AD49B7B082CAEB1C6343FAC36A644F0F7244839971DC865BF88A"
-                  },
-                  {
-                      "path":  "scripts/Start ITCWatch - Truck.cmd",
-                      "sha256":  "41E2E060EBE054FDBE2261A72F706B6DB899CDA3A9A29C570090CE3088897CC9"
-                  },
-                  {
-                      "path":  "scripts/Diagnose ITCM Truck Client.cmd",
-                      "sha256":  "1F48C0A7934D71450118C497B52216E1005E1008395CDEC0C5E15220D5F8E041"
-                  },
-                  {
-                      "path":  "wius/076/076457.json",
-                      "sha256":  "C3BADD845818355D9D5348C3A65E62CEEBD7030F325437DE9E4450E590ABEEC3"
-                  },
-                  {
-                      "path":  "wius/076/076483.json",
-                      "sha256":  "852979290B9101C23CCE2EC79AB9A527122BC69EE15F879D308A9167E78697D7"
-                  },
-                  {
-                      "path":  "wius/076/076498.json",
-                      "sha256":  "E90281C0F53F5F2E9828723717FEB9BFBCBE45F7E5EF556E549AA2DABF93A301"
-                  },
-                  {
-                      "path":  "wius/802/802001.json",
-                      "sha256":  "E923082325BAFCAA65D1E5254BAAD366604C15A2C37B2C89560C03CD79A43A50"
-                  },
-                  {
-                      "path":  "wius/802/802027.json",
-                      "sha256":  "9B7A4B8BD958EB49B5E5D9DF74243DBEB6DFEB9F762DF677AF8ED1B27F993D2C"
-                  },
-                  {
-                      "path":  "wius/802/802065.json",
-                      "sha256":  "F70DCDCDB0CF7A9FEFEBD5F4C6CD4EC9047AEC68EF79350CDB78C5DA689C296B"
-                  },
-                  {
-                      "path":  "wius/802/802870.json",
-                      "sha256":  "5BEEB7E8355ECC0E3124D1B4DFE42E235984ABEC1E020678BAB11250B6844287"
-                  }
-              ]
+  "schema": "itcmon.config.manifest.v1",
+  "version": "2026-08-12.3",
+  "generated_utc": "2026-08-12T23:48:10.869128Z",
+  "wiu_count": 95,
+  "rrdata_path": "rrdata.json",
+  "applications": [
+    {
+      "name": "itcmon",
+      "version": "v0.9",
+      "package_type": "zip",
+      "url": "https://raw.githubusercontent.com/katsojuna/itcmon/v0.9/windows/itcmon-v09.zip",
+      "sha256": "850AAFF5EB55987347FCEE870B57F972B62AD37C40FCA868014B45DBAD1557DD",
+      "executable": "itcmon.exe",
+      "executable_sha256": "FE9EEC2D239ED42B74FB50AEAD1DD99EFF837DA7631CB2F0D5A5EFA363422241"
+    },
+    {
+      "name": "itcwatch",
+      "version": "v0.4.0",
+      "package_type": "file",
+      "url": "https://github.com/katsojuna/itcwatch/releases/download/v0.4.0/ITC.Watch.0.4.0.exe",
+      "sha256": "11F0DDA9E1B61DE85760FFB3D5AC1F9CA05FC263F468341FA66F64A256409CF5",
+      "executable": "itcwatch.exe",
+      "executable_sha256": "11F0DDA9E1B61DE85760FFB3D5AC1F9CA05FC263F468341FA66F64A256409CF5"
+    }
+  ],
+  "profiles": [
+    {
+      "name": "truck-vm201",
+      "path": "profiles/truck-vm201/profile.json",
+      "sha256": "DE7D6D46F35B8C2346038DEF6E9B14970DA599C15E1DD3BBA4516D28A0F79955",
+      "server_count": 52
+    },
+    {
+      "name": "truck-client",
+      "path": "profiles/truck-client/profile.json",
+      "sha256": "051E47712C7E2F92096433DA87125571469863E3F8B817D687BE0B9892D3D486",
+      "server_count": 52
+    }
+  ],
+  "files": [
+    {
+      "path": "rrdata.json",
+      "sha256": "7EB40B97CEC28F24112E00DE504EFF190CD6CA8C7B0B3039F9A985EE6E16D1DB"
+    },
+    {
+      "path": "profiles/truck-vm201/profile.json",
+      "sha256": "DE7D6D46F35B8C2346038DEF6E9B14970DA599C15E1DD3BBA4516D28A0F79955"
+    },
+    {
+      "path": "profiles/truck-client/profile.json",
+      "sha256": "051E47712C7E2F92096433DA87125571469863E3F8B817D687BE0B9892D3D486"
+    },
+    {
+      "path": "scripts/Install-ITCMon-Truck-Client.ps1",
+      "sha256": "1EBE54925E8406E226760A4C88E0A7C50BAD31B6D1B939583731E0F1EC21774C"
+    },
+    {
+      "path": "scripts/Start-ITCMon-With-Update.ps1",
+      "sha256": "764AF6C68D32B904AFC43F128E98FF3150888E79593AA5312E224023E60D5609"
+    },
+    {
+      "path": "scripts/Start-ITCMon-With-Update.cmd",
+      "sha256": "BEC34A714AB5A04E0F76F85DED7A23785BC95F13E6A2728FA0276821377117C0"
+    },
+    {
+      "path": "scripts/Launch-ITCM-Truck-Client.ps1",
+      "sha256": "B007C62D4C7E2C23B5F7418B7080473B0A38056FCD0F3634BD2255E1B668E3BB"
+    },
+    {
+      "path": "scripts/Start ITCMon - Truck.cmd",
+      "sha256": "A74C66398514AD49B7B082CAEB1C6343FAC36A644F0F7244839971DC865BF88A"
+    },
+    {
+      "path": "scripts/Start ITCWatch - Truck.cmd",
+      "sha256": "41E2E060EBE054FDBE2261A72F706B6DB899CDA3A9A29C570090CE3088897CC9"
+    },
+    {
+      "path": "scripts/Diagnose ITCM Truck Client.cmd",
+      "sha256": "1F48C0A7934D71450118C497B52216E1005E1008395CDEC0C5E15220D5F8E041"
+    },
+    {
+      "path": "wius/076/076457.json",
+      "sha256": "A0BE2494ADE01C0284B8A43D2B653C416590E05242A805EBC9E8F938A587E5D3"
+    },
+    {
+      "path": "wius/076/076483.json",
+      "sha256": "4FF668C1D9B0F8C5C6475B5B4B546FB858D7475805B751C7B5830A80E6B557CD"
+    },
+    {
+      "path": "wius/076/076498.json",
+      "sha256": "7F7465076CB85315A7CF012006642AEF877E3B149369D868B8F12551458C73C6"
+    },
+    {
+      "path": "wius/802/802001.json",
+      "sha256": "F92F11F0CD1A97FA92CA4F7B768B1B3711DD5F0DBBA30F314B7BE7E92639CA0B"
+    },
+    {
+      "path": "wius/802/802027.json",
+      "sha256": "4A07EF10510F37CAC1825CA94701CEBAACF16E5DE553BBD73C46EE8EB1E0D9E2"
+    },
+    {
+      "path": "wius/802/802065.json",
+      "sha256": "D6EDBC633EAAB56F4385EDB15D92CAC10A91B7568B9BEAB7E6293574FE78525B"
+    },
+    {
+      "path": "wius/802/802870.json",
+      "sha256": "5BEEB7E8355ECC0E3124D1B4DFE42E235984ABEC1E020678BAB11250B6844287"
+    },
+    {
+      "path": "wius/076/076481.json",
+      "sha256": "0342ED199A9664913F8BE3FE9B66807FA7CC404C5156F7A435E7D08DC5B2F2CB"
+    }
+  ]
 }

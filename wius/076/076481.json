@@ -1,0 +1,18 @@
+{
+  "version": "1.0",
+  "description": "Packet-evidence WIU decoders discovered in the VM202 authoritative capture",
+  "waysides": {
+    "707648101005": {
+      "name": "BNSF Unresolved district 481 site 010 device 05",
+      "sig": "BNSF",
+      "ind": [
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        }
+      ]
+    }
+  }
+}
