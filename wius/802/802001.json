@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "description": "Curated UP 802001 WIU decoders; Omaha physical-site sequence reconciled 2026-07-25",
+  "description": "Curated UP 802001 WIU decoders; Omaha physical-site sequence and naming reconciled through 2026-08-12",
   "waysides": {
     "780200119403": {
       "name": "",
@@ -53,7 +53,7 @@
       ]
     },
     "780200120103": {
-      "name": "75th Street MP 9.2 Automatic M1 WIU candidate",
+      "name": "UP 75th Street - Main 1",
       "MP": "9.2",
       "sig": "UP",
       "ind": [
@@ -62,7 +62,7 @@
       ]
     },
     "780200120104": {
-      "name": "75th Street MP 9.2 Automatic M2 WIU candidate",
+      "name": "UP 75th Street - Main 2",
       "MP": "9.2",
       "sig": "UP",
       "ind": [
@@ -72,7 +72,7 @@
       ]
     },
     "780200120203": {
-      "name": "95th Street MP 10.9 WIU candidate",
+      "name": "UP 95th Street",
       "MP": "10.9",
       "sig": "UP",
       "ind": [
@@ -83,7 +83,7 @@
       ]
     },
     "780200120303": {
-      "name": "121st Street MP 13.1 Automatic M1 WIU candidate",
+      "name": "UP 121st Street - Main 1",
       "MP": "13.1",
       "sig": "UP",
       "ind": [
@@ -92,7 +92,7 @@
       ]
     },
     "780200120304": {
-      "name": "121st Street MP 13.1 Automatic M2 WIU candidate",
+      "name": "UP 121st Street - Main 2",
       "MP": "13.1",
       "sig": "UP",
       "ind": [
@@ -101,7 +101,7 @@
       ]
     },
     "780200120403": {
-      "name": "144th Street M1 WIU",
+      "name": "UP 144th Street - Main 1",
       "MP": "14.9",
       "sig": "UP",
       "ind": [
@@ -110,7 +110,7 @@
       ]
     },
     "780200120404": {
-      "name": "144th Street",
+      "name": "UP 144th Street - Main 2",
       "MP": "14.9",
       "sig": "UP",
       "ind": [
@@ -127,7 +127,7 @@
       }
     },
     "780200120503": {
-      "name": "Pacific Street",
+      "name": "UP Pacific Street (CP B017)",
       "MP": "17.4",
       "sig": "UP",
       "ind": [
@@ -148,7 +148,7 @@
       }
     },
     "780200120603": {
-      "name": "East Elkhorn MP 19.8 Automatic M1 WIU",
+      "name": "UP East Elkhorn - Main 1",
       "MP": "19.8",
       "sig": "UP",
       "ind": [
@@ -157,7 +157,7 @@
       ]
     },
     "780200120604": {
-      "name": "East Elkhorn MP 19.8 Automatic M2 WIU",
+      "name": "UP East Elkhorn - Main 2",
       "MP": "19.8",
       "sig": "UP",
       "ind": [
@@ -167,7 +167,7 @@
       ]
     },
     "780200120703": {
-      "name": "West Elkhorn MP 21.0 M1 WIU",
+      "name": "UP Elkhorn - Main 1",
       "MP": "21.0",
       "sig": "UP",
       "ind": [
@@ -176,7 +176,7 @@
       ]
     },
     "780200120704": {
-      "name": "West Elkhorn MP 21.0 M2 WIU",
+      "name": "UP Elkhorn - Main 2",
       "MP": "21.0",
       "sig": "UP",
       "ind": [
@@ -185,7 +185,8 @@
       ]
     },
     "780200120803": {
-      "name": "Unresolved UP Omaha automatic site 208 device 03",
+      "name": "UP West Elkhorn - Main 1",
+      "MP": "22.7",
       "sig": "UP",
       "ind": [
         {"signal": "1W"},
@@ -193,7 +194,8 @@
       ]
     },
     "780200120804": {
-      "name": "Unresolved UP Omaha automatic site 208 device 04",
+      "name": "UP West Elkhorn - Main 2",
+      "MP": "22.7",
       "sig": "UP",
       "ind": [
         {"signal": "2W"},
@@ -201,7 +203,7 @@
       ]
     },
     "780200120904": {
-      "name": "Waterloo MP 24.7 WIU candidate",
+      "name": "UP Waterloo",
       "MP": "24.7",
       "sig": "UP",
       "ind": [
@@ -211,7 +213,7 @@
       ]
     },
     "780200121004": {
-      "name": "CP B026 M2 WIU candidate",
+      "name": "UP Unresolved Omaha site 210 device 04",
       "sig": "UP",
       "ind": [
         {"signal": "1"},
@@ -219,7 +221,7 @@
       ]
     },
     "780200121104": {
-      "name": "Unresolved UP Omaha site 211 device 04",
+      "name": "UP Unresolved Omaha site 211 device 04",
       "sig": "UP",
       "ind": [
         {"signal": "1"},
@@ -227,7 +229,7 @@
       ]
     },
     "780200121503": {
-      "name": "Unresolved UP Omaha site 215 device 03",
+      "name": "UP Unresolved Omaha site 215 device 03",
       "sig": "UP",
       "ind": [
         {"switch": "1"},
@@ -241,7 +243,7 @@
       ]
     },
     "780200121604": {
-      "name": "Unresolved UP Omaha site 216 device 04",
+      "name": "UP Unresolved Omaha site 216 device 04",
       "sig": "UP",
       "ind": [
         {"signal": "1"},
@@ -249,7 +251,7 @@
       ]
     },
     "780200121703": {
-      "name": "Unresolved UP Omaha site 217 device 03",
+      "name": "UP Unresolved Omaha site 217 device 03",
       "sig": "UP",
       "ind": [
         {"signal": "1"},
@@ -258,7 +260,7 @@
       ]
     },
     "780200121704": {
-      "name": "Unresolved UP Omaha site 217 device 04",
+      "name": "UP Unresolved Omaha site 217 device 04",
       "sig": "UP",
       "ind": [
         {"signal": "1"},
@@ -266,7 +268,7 @@
       ]
     },
     "780200123303": {
-      "name": "Unresolved UP Omaha site 233 device 03",
+      "name": "UP Unresolved Omaha site 233 device 03",
       "sig": "UP",
       "ind": [
         {"switch": "1"},

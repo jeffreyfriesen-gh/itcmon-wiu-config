@@ -399,9 +399,18 @@ try {
         throw "Official ITCWatch $itcWatchVersion executable failed SHA-256 validation: $itcWatchDownloadHash"
     }
 
-    $updaterSource = Join-Path $configurationRoot 'scripts\Start-ITCMon-With-Update.ps1'
-    $commandSource = Join-Path $configurationRoot 'scripts\Start-ITCMon-With-Update.cmd'
-    foreach ($required in @($updaterSource, $commandSource, (Join-Path $configurationRoot 'manifest.json'))) {
+    $clientScriptNames = @(
+        'Start-ITCMon-With-Update.ps1',
+        'Start-ITCMon-With-Update.cmd',
+        'Launch-ITCM-Truck-Client.ps1',
+        'Start ITCMon - Truck.cmd',
+        'Start ITCWatch - Truck.cmd',
+        'Diagnose ITCM Truck Client.cmd'
+    )
+    $clientScriptSources = @($clientScriptNames | ForEach-Object {
+        Join-Path $configurationRoot "scripts\$_"
+    })
+    foreach ($required in @($clientScriptSources + (Join-Path $configurationRoot 'manifest.json'))) {
         if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
             throw "The configuration package is incomplete: $required"
         }
@@ -438,10 +447,12 @@ try {
         }
     }
 
+    foreach ($name in $clientScriptNames) {
+        Copy-Item -LiteralPath (Join-Path $configurationRoot "scripts\$name") `
+            -Destination (Join-Path $installFull $name) -Force
+    }
     $updaterInstalled = Join-Path $installFull 'Start-ITCMon-With-Update.ps1'
-    $commandInstalled = Join-Path $installFull 'Start-ITCMon-With-Update.cmd'
-    Copy-Item -LiteralPath $updaterSource -Destination $updaterInstalled -Force
-    Copy-Item -LiteralPath $commandSource -Destination $commandInstalled -Force
+    $launcherInstalled = Join-Path $installFull 'Launch-ITCM-Truck-Client.ps1'
 
     $profileEntry = @($manifest.profiles | Where-Object name -eq $profileName)
     if ($profileEntry.Count -ne 1) {
@@ -462,37 +473,13 @@ try {
 
     Write-InstallStage -Number 6 -Description 'Create the ITCMon and ITCWatch truck launchers and desktop shortcuts.'
     $truckCommand = Join-Path $installFull 'Start ITCMon - Truck.cmd'
-    $truckCommandText = @"
-@echo off
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-Update.ps1" -InstallRoot "%~dp0" -ProfileName "$profileName" -ServerHostOverride "$TruckHost" -UpdateApplications -LaunchTarget ITCMon %*
-"@
-    [IO.File]::WriteAllText(
-        $truckCommand,
-        $truckCommandText.Replace("`n", "`r`n"),
-        (New-Object Text.ASCIIEncoding)
-    )
-
     $itcWatchCommand = Join-Path $installFull 'Start ITCWatch - Truck.cmd'
-    $itcWatchCommandText = @"
-@echo off
-powershell.exe -NoProfile -Command "if (Get-Process -Name itcmon -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
-if not errorlevel 1 goto launch_watch
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-ITCMon-With-Update.ps1" -InstallRoot "%~dp0" -ProfileName "$profileName" -ServerHostOverride "$TruckHost" -UpdateApplications -LaunchTarget ITCWatch
-if errorlevel 1 goto launch_failed
-exit /b 0
-:launch_watch
-start "" "%~dp0itcwatch.exe"
-exit /b 0
-:launch_failed
-echo ITCMon configuration update failed; ITCWatch was not started.
-pause
-exit /b 1
-"@
-    [IO.File]::WriteAllText(
-        $itcWatchCommand,
-        $itcWatchCommandText.Replace("`n", "`r`n"),
-        (New-Object Text.ASCIIEncoding)
-    )
+    $diagnosticCommand = Join-Path $installFull 'Diagnose ITCM Truck Client.cmd'
+    foreach ($requiredLauncher in @($launcherInstalled, $truckCommand, $itcWatchCommand, $diagnosticCommand)) {
+        if (-not (Test-Path -LiteralPath $requiredLauncher -PathType Leaf)) {
+            throw "Installed launcher is missing: $requiredLauncher"
+        }
+    }
 
     $installedProfile = Read-JsonFile -Path (Join-Path $installFull 'itcmon.json')
     $installedServers = @($installedProfile.servers)
@@ -530,6 +517,7 @@ exit /b 1
 
     $desktopShortcut = $null
     $itcWatchDesktopShortcut = $null
+    $diagnosticDesktopShortcut = $null
     if (-not $NoDesktopShortcut) {
         $desktop = if ([string]::IsNullOrWhiteSpace($DesktopPath)) {
             [Environment]::GetFolderPath('Desktop')
@@ -541,17 +529,44 @@ exit /b 1
             $desktopShortcut = Join-Path $desktop 'ITCMon - Truck.lnk'
             $shell = New-Object -ComObject WScript.Shell
             $shortcut = $shell.CreateShortcut($desktopShortcut)
-            $shortcut.TargetPath = $truckCommand
+            $shortcut.TargetPath = $env:ComSpec
+            $shortcut.Arguments = '/d /c ""{0}""' -f $truckCommand
             $shortcut.WorkingDirectory = $installFull
             $shortcut.IconLocation = (Join-Path $installFull 'itcmon.exe')
+            $shortcut.Description = 'Start ITCMon with truck configuration, automatic updates, and persistent diagnostics.'
             $shortcut.Save()
 
             $itcWatchDesktopShortcut = Join-Path $desktop 'ITCWatch - Truck.lnk'
             $itcWatchShortcut = $shell.CreateShortcut($itcWatchDesktopShortcut)
-            $itcWatchShortcut.TargetPath = $itcWatchCommand
+            $itcWatchShortcut.TargetPath = $env:ComSpec
+            $itcWatchShortcut.Arguments = '/d /c ""{0}""' -f $itcWatchCommand
             $itcWatchShortcut.WorkingDirectory = $installFull
             $itcWatchShortcut.IconLocation = $itcWatchInstalled
+            $itcWatchShortcut.Description = 'Start ITCWatch with the truck ITCMon stack and persistent diagnostics.'
             $itcWatchShortcut.Save()
+
+            $diagnosticDesktopShortcut = Join-Path $desktop 'Diagnose ITCM Truck Client.lnk'
+            $diagnosticShortcut = $shell.CreateShortcut($diagnosticDesktopShortcut)
+            $diagnosticShortcut.TargetPath = $env:ComSpec
+            $diagnosticShortcut.Arguments = '/d /c ""{0}""' -f $diagnosticCommand
+            $diagnosticShortcut.WorkingDirectory = $installFull
+            $diagnosticShortcut.IconLocation = "$env:SystemRoot\System32\shell32.dll,23"
+            $diagnosticShortcut.Description = 'Validate the truck client and show the persistent log and status paths.'
+            $diagnosticShortcut.Save()
+
+            foreach ($shortcutCheck in @(
+                [pscustomobject]@{ Path = $desktopShortcut; Command = $truckCommand },
+                [pscustomobject]@{ Path = $itcWatchDesktopShortcut; Command = $itcWatchCommand },
+                [pscustomobject]@{ Path = $diagnosticDesktopShortcut; Command = $diagnosticCommand }
+            )) {
+                $savedShortcut = $shell.CreateShortcut($shortcutCheck.Path)
+                $expectedArguments = '/d /c ""{0}""' -f $shortcutCheck.Command
+                if (-not [string]::Equals($savedShortcut.TargetPath, $env:ComSpec, [StringComparison]::OrdinalIgnoreCase) -or
+                    $savedShortcut.Arguments -ne $expectedArguments -or
+                    -not [string]::Equals($savedShortcut.WorkingDirectory, $installFull, [StringComparison]::OrdinalIgnoreCase)) {
+                    throw "Desktop shortcut failed acceptance: $($shortcutCheck.Path)"
+                }
+            }
         }
     }
 
@@ -578,6 +593,9 @@ exit /b 1
         rrdata_sha256 = $installedRRDataHash
         desktop_shortcut = $desktopShortcut
         itcwatch_desktop_shortcut = $itcWatchDesktopShortcut
+        diagnostic_desktop_shortcut = $diagnosticDesktopShortcut
+        launch_log_root = (Join-Path $env:LOCALAPPDATA 'ITCMon\Logs')
+        launch_status = (Join-Path $env:LOCALAPPDATA 'ITCMon\last-launch-status.json')
         connectivity = $connectivity
     }
     [IO.File]::WriteAllText(
@@ -590,7 +608,12 @@ exit /b 1
     Write-Host ("[complete] Provisioning finished successfully at {0}." -f (Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz'))
 
     if (-not $NoLaunch) {
-        Start-Process -FilePath (Join-Path $installFull 'itcmon.exe') -WorkingDirectory $installFull
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $launcherInstalled `
+            -InstallRoot $installFull -ProfileName $profileName `
+            -TruckHost $TruckHost -LaunchTarget ITCMon -NoUpdate
+        if ($LASTEXITCODE -ne 0) {
+            throw "Initial ITCMon launch failed with exit code $LASTEXITCODE."
+        }
     }
 } catch {
     Write-Host "[failed] Installer stopped during $currentStage" -ForegroundColor Red
