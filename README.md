@@ -109,7 +109,7 @@ On failure, the error remains in the console, a message box names the persistent
 log, and the batch launcher waits for a keypress.
 
 `Diagnose ITCM Truck Client` validates both executables, the 52/52 server
-profile, `rrdata.json`, all 52 WIUs, DNS resolution, current ITCMon/ITCWatch
+profile, `rrdata.json`, all 95 WIUs, DNS resolution, current ITCMon/ITCWatch
 processes, and truck ports 18001, 18101, and 20101. Endpoint failures are
 reported but do not mark an otherwise valid offline laptop installation as
 corrupt.
