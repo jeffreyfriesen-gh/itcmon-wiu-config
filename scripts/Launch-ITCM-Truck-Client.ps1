@@ -9,6 +9,8 @@ param(
 
     [string]$TruckHost = 'telemetry-node.lan',
 
+    [string]$RailfanHost = 'railfan-01',
+
     [string]$RepositoryUrl = 'https://github.com/jeffreyfriesen-gh/itcmon-wiu-config.git',
 
     [string]$Branch = 'main',
@@ -53,6 +55,12 @@ $diagnostics = $null
 $health = $null
 $finalState = 'starting'
 $finalError = $null
+$itcWatchConfigRoot = if ([string]::IsNullOrWhiteSpace($env:APPDATA)) {
+    Join-Path $localStateRoot 'itcmon-viewer'
+} else {
+    Join-Path $env:APPDATA 'itcmon-viewer'
+}
+$itcWatchConfigPath = Join-Path $itcWatchConfigRoot 'viewer-config.json'
 
 try {
     New-Item -ItemType Directory -Path $logRoot -Force | Out-Null
@@ -99,6 +107,41 @@ function Read-JsonFile {
     return [IO.File]::ReadAllText($Path).TrimStart([char]0xFEFF) | ConvertFrom-Json
 }
 
+function Set-ITCWatchLocalConfiguration {
+    $viewer = if (Test-Path -LiteralPath $itcWatchConfigPath -PathType Leaf) {
+        Read-JsonFile -Path $itcWatchConfigPath
+    } else {
+        [pscustomobject][ordered]@{
+            maxRows = 500
+            wiusRoot = ''
+            rrdataPath = ''
+            stopAspects = @('Stop', 'Stop!', 'Dark', 'Restrct')
+        }
+    }
+    $servers = @(
+        [pscustomobject][ordered]@{
+            host = '127.0.0.1'
+            port = 18001
+            enabled = $true
+        }
+    )
+    if ($viewer.PSObject.Properties.Name -contains 'servers') {
+        $viewer.servers = $servers
+    } else {
+        $viewer | Add-Member -NotePropertyName servers -NotePropertyValue $servers
+    }
+    Write-JsonFile -Path $itcWatchConfigPath -Value $viewer
+
+    $saved = Read-JsonFile -Path $itcWatchConfigPath
+    $savedServers = @($saved.servers)
+    if ($savedServers.Count -ne 1 -or
+        [string]$savedServers[0].host -ne '127.0.0.1' -or
+        [int]$savedServers[0].port -ne 18001 -or
+        -not [bool]$savedServers[0].enabled) {
+        throw "ITCWatch local endpoint acceptance failed: $itcWatchConfigPath"
+    }
+}
+
 function Test-TcpEndpoint {
     param(
         [Parameter(Mandatory)][string]$HostName,
@@ -119,6 +162,23 @@ function Test-TcpEndpoint {
     } finally {
         $client.Close()
     }
+}
+
+function Wait-TcpEndpoint {
+    param(
+        [Parameter(Mandatory)][string]$HostName,
+        [Parameter(Mandatory)][int]$Port,
+        [int]$TimeoutSeconds = 30
+    )
+
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    do {
+        if (Test-TcpEndpoint -HostName $HostName -Port $Port -TimeoutMilliseconds 750) {
+            return $true
+        }
+        Start-Sleep -Milliseconds 500
+    } while ((Get-Date) -lt $deadline)
+    return $false
 }
 
 function Get-ClientProcesses {
@@ -154,6 +214,42 @@ function Get-InstalledClientHealth {
     $enabledServerCount = 0
     $wiuCount = 0
     $configuredHosts = @()
+    $viewerEndpoint = $null
+    $expectedServerCount = $null
+    $expectedWIUCount = $null
+
+    $distributedProfilePath = Join-Path $installFull "$ProfileName-profile.json"
+    if (-not (Test-Path -LiteralPath $distributedProfilePath -PathType Leaf)) {
+        $issues.Add("Missing distributed profile receipt: $distributedProfilePath")
+    } else {
+        try {
+            $distributedProfile = Read-JsonFile -Path $distributedProfilePath
+            $expectedServerCount = [int]$distributedProfile.expected_server_count
+            if ($expectedServerCount -le 0) {
+                $issues.Add('Distributed profile has no valid expected_server_count.')
+            }
+        } catch {
+            $issues.Add("Distributed profile receipt is unreadable: $($_.Exception.Message)")
+        }
+    }
+
+    $updateReceiptPath = Join-Path $installFull 'truck-client-update.json'
+    if (-not (Test-Path -LiteralPath $updateReceiptPath -PathType Leaf)) {
+        $issues.Add("Missing update receipt: $updateReceiptPath")
+    } else {
+        try {
+            $updateReceipt = Read-JsonFile -Path $updateReceiptPath
+            if ([string]$updateReceipt.server_profile -ne $ProfileName) {
+                $issues.Add("Update receipt names profile '$($updateReceipt.server_profile)' instead of '$ProfileName'.")
+            }
+            $expectedWIUCount = [int]$updateReceipt.wius
+            if ($expectedWIUCount -le 0) {
+                $issues.Add('Update receipt has no valid WIU count.')
+            }
+        } catch {
+            $issues.Add("Update receipt is unreadable: $($_.Exception.Message)")
+        }
+    }
 
     foreach ($application in @($itcmonPath, $itcwatchPath)) {
         if (-not (Test-Path -LiteralPath $application -PathType Leaf)) {
@@ -184,11 +280,14 @@ function Get-InstalledClientHealth {
             $serverCount = $servers.Count
             $enabledServerCount = @($servers | Where-Object enabled).Count
             $configuredHosts = @($servers.ip | Sort-Object -Unique)
-            if ($serverCount -ne 52 -or $enabledServerCount -ne 52) {
-                $issues.Add("Server profile has $serverCount servers and $enabledServerCount enabled; expected 52/52.")
+            if ($expectedServerCount -and
+                ($serverCount -ne $expectedServerCount -or $enabledServerCount -ne $expectedServerCount)) {
+                $issues.Add("Server profile has $serverCount servers and $enabledServerCount enabled; expected $expectedServerCount/$expectedServerCount.")
             }
-            if ($configuredHosts.Count -ne 1 -or $configuredHosts[0] -ne $TruckHost) {
-                $issues.Add("Server profile does not point only to $TruckHost.")
+            $actualHosts = @($configuredHosts | ForEach-Object { ([string]$_).ToLowerInvariant() } | Sort-Object)
+            $expectedHosts = @($TruckHost.ToLowerInvariant(), $RailfanHost.ToLowerInvariant()) | Sort-Object
+            if (($actualHosts -join '|') -ne ($expectedHosts -join '|')) {
+                $issues.Add("Server profile hosts '$($configuredHosts -join ', ')' do not match $TruckHost and $RailfanHost.")
             }
         } catch {
             $issues.Add("Server profile is unreadable: $($_.Exception.Message)")
@@ -222,22 +321,46 @@ function Get-InstalledClientHealth {
                 }
             }
             $wiuCount = $wiuIDs.Count
-            if ($wiuCount -ne 52) {
-                $issues.Add("Installed WIU inventory has $wiuCount IDs; expected 52.")
+            if ($expectedWIUCount -and $wiuCount -ne $expectedWIUCount) {
+                $issues.Add("Installed WIU inventory has $wiuCount IDs; expected $expectedWIUCount from the update receipt.")
             }
         } catch {
             $issues.Add("WIU inventory is unreadable: $($_.Exception.Message)")
         }
     }
 
-    try {
-        $addresses = @([Net.Dns]::GetHostAddresses($TruckHost) | ForEach-Object IPAddressToString)
-        if ($addresses.Count -eq 0) {
-            $warnings.Add("$TruckHost resolved to no addresses.")
+    if (-not (Test-Path -LiteralPath $itcWatchConfigPath -PathType Leaf)) {
+        $issues.Add("Missing ITCWatch viewer configuration: $itcWatchConfigPath")
+    } else {
+        try {
+            $viewer = Read-JsonFile -Path $itcWatchConfigPath
+            $viewerServers = @($viewer.servers)
+            if ($viewerServers.Count -eq 1) {
+                $viewerEndpoint = '{0}:{1}' -f $viewerServers[0].host, $viewerServers[0].port
+            }
+            if ($viewerServers.Count -ne 1 -or
+                [string]$viewerServers[0].host -ne '127.0.0.1' -or
+                [int]$viewerServers[0].port -ne 18001 -or
+                -not [bool]$viewerServers[0].enabled) {
+                $issues.Add('ITCWatch must have exactly one enabled server at 127.0.0.1:18001.')
+            }
+        } catch {
+            $issues.Add("ITCWatch viewer configuration is unreadable: $($_.Exception.Message)")
         }
-    } catch {
-        $addresses = @()
-        $warnings.Add("DNS lookup for $TruckHost failed: $($_.Exception.Message)")
+    }
+
+    $addresses = [ordered]@{}
+    foreach ($receiverHost in @($TruckHost, $RailfanHost)) {
+        try {
+            $resolved = @([Net.Dns]::GetHostAddresses($receiverHost) | ForEach-Object IPAddressToString)
+            $addresses[$receiverHost] = @($resolved)
+            if ($resolved.Count -eq 0) {
+                $warnings.Add("$receiverHost resolved to no addresses.")
+            }
+        } catch {
+            $addresses[$receiverHost] = @()
+            $warnings.Add("DNS lookup for $receiverHost failed: $($_.Exception.Message)")
+        }
     }
 
     return [pscustomobject][ordered]@{
@@ -247,9 +370,13 @@ function Get-InstalledClientHealth {
         install_root = $installFull
         servers = $serverCount
         enabled_servers = $enabledServerCount
+        expected_servers = $expectedServerCount
         configured_hosts = @($configuredHosts)
         wius = $wiuCount
-        resolved_addresses = @($addresses)
+        expected_wius = $expectedWIUCount
+        itcwatch_endpoint = $viewerEndpoint
+        itcwatch_config = $itcWatchConfigPath
+        resolved_addresses = $addresses
     }
 }
 
@@ -269,9 +396,13 @@ function Get-ClientDiagnostics {
             [pscustomobject]@{ id = $_.Id; started = $_.StartTime; main_window = $_.MainWindowTitle }
         })
         endpoints = [ordered]@{
-            zjpub_18001 = Test-TcpEndpoint -HostName $TruckHost -Port 18001
-            fr_18101 = Test-TcpEndpoint -HostName $TruckHost -Port 18101
-            hr_20101 = Test-TcpEndpoint -HostName $TruckHost -Port 20101
+            local_zjpub_18001 = Test-TcpEndpoint -HostName '127.0.0.1' -Port 18001
+            telemetry_fr_18101 = Test-TcpEndpoint -HostName $TruckHost -Port 18101
+            telemetry_hr_20101 = Test-TcpEndpoint -HostName $TruckHost -Port 20101
+            railfan_fr_18077 = Test-TcpEndpoint -HostName $RailfanHost -Port 18077
+            railfan_hr_20077 = Test-TcpEndpoint -HostName $RailfanHost -Port 20077
+            railfan_fr_18101 = Test-TcpEndpoint -HostName $RailfanHost -Port 18101
+            railfan_hr_20101 = Test-TcpEndpoint -HostName $RailfanHost -Port 20101
         }
     }
 }
@@ -362,6 +493,13 @@ try {
         throw "ITCM installation directory does not exist: $installFull"
     }
 
+    if (@(Get-ClientProcesses -Name itcwatch).Count -eq 0) {
+        Set-ITCWatchLocalConfiguration
+        Write-LaunchLog "ITCWatch endpoint validated as 127.0.0.1:18001 in $itcWatchConfigPath."
+    } else {
+        Write-LaunchLog 'ITCWatch is already running; its viewer configuration was not replaced while in use.' 'WARN'
+    }
+
     $health = Get-InstalledClientHealth
     foreach ($warning in @($health.warnings)) {
         Write-LaunchLog $warning 'WARN'
@@ -370,12 +508,14 @@ try {
         Write-LaunchLog $issue 'ERROR'
     }
     $diagnostics = Get-ClientDiagnostics
-    Write-LaunchLog ("Processes before launch: ITCMon={0}, ITCWatch={1}. Endpoints 18001/18101/20101={2}/{3}/{4}." -f `
+    Write-LaunchLog ("Processes before launch: ITCMon={0}, ITCWatch={1}. Local zjpub={2}; telemetry FR/HR={3}/{4}; Railfan-01 channel 77 FR/HR={5}/{6}." -f `
         @($diagnostics.itcmon_processes).Count,
         @($diagnostics.itcwatch_processes).Count,
-        $diagnostics.endpoints.zjpub_18001,
-        $diagnostics.endpoints.fr_18101,
-        $diagnostics.endpoints.hr_20101)
+        $diagnostics.endpoints.local_zjpub_18001,
+        $diagnostics.endpoints.telemetry_fr_18101,
+        $diagnostics.endpoints.telemetry_hr_20101,
+        $diagnostics.endpoints.railfan_fr_18077,
+        $diagnostics.endpoints.railfan_hr_20077)
 
     if ($DiagnoseOnly) {
         $finalState = if ($health.healthy) { 'diagnostics-complete' } else { 'invalid-installation' }
@@ -458,6 +598,11 @@ try {
 
     if ($LaunchTarget -eq 'ITCWatch') {
         $null = Start-ClientProcess -Name itcmon
+        Write-LaunchLog 'Waiting up to 30 seconds for ITCMon local zjpub at 127.0.0.1:18001.'
+        if (-not (Wait-TcpEndpoint -HostName '127.0.0.1' -Port 18001 -TimeoutSeconds 30)) {
+            throw 'ITCMon started but local zjpub 127.0.0.1:18001 did not become reachable; ITCWatch was not started.'
+        }
+        Write-LaunchLog 'ITCMon local zjpub is reachable.'
         $null = Start-ClientProcess -Name itcwatch
     } else {
         $null = Start-ClientProcess -Name itcmon

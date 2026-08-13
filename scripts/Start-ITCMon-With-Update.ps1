@@ -51,6 +51,74 @@ function Read-JsonFile {
     return $text | ConvertFrom-Json
 }
 
+function Install-ITCWatchViewerConfiguration {
+    param(
+        [Parameter(Mandatory)][string]$BackupRoot
+    )
+
+    if ([string]::IsNullOrWhiteSpace($env:APPDATA)) {
+        throw 'APPDATA is unavailable; ITCWatch viewer configuration cannot be installed.'
+    }
+    $viewerRoot = Join-Path $env:APPDATA 'itcmon-viewer'
+    $viewerPath = Join-Path $viewerRoot 'viewer-config.json'
+    $viewer = if (Test-Path -LiteralPath $viewerPath -PathType Leaf) {
+        Copy-Item -LiteralPath $viewerPath -Destination (Join-Path $BackupRoot 'itcwatch-viewer-config.json') -Force
+        Read-JsonFile -Path $viewerPath
+    } else {
+        [pscustomobject][ordered]@{}
+    }
+
+    $localServer = [pscustomobject][ordered]@{
+        host = '127.0.0.1'
+        port = 18001
+        enabled = $true
+    }
+    if ($viewer.PSObject.Properties['servers']) {
+        $viewer.servers = @($localServer)
+    } else {
+        $viewer | Add-Member -NotePropertyName servers -NotePropertyValue @($localServer)
+    }
+    foreach ($default in @(
+        [pscustomobject]@{ Name = 'maxRows'; Value = 500 },
+        [pscustomobject]@{ Name = 'wiusRoot'; Value = '' },
+        [pscustomobject]@{ Name = 'rrdataPath'; Value = '' },
+        [pscustomobject]@{ Name = 'stopAspects'; Value = @('Stop', 'Stop!', 'Dark', 'Restrct') }
+    )) {
+        if (-not $viewer.PSObject.Properties[$default.Name]) {
+            $viewer | Add-Member -NotePropertyName $default.Name -NotePropertyValue $default.Value
+        }
+    }
+
+    New-Item -ItemType Directory -Path $viewerRoot -Force | Out-Null
+    $temporary = Join-Path $viewerRoot ".viewer-config.json.$PID.tmp"
+    if (Test-Path -LiteralPath $temporary) {
+        throw "Refusing to replace unexpected ITCWatch staging file: $temporary"
+    }
+    try {
+        [IO.File]::WriteAllText(
+            $temporary,
+            ($viewer | ConvertTo-Json -Depth 8) + "`r`n",
+            (New-Object Text.UTF8Encoding($false))
+        )
+        Move-Item -LiteralPath $temporary -Destination $viewerPath -Force
+    } finally {
+        if (Test-Path -LiteralPath $temporary) {
+            Remove-Item -LiteralPath $temporary -Force
+        }
+    }
+
+    $installed = Read-JsonFile -Path $viewerPath
+    $servers = @($installed.servers)
+    if ($servers.Count -ne 1 -or [string]$servers[0].host -ne '127.0.0.1' -or
+        [int]$servers[0].port -ne 18001 -or -not [bool]$servers[0].enabled) {
+        throw 'Installed ITCWatch configuration does not point exclusively to 127.0.0.1:18001.'
+    }
+    return [pscustomobject]@{
+        Path = $viewerPath
+        SHA256 = (Get-FileHash -LiteralPath $viewerPath -Algorithm SHA256).Hash
+    }
+}
+
 function Save-RemoteFile {
     param(
         [Parameter(Mandatory)][string]$Uri,
@@ -271,45 +339,79 @@ function ConvertFrom-ServerProfile {
         [string]$HostOverride
     )
 
-    if ($Profile.schema -ne 'itcmon.server-profile.v1') {
-        throw "Unsupported server-profile schema: $($Profile.schema)"
+    $sources = switch ([string]$Profile.schema) {
+        'itcmon.server-profile.v1' { @($Profile) }
+        'itcmon.server-profile.v2' { @($Profile.sources) }
+        default { throw "Unsupported server-profile schema: $($Profile.schema)" }
     }
-    $hostName = if ([string]::IsNullOrWhiteSpace($HostOverride)) {
-        [string]$Profile.host
-    } else {
-        $HostOverride.Trim()
-    }
-    if ([string]::IsNullOrWhiteSpace($hostName)) {
-        throw 'The selected server profile has no host.'
-    }
-    $channels = @($Profile.channels | ForEach-Object { [int]$_ })
-    $rates = @($Profile.rates)
-    if ($channels.Count -eq 0 -or @($channels | Sort-Object -Unique).Count -ne $channels.Count) {
-        throw 'The selected server profile has no channels or contains duplicate channels.'
-    }
-    if ($rates.Count -eq 0) {
-        throw 'The selected server profile has no data-rate definitions.'
+    if ($sources.Count -eq 0) {
+        throw 'The selected server profile has no receiver sources.'
     }
 
-    $servers = foreach ($channel in $channels) {
-        foreach ($rate in $rates) {
-            $suffix = [string]$rate.suffix
-            $portBase = [int]$rate.port_base
-            if ([string]::IsNullOrWhiteSpace($suffix) -or $portBase -le 0) {
-                throw 'The selected server profile contains an invalid rate definition.'
+    $overrideEligible = @($sources | Where-Object {
+        $Profile.schema -eq 'itcmon.server-profile.v1' -or [bool]$_.allow_host_override
+    })
+    if (-not [string]::IsNullOrWhiteSpace($HostOverride) -and $overrideEligible.Count -ne 1) {
+        throw "ServerHostOverride requires exactly one override-eligible source; found $($overrideEligible.Count)."
+    }
+
+    $servers = foreach ($source in $sources) {
+        $hostName = [string]$source.host
+        if (-not [string]::IsNullOrWhiteSpace($HostOverride) -and
+            ($Profile.schema -eq 'itcmon.server-profile.v1' -or [bool]$source.allow_host_override)) {
+            $hostName = $HostOverride.Trim()
+        }
+        $namePrefix = [string]$source.name_prefix
+        if ([string]::IsNullOrWhiteSpace($hostName) -or [string]::IsNullOrWhiteSpace($namePrefix)) {
+            throw 'A selected server-profile source has no host or name prefix.'
+        }
+        $channels = @(
+            if ($source.PSObject.Properties['channels']) {
+                @($source.channels | ForEach-Object { [int]$_ })
             }
-            [pscustomobject][ordered]@{
-                name = "$($Profile.name_prefix) Ch $channel $suffix"
-                ip = $hostName
-                port = $portBase + $channel
-                channel = $channel
-                enabled = $true
+            if ($source.PSObject.Properties['channel_ranges']) {
+                foreach ($range in @($source.channel_ranges)) {
+                    $first = [int]$range.first
+                    $last = [int]$range.last
+                    if ($first -le 0 -or $last -lt $first) {
+                        throw "Server-profile source '$namePrefix' contains an invalid channel range $first-$last."
+                    }
+                    $first..$last
+                }
+            }
+        )
+        $rates = @($source.rates)
+        if ($channels.Count -eq 0 -or @($channels | Sort-Object -Unique).Count -ne $channels.Count) {
+            throw "Server-profile source '$namePrefix' has no channels or contains duplicate channels."
+        }
+        if ($rates.Count -eq 0) {
+            throw "Server-profile source '$namePrefix' has no data-rate definitions."
+        }
+
+        foreach ($channel in $channels) {
+            foreach ($rate in $rates) {
+                $suffix = [string]$rate.suffix
+                $portBase = [int]$rate.port_base
+                if ([string]::IsNullOrWhiteSpace($suffix) -or $portBase -le 0) {
+                    throw "Server-profile source '$namePrefix' contains an invalid rate definition."
+                }
+                [pscustomobject][ordered]@{
+                    name = "$namePrefix Ch $channel $suffix"
+                    ip = $hostName
+                    port = $portBase + $channel
+                    channel = $channel
+                    enabled = $true
+                }
             }
         }
     }
-    $duplicatePorts = @($servers | Group-Object port | Where-Object Count -ne 1)
-    if ($duplicatePorts.Count -ne 0) {
-        throw 'The selected server profile generates duplicate TCP ports.'
+    $duplicateEndpoints = @($servers | Group-Object { "$($_.ip):$($_.port)" } | Where-Object Count -ne 1)
+    if ($duplicateEndpoints.Count -ne 0) {
+        throw 'The selected server profile generates duplicate host/port endpoints.'
+    }
+    $duplicateNames = @($servers | Group-Object name | Where-Object Count -ne 1)
+    if ($duplicateNames.Count -ne 0) {
+        throw 'The selected server profile generates duplicate display names.'
     }
     return [pscustomobject][ordered]@{ servers = @($servers) }
 }
@@ -507,8 +609,13 @@ function Test-RepositoryConfiguration {
             throw 'The external server profile has no name.'
         }
         $profileConfig = ConvertFrom-ServerProfile -Profile $profileSpec -HostOverride $HostOverride
-        if (@($profileConfig.servers).Count -ne 52) {
-            throw "Server profile '$profileName' generated $(@($profileConfig.servers).Count) servers; expected 52."
+        $expectedProfileCount = if ($profileSpec.PSObject.Properties['expected_server_count']) {
+            [int]$profileSpec.expected_server_count
+        } else {
+            @($profileConfig.servers).Count
+        }
+        if (@($profileConfig.servers).Count -ne $expectedProfileCount) {
+            throw "Server profile '$profileName' generated $(@($profileConfig.servers).Count) servers; expected $expectedProfileCount."
         }
     } elseif (-not [string]::IsNullOrWhiteSpace($ManifestProfileName)) {
         $profileEntry = @($manifest.profiles | Where-Object name -eq $ManifestProfileName)
@@ -539,8 +646,34 @@ function Test-RepositoryConfiguration {
         throw 'ExpectedServerProfileSHA256 requires ServerProfilePath.'
     }
 
+    $managedFiles = @()
+    if ($profileSpec -and $profileSpec.PSObject.Properties['managed_files']) {
+        $destinations = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+        foreach ($managed in @($profileSpec.managed_files)) {
+            $sourceRelative = [string]$managed.source
+            $destinationRelative = [string]$managed.destination
+            if ([string]::IsNullOrWhiteSpace($sourceRelative) -or
+                [string]::IsNullOrWhiteSpace($destinationRelative) -or
+                [IO.Path]::IsPathRooted($destinationRelative)) {
+                throw "Profile '$profileName' contains an invalid managed-file path."
+            }
+            if (-not $manifestPaths.ContainsKey($sourceRelative)) {
+                throw "Profile '$profileName' managed file is not hash-validated by the manifest: $sourceRelative"
+            }
+            if (-not $destinations.Add($destinationRelative)) {
+                throw "Profile '$profileName' repeats managed-file destination: $destinationRelative"
+            }
+            $managedFiles += [pscustomobject][ordered]@{
+                Source = [string]$manifestPaths[$sourceRelative]
+                SourceRelative = $sourceRelative
+                DestinationRelative = $destinationRelative
+            }
+        }
+    }
+
     return [pscustomobject]@{
         Manifest = $manifest
+        ManifestPath = $manifestPath
         WIURoot = $wiuRoot
         WIUCount = $wiuIDs.Count
         RRDataPath = $rrdataPath
@@ -549,6 +682,8 @@ function Test-RepositoryConfiguration {
         ProfileConfig = $profileConfig
         ProfilePath = $profilePath
         ProfileSHA256 = $profileSHA256
+        ProfileSpec = $profileSpec
+        ManagedFiles = @($managedFiles)
         ManifestPaths = $manifestPaths
     }
 }
@@ -829,6 +964,49 @@ function Sync-ClientScripts {
     }
 }
 
+function Install-ManagedProfileFiles {
+    param(
+        [Parameter(Mandatory)][string]$TargetRoot,
+        [Parameter(Mandatory)]$Validated,
+        [Parameter(Mandatory)][string]$BackupRoot
+    )
+
+    $targetFull = [IO.Path]::GetFullPath($TargetRoot).TrimEnd(
+        [IO.Path]::DirectorySeparatorChar,
+        [IO.Path]::AltDirectorySeparatorChar
+    )
+    $targetPrefix = $targetFull + [IO.Path]::DirectorySeparatorChar
+    $installed = @()
+    foreach ($managed in @($Validated.ManagedFiles)) {
+        $destination = [IO.Path]::GetFullPath((Join-Path $targetFull $managed.DestinationRelative))
+        if (-not $destination.StartsWith($targetPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+            throw "Managed-file destination leaves the ITCMon installation: $($managed.DestinationRelative)"
+        }
+        $destinationDirectory = Split-Path -Parent $destination
+        $backup = Join-Path $BackupRoot (Join-Path 'managed-files' $managed.DestinationRelative)
+        $backupDirectory = Split-Path -Parent $backup
+        New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
+        if (Test-Path -LiteralPath $destination -PathType Leaf) {
+            New-Item -ItemType Directory -Path $backupDirectory -Force | Out-Null
+            Copy-Item -LiteralPath $destination -Destination $backup -Force
+        }
+        Copy-Item -LiteralPath $managed.Source -Destination $destination -Force
+        $sourceHash = (Get-FileHash -LiteralPath $managed.Source -Algorithm SHA256).Hash
+        $destinationHash = (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash
+        if ($sourceHash -ne $destinationHash) {
+            if (Test-Path -LiteralPath $backup -PathType Leaf) {
+                Copy-Item -LiteralPath $backup -Destination $destination -Force
+            }
+            throw "Managed file failed post-copy validation: $($managed.DestinationRelative)"
+        }
+        $installed += [pscustomobject][ordered]@{
+            path = $managed.DestinationRelative
+            sha256 = $destinationHash
+        }
+    }
+    return @($installed)
+}
+
 function Install-Configuration {
     param(
         [Parameter(Mandatory)][string]$TargetRoot,
@@ -991,7 +1169,15 @@ try {
     }
     Write-UpdateStage -Number 3 -Description 'Apply the truck endpoint, WIUs, railroad data, and updater files.'
     $installed = Install-Configuration -TargetRoot $InstallRoot -Validated $validated
+    $managedFileStatus = @(Install-ManagedProfileFiles -TargetRoot $InstallRoot -Validated $validated `
+        -BackupRoot $installed.BackupRoot)
+    $itcWatchConfiguration = $null
+    if ($validated.ProfileSpec -and $validated.ProfileSpec.PSObject.Properties['itcwatch']) {
+        $itcWatchConfiguration = Install-ITCWatchViewerConfiguration -BackupRoot $installed.BackupRoot
+    }
     Sync-ClientScripts -TargetRoot $InstallRoot -Validated $validated
+    Copy-Item -LiteralPath $validated.ManifestPath `
+        -Destination (Join-Path $InstallRoot 'itcmon-config-manifest.json') -Force
 
     $launching = if ($NoLaunch) { 'None' } else { $LaunchTarget }
     $updateReceipt = [pscustomobject][ordered]@{
@@ -1004,6 +1190,10 @@ try {
         wius = $validated.WIUCount
         profile_sha256 = $installed.ProfileSHA256
         rrdata_sha256 = $installed.RRDataSHA256
+        itcwatch_endpoint = if ($itcWatchConfiguration) { 'tcp://127.0.0.1:18001' } else { $null }
+        itcwatch_config = if ($itcWatchConfiguration) { $itcWatchConfiguration.Path } else { $null }
+        itcwatch_config_sha256 = if ($itcWatchConfiguration) { $itcWatchConfiguration.SHA256 } else { $null }
+        managed_files = @($managedFileStatus)
         applications = @($applicationStatus)
         launching = $launching
     }

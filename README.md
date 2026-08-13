@@ -23,11 +23,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
 The installer downloads and validates the official ITCMon v0.9 Windows package
 and the official [ITCWatch v0.4.0 release](https://github.com/katsojuna/itcwatch/releases/tag/v0.4.0).
 It installs both under `%LOCALAPPDATA%\Programs\ITCMon-v0.9`, applies the
-truck-client profile, `rrdata.json`, and 52 reviewed WIU definitions, and
+truck-client profile, `rrdata.json`, and 95 reviewed WIU definitions, and
 creates `ITCMon - Truck`, `ITCWatch - Truck`, and `Diagnose ITCM Truck Client`
 desktop shortcuts. ITCWatch shares ITCMon's `rrdata.json` and `wius` directory.
 Its shortcut starts ITCMon first when necessary because ITCWatch consumes
-ITCMon's local `zjpub` stream.
+ITCMon's local `zjpub` stream. The installer and launcher force ITCWatch's
+`%APPDATA%\itcmon-viewer\viewer-config.json` to exactly one enabled endpoint,
+`127.0.0.1:18001`; ITCWatch must not point directly at either receiver.
 
 The application shortcuts use a common resilient launcher. When both programs
 are stopped, it fetches and validates the current manifest, updates the reviewed
@@ -54,10 +56,19 @@ PowerShell's `Invoke-WebRequest` is only a three-attempt fallback when
 `curl.exe` is absent; that fallback explicitly reports that it cannot resume a
 partial file before restarting an attempt.
 
-The truck-client profile uses `telemetry-node.lan`. The GL.iNet truck router
-must be the laptop's DNS server and must resolve that alias to the receiver VM.
-The alias is deliberately generic, but it is not a security boundary; this
-public repository still documents the service port pattern. Use
+The truck-client profile combines 160 ITCM-PVE endpoints (logical channels
+97-176, each at HR and FR) with Railfan-01's last validated 17 active endpoints
+(14 HR channels and FR on 141, 142, and 153), for 177 enabled ITCMon servers.
+The Railfan-01 HR set is 77, 81, 93, 101, 113, 114, 125, 126, 127, 141, 142,
+153, 154, and 165. Railfan-01 remains an evidence-based subset; a base beacon
+advertising a channel does not prove that Railfan-01 currently has a listener
+for it.
+
+The GL.iNet truck router must be the laptop's DNS server and must resolve
+`telemetry-node.lan` to the receiver VM. `railfan-01` must resolve through its
+validated network path. The aliases are deliberately generic, but they are not
+a security boundary; this public repository still documents the service port
+pattern. Use
 `-TruckHost <name-or-address>` only when an alternate endpoint is intentional.
 
 ## Layout
@@ -108,11 +119,20 @@ Every shortcut launch writes a timestamped log under
 On failure, the error remains in the console, a message box names the persistent
 log, and the batch launcher waits for a keypress.
 
-`Diagnose ITCM Truck Client` validates both executables, the 52/52 server
-profile, `rrdata.json`, all 95 WIUs, DNS resolution, current ITCMon/ITCWatch
-processes, and truck ports 18001, 18101, and 20101. Endpoint failures are
+`Diagnose ITCM Truck Client` validates both executables, the manifest-selected
+combined server count, ITCWatch's exact local endpoint, `rrdata.json`, the installed
+WIU inventory, DNS resolution, current ITCMon/ITCWatch processes, local zjpub
+port 18001, representative telemetry-node HR/FR ports, and representative
+Railfan-01 HR/FR ports. Endpoint failures are
 reported but do not mark an otherwise valid offline laptop installation as
 corrupt.
+
+`receiver-profiles/itcm-pve/channels.json` is the receiver-side frequency table
+for all 80 non-overlapping 25 kHz centers from 220.0125 through 221.9875 MHz.
+ITCM-PVE must launch MCR with `-a` to instantiate both HR and FR decoders for
+every entry. `channel-plans/ptc-220.json` records the FCC formulas, nationwide
+blocks, and the incomplete region tags separately; regional allocation
+metadata never narrows the full ITCM-PVE capture baseline.
 
 ## Existing installation
 
