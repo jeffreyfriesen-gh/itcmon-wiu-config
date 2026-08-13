@@ -1,12 +1,42 @@
 {
-  "schema": "itcmon.server-profile.v1",
+  "schema": "itcmon.server-profile.v2",
   "name": "truck-client",
-  "description": "External Windows laptop connected to the receiver services through the truck router DNS alias",
-  "host": "telemetry-node.lan",
-  "name_prefix": "ITCM-PVE",
-  "channels": [101, 102, 107, 108, 113, 114, 125, 126, 127, 128, 131, 132, 134, 141, 142, 147, 148, 153, 154, 165, 166, 167, 168, 171, 172, 174],
-  "rates": [
-    {"suffix": "HR", "port_base": 20000},
-    {"suffix": "FR", "port_base": 18000}
+  "description": "Windows client combining ITCM-PVE full-band PTC monitoring and Railfan-01, with ITCWatch consuming the local ITCMon publisher",
+  "expected_server_count": 177,
+  "itcwatch": {
+    "host": "127.0.0.1",
+    "port": 18001
+  },
+  "sources": [
+    {
+      "host": "telemetry-node.lan",
+      "name_prefix": "ITCM-PVE",
+      "allow_host_override": true,
+      "channel_ranges": [
+        {"first": 97, "last": 176}
+      ],
+      "rates": [
+        {"suffix": "HR", "port_base": 20000},
+        {"suffix": "FR", "port_base": 18000}
+      ]
+    },
+    {
+      "host": "railfan-01",
+      "name_prefix": "RAILFAN-01",
+      "allow_host_override": false,
+      "channels": [77, 81, 93, 101, 113, 114, 125, 126, 127, 141, 142, 153, 154, 165],
+      "rates": [
+        {"suffix": "HR", "port_base": 20000}
+      ]
+    },
+    {
+      "host": "railfan-01",
+      "name_prefix": "RAILFAN-01",
+      "allow_host_override": false,
+      "channels": [141, 142, 153],
+      "rates": [
+        {"suffix": "FR", "port_base": 18000}
+      ]
+    }
   ]
 }

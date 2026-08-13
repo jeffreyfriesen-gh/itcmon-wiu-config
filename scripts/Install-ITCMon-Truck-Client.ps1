@@ -4,6 +4,8 @@ param(
 
     [string]$TruckHost = 'telemetry-node.lan',
 
+    [string]$RailfanHost = 'railfan-01',
+
     [string]$ReleaseArchivePath,
 
     [string]$ITCWatchExecutablePath,
@@ -459,13 +461,18 @@ try {
         throw "Configuration manifest has no unique '$profileName' profile."
     }
     $profileSource = Join-Path $configurationRoot ([string]$profileEntry[0].path)
+    $profileSpec = Read-JsonFile -Path $profileSource
+    $expectedServerCount = [int]$profileSpec.expected_server_count
+    if ($expectedServerCount -le 0 -or $expectedServerCount -ne [int]$profileEntry[0].server_count) {
+        throw 'Truck-client profile and manifest disagree on expected server count.'
+    }
     $profilePath = Join-Path $installFull 'truck-client-profile.json'
     Copy-Item -LiteralPath $profileSource -Destination $profilePath -Force
     $profileHash = (Get-FileHash -LiteralPath $profilePath -Algorithm SHA256).Hash
     if ($profileHash -ne ([string]$profileEntry[0].sha256).ToUpperInvariant()) {
         throw "Truck-client profile failed manifest acceptance: $profileHash"
     }
-    Write-InstallStage -Number 5 -Description 'Apply the truck endpoint, WIUs, railroad data, and automatic updater.'
+    Write-InstallStage -Number 5 -Description 'Apply both truck receiver endpoints, local ITCWatch endpoint, WIUs, railroad data, and automatic updater.'
     & $updaterInstalled -InstallRoot $installFull -SourceRoot $configurationRoot `
         -ProfileName $profileName -ServerHostOverride $TruckHost `
         -UpdateApplications -ITCMonArchivePath $releaseArchive `
@@ -484,12 +491,35 @@ try {
     $installedProfile = Read-JsonFile -Path (Join-Path $installFull 'itcmon.json')
     $installedServers = @($installedProfile.servers)
     $installedHosts = @($installedServers.ip | Sort-Object -Unique)
-    $installedChannels = @($installedServers.channel | Sort-Object -Unique)
-    if ($installedServers.Count -ne 52 -or
-        @($installedServers | Where-Object enabled).Count -ne 52 -or
-        $installedHosts.Count -ne 1 -or $installedHosts[0] -ne $TruckHost -or
-        $installedChannels.Count -ne 26) {
+    $telemetryServers = @($installedServers | Where-Object {
+        [string]::Equals([string]$_.ip, $TruckHost, [StringComparison]::OrdinalIgnoreCase)
+    })
+    $railfanServers = @($installedServers | Where-Object {
+        [string]::Equals([string]$_.ip, $RailfanHost, [StringComparison]::OrdinalIgnoreCase)
+    })
+    $actualHosts = @($installedHosts | ForEach-Object { ([string]$_).ToLowerInvariant() } | Sort-Object)
+    $expectedHosts = @($TruckHost.ToLowerInvariant(), $RailfanHost.ToLowerInvariant()) | Sort-Object
+    $duplicateEndpoints = @($installedServers | Group-Object { "$($_.ip):$($_.port)" } | Where-Object Count -ne 1)
+    if ($installedServers.Count -ne $expectedServerCount -or
+        @($installedServers | Where-Object enabled).Count -ne $expectedServerCount -or
+        ($actualHosts -join '|') -ne ($expectedHosts -join '|') -or
+        $telemetryServers.Count -eq 0 -or
+        $railfanServers.Count -eq 0 -or
+        $duplicateEndpoints.Count -ne 0) {
         throw 'Installed truck-client server profile failed acceptance.'
+    }
+
+    $itcWatchConfigPath = Join-Path $env:APPDATA 'itcmon-viewer\viewer-config.json'
+    if (-not (Test-Path -LiteralPath $itcWatchConfigPath -PathType Leaf)) {
+        throw "ITCWatch viewer configuration was not created: $itcWatchConfigPath"
+    }
+    $itcWatchViewer = Read-JsonFile -Path $itcWatchConfigPath
+    $itcWatchServers = @($itcWatchViewer.servers)
+    if ($itcWatchServers.Count -ne 1 -or
+        [string]$itcWatchServers[0].host -ne '127.0.0.1' -or
+        [int]$itcWatchServers[0].port -ne 18001 -or
+        -not [bool]$itcWatchServers[0].enabled) {
+        throw 'ITCWatch viewer configuration must contain only the enabled local ITCMon endpoint 127.0.0.1:18001.'
     }
 
     $rrdataEntry = @($manifest.files | Where-Object path -eq ([string]$manifest.rrdata_path))
@@ -572,9 +602,13 @@ try {
 
     Write-InstallStage -Number 7 -Description 'Run final acceptance checks and record installation status.'
     $connectivity = [ordered]@{
-        host = $TruckHost
-        fr_18101 = Test-TcpEndpoint -HostName $TruckHost -Port 18101
-        hr_20101 = Test-TcpEndpoint -HostName $TruckHost -Port 20101
+        local_zjpub_18001 = Test-TcpEndpoint -HostName '127.0.0.1' -Port 18001
+        telemetry_host = $TruckHost
+        telemetry_fr_18101 = Test-TcpEndpoint -HostName $TruckHost -Port 18101
+        telemetry_hr_20101 = Test-TcpEndpoint -HostName $TruckHost -Port 20101
+        railfan_host = $RailfanHost
+        railfan_fr_18077 = Test-TcpEndpoint -HostName $RailfanHost -Port 18077
+        railfan_hr_20077 = Test-TcpEndpoint -HostName $RailfanHost -Port 20077
     }
     $result = [pscustomobject][ordered]@{
         schema = 'itcmon.truck-client.install.v1'
@@ -587,8 +621,12 @@ try {
         rollback_root = $backupRoot
         server_profile = $profileName
         server_profile_sha256 = $profileHash
-        server_host = $TruckHost
+        server_hosts = @($TruckHost, $RailfanHost)
         servers = $installedServers.Count
+        telemetry_servers = $telemetryServers.Count
+        railfan_servers = $railfanServers.Count
+        itcwatch_endpoint = '127.0.0.1:18001'
+        itcwatch_config = $itcWatchConfigPath
         wius = $wiuIDs.Count
         rrdata_sha256 = $installedRRDataHash
         desktop_shortcut = $desktopShortcut
@@ -610,7 +648,7 @@ try {
     if (-not $NoLaunch) {
         & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $launcherInstalled `
             -InstallRoot $installFull -ProfileName $profileName `
-            -TruckHost $TruckHost -LaunchTarget ITCMon -NoUpdate
+            -TruckHost $TruckHost -RailfanHost $RailfanHost -LaunchTarget ITCMon -NoUpdate
         if ($LASTEXITCODE -ne 0) {
             throw "Initial ITCMon launch failed with exit code $LASTEXITCODE."
         }

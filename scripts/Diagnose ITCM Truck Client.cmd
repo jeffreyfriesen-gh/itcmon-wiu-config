@@ -1,6 +1,6 @@
 @echo off
 setlocal
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Launch-ITCM-Truck-Client.ps1" -InstallRoot "%~dp0." -ProfileName "truck-client" -TruckHost "telemetry-node.lan" -DiagnoseOnly
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Launch-ITCM-Truck-Client.ps1" -InstallRoot "%~dp0." -ProfileName "truck-client" -TruckHost "telemetry-node.lan" -RailfanHost "railfan-01" -DiagnoseOnly
 set "ITCM_EXIT=%errorlevel%"
 echo.
 if "%ITCM_EXIT%"=="0" (

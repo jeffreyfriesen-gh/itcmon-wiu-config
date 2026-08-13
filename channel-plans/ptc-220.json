@@ -1,0 +1,45 @@
+{
+  "schema": "itcmon.ptc-channel-plan.v1",
+  "name": "PTC 220-222 MHz 25 kHz center-channel overlay",
+  "complete_region_map": false,
+  "fcc_narrowband_plan": {
+    "channels_per_subband": 200,
+    "spacing_hz": 5000,
+    "base_channel_1_hz": 220002500,
+    "mobile_channel_1_hz": 221002500,
+    "base_formula": "220002500 + ((fcc_channel - 1) * 5000)",
+    "mobile_formula": "221002500 + ((fcc_channel - 1) * 5000)"
+  },
+  "itc_25khz_overlay": {
+    "width_hz": 25000,
+    "fcc_center_channels": {"first": 3, "last": 198, "step": 5, "count_per_subband": 40},
+    "itcmon_logical_channels": {"first": 97, "last": 176, "count": 80},
+    "itcmon_frequency_formula": "217587500 + (itcmon_channel * 25000)",
+    "base_logical_channels": {"first": 97, "last": 136},
+    "mobile_logical_channels": {"first": 137, "last": 176},
+    "paired_logical_channel_offset": 40
+  },
+  "nationwide_blocks": [
+    {"base": 101, "mobile": 141, "base_hz": 220112500, "mobile_hz": 221112500, "fcc_channels": "21-25"},
+    {"base": 102, "mobile": 142, "base_hz": 220137500, "mobile_hz": 221137500, "fcc_channels": "26-30"},
+    {"base": 113, "mobile": 153, "base_hz": 220412500, "mobile_hz": 221412500, "fcc_channels": "81-85"},
+    {"base": 114, "mobile": 154, "base_hz": 220437500, "mobile_hz": 221437500, "fcc_channels": "86-90"},
+    {"base": 125, "mobile": 165, "base_hz": 220712500, "mobile_hz": 221712500, "fcc_channels": "141-145"},
+    {"base": 126, "mobile": 166, "base_hz": 220737500, "mobile_hz": 221737500, "fcc_channels": "146-150"},
+    {"base": 127, "mobile": 167, "base_hz": 220762500, "mobile_hz": 221762500, "fcc_channels": "151-155"}
+  ],
+  "bundled_itcmon_region_tags": [
+    {"regions": ["Chicago", "New York"], "logical_channels": [107, 108, 128, 134, 147, 148, 168, 174]},
+    {"regions": ["regional except Chicago, Kansas City, and Dallas"], "logical_channels": [131, 132, 171, 172]}
+  ],
+  "evidence": [
+    {"scope": "FCC narrowband formulas", "source": "47 CFR 90.715", "authority": "regulatory"},
+    {"scope": "nationwide blocks", "source": "PTC-220/FRA filing and supplied RF notes", "authority": "documented"},
+    {"scope": "region tags", "source": "ITCMon v0.9 bundled mcr.json comments", "authority": "software-default; not a complete license map"}
+  ],
+  "caveats": [
+    "The supplied notes incorrectly say the center sequence continues to FCC channel 398. Each FCC sub-band has channels 1-200, so the final 25 kHz center is FCC channel 198.",
+    "Base/mobile labels describe the conventional paired plan. PTC TDD waivers can permit transmissions in both directions, so transmitter class must be inferred from decoded evidence rather than frequency alone.",
+    "Regional tags are allocation metadata and must not narrow ITCM-PVE's full logical-channel 97-176 capture profile."
+  ]
+}
