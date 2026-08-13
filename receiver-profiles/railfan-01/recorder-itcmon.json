@@ -1,0 +1,21 @@
+{
+  "servers": [
+    {"name":"Railfan-01 Ch 101 HR","ip":"127.0.0.1","port":20101,"channel":101,"enabled":true},
+    {"name":"Railfan-01 Ch 102 HR","ip":"127.0.0.1","port":20102,"channel":102,"enabled":true},
+    {"name":"Railfan-01 Ch 113 HR","ip":"127.0.0.1","port":20113,"channel":113,"enabled":true},
+    {"name":"Railfan-01 Ch 114 HR","ip":"127.0.0.1","port":20114,"channel":114,"enabled":true},
+    {"name":"Railfan-01 Ch 125 HR","ip":"127.0.0.1","port":20125,"channel":125,"enabled":true},
+    {"name":"Railfan-01 Ch 126 HR","ip":"127.0.0.1","port":20126,"channel":126,"enabled":true},
+    {"name":"Railfan-01 Ch 127 HR","ip":"127.0.0.1","port":20127,"channel":127,"enabled":true},
+    {"name":"Railfan-01 Ch 141 HR","ip":"127.0.0.1","port":20141,"channel":141,"enabled":true},
+    {"name":"Railfan-01 Ch 141 FR","ip":"127.0.0.1","port":18141,"channel":141,"enabled":true},
+    {"name":"Railfan-01 Ch 142 HR","ip":"127.0.0.1","port":20142,"channel":142,"enabled":true},
+    {"name":"Railfan-01 Ch 142 FR","ip":"127.0.0.1","port":18142,"channel":142,"enabled":true},
+    {"name":"Railfan-01 Ch 153 HR","ip":"127.0.0.1","port":20153,"channel":153,"enabled":true},
+    {"name":"Railfan-01 Ch 153 FR","ip":"127.0.0.1","port":18153,"channel":153,"enabled":true},
+    {"name":"Railfan-01 Ch 154 HR","ip":"127.0.0.1","port":20154,"channel":154,"enabled":true},
+    {"name":"Railfan-01 Ch 165 HR","ip":"127.0.0.1","port":20165,"channel":165,"enabled":true},
+    {"name":"Railfan-01 Ch 166 HR","ip":"127.0.0.1","port":20166,"channel":166,"enabled":true},
+    {"name":"Railfan-01 Ch 167 HR","ip":"127.0.0.1","port":20167,"channel":167,"enabled":true}
+  ]
+}

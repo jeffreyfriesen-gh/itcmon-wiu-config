@@ -1,7 +1,7 @@
 {
   "schema": "itcmon.config.manifest.v1",
-  "version": "2026-08-12.5",
-  "generated_utc": "2026-08-13T03:49:28.6691492Z",
+  "version": "2026-08-13.1",
+  "generated_utc": "2026-08-13T05:44:58.7234633Z",
   "wiu_count": 95,
   "rrdata_path": "rrdata.json",
   "applications": [
@@ -28,14 +28,14 @@
     {
       "name": "truck-vm201",
       "path": "profiles/truck-vm201/profile.json",
-      "sha256": "62101043D4A3DC8EAB411A92ED7D12BB8156FE4BA0BFC7CE96C1BC0698FE1386",
-      "server_count": 160
+      "sha256": "2E7AA65D6AEAF86D18F2A82B1048303D3100272B49F0F106156A1E337E40E89B",
+      "server_count": 36
     },
     {
       "name": "truck-client",
       "path": "profiles/truck-client/profile.json",
-      "sha256": "709AD9731378FA91811C4C06A5AE582614853CD5AA486BE31154CF9A4CDD2A4A",
-      "server_count": 177
+      "sha256": "B35740FA7C8A068E07A43C42722203374543E46900AE6A6E91F7C5BA46718E13",
+      "server_count": 53
     }
   ],
   "files": [
@@ -45,23 +45,39 @@
     },
     {
       "path": "profiles/truck-vm201/profile.json",
-      "sha256": "62101043D4A3DC8EAB411A92ED7D12BB8156FE4BA0BFC7CE96C1BC0698FE1386"
+      "sha256": "2E7AA65D6AEAF86D18F2A82B1048303D3100272B49F0F106156A1E337E40E89B"
     },
     {
       "path": "profiles/truck-client/profile.json",
-      "sha256": "709AD9731378FA91811C4C06A5AE582614853CD5AA486BE31154CF9A4CDD2A4A"
+      "sha256": "B35740FA7C8A068E07A43C42722203374543E46900AE6A6E91F7C5BA46718E13"
     },
     {
       "path": "channel-plans/ptc-220.json",
-      "sha256": "B4CD1801DE24165D008616652B34056ED113949623D4F8BB06B4EDB4E7610185"
+      "sha256": "409E4B39B359CEA033DE82A252E29EF18E02834D4CACC5041F58782EFD1094C5"
     },
     {
       "path": "receiver-profiles/itcm-pve/channels.json",
-      "sha256": "9BC624CD79870AAB4F93E6D41EDE06AB6A678CED03BD1A724B9A8A6FD1D60407"
+      "sha256": "D637EC4F84484D4873F30BE7B4C321450053F87F5A67EA0F1289D9D06DC242A4"
     },
     {
       "path": "receiver-profiles/itcm-pve/mcr.json",
-      "sha256": "C3C7C236462CFE786D166388BFA4D1A84BC4F18F41A5F61D1E51BC2CF112225D"
+      "sha256": "2EB50E228A63BCF5217219189A620A2D93DF9E751C0AA216BAA52DC0B90AA51A"
+    },
+    {
+      "path": "receiver-profiles/railfan-01/channels.json",
+      "sha256": "7E41285503AD548E0E63C2922CA97CF0BCC64ACF35D3181CC70C0E97407612BE"
+    },
+    {
+      "path": "receiver-profiles/railfan-01/mcr.json",
+      "sha256": "B770C8564CAED04E5177BA25AEAD3B8263C3A1FB89F11D3C2F0C71962A982BA3"
+    },
+    {
+      "path": "receiver-profiles/railfan-01/recorder-itcmon.json",
+      "sha256": "5535627279B1E090177E85158ED8925104098042AB6285A63042B1F126F138F1"
+    },
+    {
+      "path": "recording-profiles/truck-vm202/profile.json",
+      "sha256": "6F8CB0C294783983A39CEF21458A8A5942C95466D6E127FB24420B5E2C8CE3AC"
     },
     {
       "path": "scripts/Install-ITCMon-Truck-Client.ps1",

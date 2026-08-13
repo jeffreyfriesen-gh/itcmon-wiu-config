@@ -32,6 +32,28 @@
     {"regions": ["Chicago", "New York"], "logical_channels": [107, 108, 128, 134, 147, 148, 168, 174]},
     {"regions": ["regional except Chicago, Kansas City, and Dallas"], "logical_channels": [131, 132, 171, 172]}
   ],
+  "operator_monitoring_policy": {
+    "reviewed_date": "2026-08-13",
+    "source": "Operator-reviewed PTC 220-222 MHz channel-plan workbook, Column G",
+    "selection_rule": "Monitor normal 25 kHz blocks marked Nationwide License, National, or Regional; ignore the 5 kHz allocations and market-specific or unmarked blocks",
+    "itcm_pve": {
+      "base_mobile_pairs": [[101,141],[102,142],[113,153],[114,154],[125,165],[126,166],[127,167],[131,171],[132,172]],
+      "logical_channels": [101,102,113,114,125,126,127,131,132,141,142,153,154,165,166,167,171,172],
+      "modes": ["HR","FR"]
+    },
+    "railfan_01": {
+      "requested_base_mobile_pairs": [[101,141],[102,142],[113,153],[114,154],[125,165],[126,166],[127,167]],
+      "logical_channels": [101,102,113,114,125,126,127,141,142,153,154,165,166,167],
+      "hr_channels": [101,102,113,114,125,126,127,141,142,153,154,165,166,167],
+      "fr_channels": [141,142,153],
+      "mode_note": "One HR decoder on every requested frequency plus the three packet-observed FR decoders preserves the validated 17-worker resource ceiling while the Pi is thermally capped."
+    },
+    "excluded_logical_channels": {
+      "market_specific_chicago_new_york": [107,108,128,134,147,148,168,174],
+      "reason": "Column G does not mark these blocks as National/Nationwide or general Regional selections for this deployment."
+    },
+    "ignore_5khz_allocations": true
+  },
   "evidence": [
     {"scope": "FCC narrowband formulas", "source": "47 CFR 90.715", "authority": "regulatory"},
     {"scope": "nationwide blocks", "source": "PTC-220/FRA filing and supplied RF notes", "authority": "documented"},
@@ -40,6 +62,7 @@
   "caveats": [
     "The supplied notes incorrectly say the center sequence continues to FCC channel 398. Each FCC sub-band has channels 1-200, so the final 25 kHz center is FCC channel 198.",
     "Base/mobile labels describe the conventional paired plan. PTC TDD waivers can permit transmissions in both directions, so transmitter class must be inferred from decoded evidence rather than frequency alone.",
-    "Regional tags are allocation metadata and must not narrow ITCM-PVE's full logical-channel 97-176 capture profile."
+    "The 97-176 overlay defines all possible normal 25 kHz centers; it is not the active receiver selection.",
+    "The active selection is the operator-reviewed National/Nationwide and Regional policy above. It is operational scope, not a claim that this file contains a complete regional license map."
   ]
 }

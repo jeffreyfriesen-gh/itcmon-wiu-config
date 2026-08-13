@@ -1,0 +1,19 @@
+{
+  "channels": [
+    {"channel":101,"frequency":220112500},
+    {"channel":102,"frequency":220137500},
+    {"channel":113,"frequency":220412500},
+    {"channel":114,"frequency":220437500},
+    {"channel":125,"frequency":220712500},
+    {"channel":126,"frequency":220737500},
+    {"channel":127,"frequency":220762500},
+    {"channel":141,"frequency":221112500},
+    {"channel":142,"frequency":221137500},
+    {"channel":153,"frequency":221412500},
+    {"channel":154,"frequency":221437500},
+    {"channel":165,"frequency":221712500},
+    {"channel":166,"frequency":221737500},
+    {"channel":167,"frequency":221762500}
+  ],
+  "comment": "Railfan-01 Nationwide 25 kHz subset; 5 kHz, regional, Chicago/New York, and AMTS beacon-only channels are excluded by the 2026-08-13 operator policy"
+}

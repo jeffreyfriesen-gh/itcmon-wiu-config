@@ -1,0 +1,27 @@
+{
+  "rtl_device": 0,
+  "ppm": 0,
+  "biast": false,
+  "squelch": 4.0,
+  "rfgain": 42.0,
+  "channels": [
+    {"channel":101,"mod":"HR","enable":true,"comment":"Nationwide subset"},
+    {"channel":102,"mod":"HR","enable":true,"comment":"Nationwide common channel"},
+    {"channel":113,"mod":"HR","enable":true,"comment":"Nationwide subset"},
+    {"channel":114,"mod":"HR","enable":true,"comment":"Nationwide subset"},
+    {"channel":125,"mod":"HR","enable":true,"comment":"Nationwide subset"},
+    {"channel":126,"mod":"HR","enable":true,"comment":"Nationwide subset"},
+    {"channel":127,"mod":"HR","enable":true,"comment":"Nationwide subset"},
+    {"channel":141,"mod":"HR","enable":true,"comment":"Nationwide mobile counterpart"},
+    {"channel":141,"mod":"FR","enable":true,"comment":"Packet-observed FR"},
+    {"channel":142,"mod":"HR","enable":true,"comment":"Nationwide mobile counterpart"},
+    {"channel":142,"mod":"FR","enable":true,"comment":"Packet-observed FR"},
+    {"channel":153,"mod":"HR","enable":true,"comment":"Nationwide mobile counterpart"},
+    {"channel":153,"mod":"FR","enable":true,"comment":"Packet-observed FR"},
+    {"channel":154,"mod":"HR","enable":true,"comment":"Nationwide mobile counterpart"},
+    {"channel":165,"mod":"HR","enable":true,"comment":"Nationwide mobile counterpart"},
+    {"channel":166,"mod":"HR","enable":true,"comment":"Nationwide mobile counterpart"},
+    {"channel":167,"mod":"HR","enable":true,"comment":"Nationwide mobile counterpart"}
+  ],
+  "comment": "One HR decoder per selected frequency plus the three packet-observed FR decoders; keeps 17 S2P workers because Railfan-01 is already thermally capped near this load"
+}

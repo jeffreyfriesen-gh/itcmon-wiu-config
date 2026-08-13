@@ -56,13 +56,20 @@ PowerShell's `Invoke-WebRequest` is only a three-attempt fallback when
 `curl.exe` is absent; that fallback explicitly reports that it cannot resume a
 partial file before restarting an attempt.
 
-The truck-client profile combines 160 ITCM-PVE endpoints (logical channels
-97-176, each at HR and FR) with Railfan-01's last validated 17 active endpoints
-(14 HR channels and FR on 141, 142, and 153), for 177 enabled ITCMon servers.
-The Railfan-01 HR set is 77, 81, 93, 101, 113, 114, 125, 126, 127, 141, 142,
-153, 154, and 165. Railfan-01 remains an evidence-based subset; a base beacon
-advertising a channel does not prove that Railfan-01 currently has a listener
-for it.
+The truck-client profile combines 36 ITCM-PVE endpoints with Railfan-01's 17
+resource-bounded endpoints, for 53 enabled ITCMon servers. ITCM-PVE monitors
+both HR and FR on the nine operator-selected base/mobile pairs: 101/141,
+102/142, 113/153, 114/154, 125/165, 126/166, 127/167, 131/171, and 132/172.
+These are the normal 25 kHz blocks marked Nationwide/National or Regional in
+the operator-reviewed channel-plan workbook; the separate 5 kHz allocations
+are intentionally excluded.
+
+Railfan-01 uses the requested seven-pair subset: 101/141, 102/142, 113/153,
+114/154, 125/165, 126/166, and 127/167. It runs HR on all 14 frequencies and
+retains FR only on packet-observed channels 141, 142, and 153. This preserves
+the already-validated 17-decoder ceiling because the Pi was thermally capped
+near that workload; enabling both modes on all 14 frequencies would expand it
+to 28 decoders without evidence that the Pi can sustain that load.
 
 The GL.iNet truck router must be the laptop's DNS server and must resolve
 `telemetry-node.lan` to the receiver VM. `railfan-01` must resolve through its
@@ -76,6 +83,10 @@ pattern. Use
 - `profiles/truck-client/profile.json`: public laptop profile using the generic
   router DNS name.
 - `profiles/truck-vm201/profile.json`: local VM201 profile.
+- `receiver-profiles/railfan-01/`: the Pi's exact frequency, decoder, and local
+  recorder-listener profiles.
+- `recording-profiles/truck-vm202/profile.json`: the 36 VM201 endpoints that
+  both `itcm-capture` and `itcmhub` must consume.
 - `rrdata.json`: railroad-number and signal-aspect mappings.
 - `wius/`: reviewed WIU decoder definitions.
 - `wius/802/802001.json`: reviewed Omaha-corridor definitions, including the
@@ -128,11 +139,12 @@ reported but do not mark an otherwise valid offline laptop installation as
 corrupt.
 
 `receiver-profiles/itcm-pve/channels.json` is the receiver-side frequency table
-for all 80 non-overlapping 25 kHz centers from 220.0125 through 221.9875 MHz.
-ITCM-PVE must launch MCR with `-a` to instantiate both HR and FR decoders for
-every entry. `channel-plans/ptc-220.json` records the FCC formulas, nationwide
-blocks, and the incomplete region tags separately; regional allocation
-metadata never narrows the full ITCM-PVE capture baseline.
+for the 18 selected logical channels. ITCM-PVE launches MCR with `-a` to
+instantiate both HR and FR decoders for every entry: 36 S2P processes.
+`channel-plans/ptc-220.json` preserves the complete FCC/25 kHz formulas while
+separately recording the narrower operator monitoring policy. On VM202, both
+recording consumers subscribe to all 36 endpoints, so a healthy system has 72
+established VM202-to-VM201 TCP connections.
 
 ## Existing installation
 
