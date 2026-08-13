@@ -1,12 +1,12 @@
 {
   "schema": "itcmon.server-profile.v1",
   "name": "truck-vm201",
-  "description": "ITCMon running inside truck VM201 against every 25 kHz PTC center in the paired 220-222 MHz band",
-  "expected_server_count": 160,
+  "description": "ITCMon inside truck VM201 monitoring operator-selected Nationwide and Regional 25 kHz PTC channels",
+  "expected_server_count": 36,
   "mcr": {
     "arguments": ["-a", "-e", "0"],
-    "expected_s2p_processes": 160,
-    "note": "The -a switch selects every channels.json entry at both HR and FR. The -e value preserves the currently validated 0 PPM correction."
+    "expected_s2p_processes": 36,
+    "note": "The -a switch selects every channels.json entry at both HR and FR. The -e value preserves the validated 0 PPM correction."
   },
   "managed_files": [
     {"source": "receiver-profiles/itcm-pve/channels.json", "destination": "channels.json"},
@@ -15,9 +15,7 @@
   ],
   "host": "127.0.0.1",
   "name_prefix": "ITCM-WINDOWS-01",
-  "channel_ranges": [
-    {"first": 97, "last": 176}
-  ],
+  "channels": [101, 102, 113, 114, 125, 126, 127, 131, 132, 141, 142, 153, 154, 165, 166, 167, 171, 172],
   "rates": [
     {"suffix": "HR", "port_base": 20000},
     {"suffix": "FR", "port_base": 18000}

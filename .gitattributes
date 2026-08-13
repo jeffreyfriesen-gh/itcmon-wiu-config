@@ -2,6 +2,9 @@
 wius/**/*.json binary
 rrdata.json binary
 profiles/**/*.json binary
+channel-plans/**/*.json binary
+receiver-profiles/**/*.json binary
+recording-profiles/**/*.json binary
 scripts/*.ps1 binary
 scripts/*.cmd binary
 
