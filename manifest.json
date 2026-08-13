@@ -1,7 +1,7 @@
 {
   "schema": "itcmon.config.manifest.v1",
-  "version": "2026-08-13.1",
-  "generated_utc": "2026-08-13T05:44:58.7234633Z",
+  "version": "2026-08-13.2",
+  "generated_utc": "2026-08-13T06:51:41.8600185Z",
   "wiu_count": 95,
   "rrdata_path": "rrdata.json",
   "applications": [
@@ -53,7 +53,7 @@
     },
     {
       "path": "channel-plans/ptc-220.json",
-      "sha256": "409E4B39B359CEA033DE82A252E29EF18E02834D4CACC5041F58782EFD1094C5"
+      "sha256": "61A99E6C685C2B0281F64DD6BB06A429B72B9D7B5CCE54647A527599AA3B9212"
     },
     {
       "path": "receiver-profiles/itcm-pve/channels.json",
