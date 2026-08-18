@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('ITCMon', 'ITCWatch')]
+    [ValidateSet('ITCMon', 'ITCWatch', 'ATCSMon')]
     [string]$LaunchTarget = 'ITCMon',
 
     [string]$InstallRoot = $PSScriptRoot,
@@ -130,6 +130,16 @@ function Set-ITCWatchLocalConfiguration {
     } else {
         $viewer | Add-Member -NotePropertyName servers -NotePropertyValue $servers
     }
+    foreach ($pathSetting in @(
+        [pscustomobject]@{ Name = 'wiusRoot'; Value = (Join-Path $installFull 'wius') },
+        [pscustomobject]@{ Name = 'rrdataPath'; Value = (Join-Path $installFull 'local\rrdata.json') }
+    )) {
+        if ($viewer.PSObject.Properties.Name -contains $pathSetting.Name) {
+            $viewer.($pathSetting.Name) = $pathSetting.Value
+        } else {
+            $viewer | Add-Member -NotePropertyName $pathSetting.Name -NotePropertyValue $pathSetting.Value
+        }
+    }
     Write-JsonFile -Path $itcWatchConfigPath -Value $viewer
 
     $saved = Read-JsonFile -Path $itcWatchConfigPath
@@ -137,8 +147,10 @@ function Set-ITCWatchLocalConfiguration {
     if ($savedServers.Count -ne 1 -or
         [string]$savedServers[0].host -ne '127.0.0.1' -or
         [int]$savedServers[0].port -ne 18001 -or
-        -not [bool]$savedServers[0].enabled) {
-        throw "ITCWatch local endpoint acceptance failed: $itcWatchConfigPath"
+        -not [bool]$savedServers[0].enabled -or
+        [string]$saved.wiusRoot -ne (Join-Path $installFull 'wius') -or
+        [string]$saved.rrdataPath -ne (Join-Path $installFull 'local\rrdata.json')) {
+        throw "ITCWatch local endpoint/data-path acceptance failed: $itcWatchConfigPath"
     }
 }
 
@@ -183,11 +195,15 @@ function Wait-TcpEndpoint {
 
 function Get-ClientProcesses {
     param(
-        [Parameter(Mandatory)][ValidateSet('itcmon', 'itcwatch')]
+        [Parameter(Mandatory)][ValidateSet('itcmon', 'itcwatch', 'atcsmon')]
         [string]$Name
     )
 
-    $expectedPath = Join-Path $installFull "$Name.exe"
+    $expectedPath = if ($Name -eq 'atcsmon') {
+        Join-Path $installFull 'ATCSMon\atcsmon.exe'
+    } else {
+        Join-Path $installFull "$Name.exe"
+    }
     return @(
         Get-Process -Name $Name -ErrorAction SilentlyContinue |
             Where-Object {
@@ -207,8 +223,9 @@ function Get-InstalledClientHealth {
     $warnings = New-Object 'System.Collections.Generic.List[string]'
     $itcmonPath = Join-Path $installFull 'itcmon.exe'
     $itcwatchPath = Join-Path $installFull 'itcwatch.exe'
-    $profilePath = Join-Path $installFull 'itcmon.json'
-    $rrdataPath = Join-Path $installFull 'rrdata.json'
+    $atcsmonPath = Join-Path $installFull 'ATCSMon\atcsmon.exe'
+    $profilePath = Join-Path $installFull 'local\itcmon.json'
+    $rrdataPath = Join-Path $installFull 'local\rrdata.json'
     $wiuRoot = Join-Path $installFull 'wius'
     $serverCount = 0
     $enabledServerCount = 0
@@ -251,7 +268,7 @@ function Get-InstalledClientHealth {
         }
     }
 
-    foreach ($application in @($itcmonPath, $itcwatchPath)) {
+    foreach ($application in @($itcmonPath, $itcwatchPath, $atcsmonPath)) {
         if (-not (Test-Path -LiteralPath $application -PathType Leaf)) {
             $issues.Add("Missing application: $application")
             continue
@@ -341,8 +358,10 @@ function Get-InstalledClientHealth {
             if ($viewerServers.Count -ne 1 -or
                 [string]$viewerServers[0].host -ne '127.0.0.1' -or
                 [int]$viewerServers[0].port -ne 18001 -or
-                -not [bool]$viewerServers[0].enabled) {
-                $issues.Add('ITCWatch must have exactly one enabled server at 127.0.0.1:18001.')
+                -not [bool]$viewerServers[0].enabled -or
+                [string]$viewer.wiusRoot -ne (Join-Path $installFull 'wius') -or
+                [string]$viewer.rrdataPath -ne (Join-Path $installFull 'local\rrdata.json')) {
+                $issues.Add('ITCWatch must use 127.0.0.1:18001 and the managed local rrdata/WIU paths.')
             }
         } catch {
             $issues.Add("ITCWatch viewer configuration is unreadable: $($_.Exception.Message)")
@@ -383,6 +402,7 @@ function Get-InstalledClientHealth {
 function Get-ClientDiagnostics {
     $itcmon = @(Get-ClientProcesses -Name itcmon)
     $itcwatch = @(Get-ClientProcesses -Name itcwatch)
+    $atcsmon = @(Get-ClientProcesses -Name atcsmon)
     return [pscustomobject][ordered]@{
         observed_at = (Get-Date).ToUniversalTime().ToString('o')
         computer = $env:COMPUTERNAME
@@ -393,6 +413,9 @@ function Get-ClientDiagnostics {
             [pscustomobject]@{ id = $_.Id; started = $_.StartTime; main_window = $_.MainWindowTitle }
         })
         itcwatch_processes = @($itcwatch | ForEach-Object {
+            [pscustomobject]@{ id = $_.Id; started = $_.StartTime; main_window = $_.MainWindowTitle }
+        })
+        atcsmon_processes = @($atcsmon | ForEach-Object {
             [pscustomobject]@{ id = $_.Id; started = $_.StartTime; main_window = $_.MainWindowTitle }
         })
         endpoints = [ordered]@{
@@ -409,7 +432,7 @@ function Get-ClientDiagnostics {
 
 function Start-ClientProcess {
     param(
-        [Parameter(Mandatory)][ValidateSet('itcmon', 'itcwatch')]
+        [Parameter(Mandatory)][ValidateSet('itcmon', 'itcwatch', 'atcsmon')]
         [string]$Name
     )
 
@@ -420,9 +443,14 @@ function Start-ClientProcess {
         return $existing
     }
 
-    $executable = Join-Path $installFull "$Name.exe"
+    $executable = if ($Name -eq 'atcsmon') {
+        Join-Path $installFull 'ATCSMon\atcsmon.exe'
+    } else {
+        Join-Path $installFull "$Name.exe"
+    }
+    $workingDirectory = Split-Path -Parent $executable
     Write-LaunchLog "Starting $executable."
-    Start-Process -FilePath $executable -WorkingDirectory $installFull
+    Start-Process -FilePath $executable -WorkingDirectory $workingDirectory
     $deadline = (Get-Date).AddSeconds(15)
     do {
         Start-Sleep -Milliseconds 500
@@ -508,9 +536,10 @@ try {
         Write-LaunchLog $issue 'ERROR'
     }
     $diagnostics = Get-ClientDiagnostics
-    Write-LaunchLog ("Processes before launch: ITCMon={0}, ITCWatch={1}. Local zjpub={2}; telemetry FR/HR={3}/{4}; Railfan-01 channel 77 FR/HR={5}/{6}." -f `
+    Write-LaunchLog ("Processes before launch: ITCMon={0}, ITCWatch={1}, ATCSMon={2}. Local zjpub={3}; telemetry FR/HR={4}/{5}; Railfan-01 channel 77 FR/HR={6}/{7}." -f `
         @($diagnostics.itcmon_processes).Count,
         @($diagnostics.itcwatch_processes).Count,
+        @($diagnostics.atcsmon_processes).Count,
         $diagnostics.endpoints.local_zjpub_18001,
         $diagnostics.endpoints.telemetry_fr_18101,
         $diagnostics.endpoints.telemetry_hr_20101,
@@ -528,9 +557,10 @@ try {
     }
 
     $stackRunning = @($diagnostics.itcmon_processes).Count -gt 0 -or
-        @($diagnostics.itcwatch_processes).Count -gt 0
+        @($diagnostics.itcwatch_processes).Count -gt 0 -or
+        @($diagnostics.atcsmon_processes).Count -gt 0
     if ($stackRunning) {
-        Write-LaunchLog 'An ITCMon/ITCWatch process is already active; skipping updates so running files are not replaced.' 'WARN'
+        Write-LaunchLog 'An ITCMon, ITCWatch, or ATCSMon process is already active; skipping updates so running files are not replaced.' 'WARN'
     } elseif ($NoUpdate) {
         Write-LaunchLog 'Automatic update was disabled for this launch.' 'WARN'
     } else {
@@ -604,6 +634,8 @@ try {
         }
         Write-LaunchLog 'ITCMon local zjpub is reachable.'
         $null = Start-ClientProcess -Name itcwatch
+    } elseif ($LaunchTarget -eq 'ATCSMon') {
+        $null = Start-ClientProcess -Name atcsmon
     } else {
         $null = Start-ClientProcess -Name itcmon
     }

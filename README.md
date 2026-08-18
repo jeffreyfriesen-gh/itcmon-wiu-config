@@ -2,7 +2,7 @@
 
 This repository distributes the reviewed ITCMon WIU definitions, railroad data,
 truck server profiles, update launcher, and a net-new Windows laptop installer
-for both ITCMon and ITCWatch.
+for ITCMon, ITCWatch, and ATCSMon.
 
 ## Net-new Windows laptop
 
@@ -17,25 +17,38 @@ if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
 } else {
   Invoke-WebRequest -UseBasicParsing -TimeoutSec 120 -Uri $installerUrl -OutFile $installer
 }
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer
+$argumentLine = '-NoProfile -ExecutionPolicy Bypass -File "{0}"' -f $installer
+$result = Start-Process powershell.exe -Verb RunAs -Wait -PassThru -ArgumentList $argumentLine
+if ($result.ExitCode -ne 0) { throw "Installer failed with exit code $($result.ExitCode)." }
 ```
 
-The installer downloads and validates the official ITCMon v0.9 Windows package
-and the official [ITCWatch v0.4.0 release](https://github.com/katsojuna/itcwatch/releases/tag/v0.4.0).
-It installs both under `%LOCALAPPDATA%\Programs\ITCMon-v0.9`, applies the
-truck-client profile, `rrdata.json`, and 95 reviewed WIU definitions, and
-creates `ITCMon - Truck`, `ITCWatch - Truck`, and `Diagnose ITCM Truck Client`
-desktop shortcuts. ITCWatch shares ITCMon's `rrdata.json` and `wius` directory.
+The installer downloads SHA-256-pinned packages for ITCMon v1.0, ITCWatch
+v0.5.0, and ATCSMon v4.2.6 from the truck-only `svc-cache.lan` artifact host.
+GitHub supplies the public installer, configuration, WIUs, and package hashes;
+the application binaries are not stored in this repository. The laptop must
+be able to reach both GitHub and the truck LAN during first installation.
+
+The applications are installed under the existing managed client directory
+when one can be identified, or `%LOCALAPPDATA%\Programs\ITCM-Client` for a new
+installation. The installer applies the truck-client profile, `rrdata.json`,
+and 95 reviewed WIU definitions, and creates `ITCMon - Truck`,
+`ITCWatch - Truck`, `ATCSMon - Truck`, and `Diagnose ITCM Truck Client`
+desktop shortcuts. The ITCMon shortcut uses the managed red-and-white ITCMon
+icon; the updater checksum-validates the icon and repairs both the local icon
+and shortcut on later launches.
+
+ITCMon v1.0's active managed JSON files are under the release-native `local`
+directory. ITCWatch shares ITCMon's `rrdata.json` and `wius` directory.
 Its shortcut starts ITCMon first when necessary because ITCWatch consumes
 ITCMon's local `zjpub` stream. The installer and launcher force ITCWatch's
 `%APPDATA%\itcmon-viewer\viewer-config.json` to exactly one enabled endpoint,
 `127.0.0.1:18001`; ITCWatch must not point directly at either receiver.
 
-The application shortcuts use a common resilient launcher. When both programs
-are stopped, it fetches and validates the current manifest, updates the reviewed
-ITCMon and ITCWatch packages when their published hashes change, updates the
-launchers, `rrdata.json`, WIUs, and truck-client server profile, and then starts
-the selected application. When either program is already running, it safely
+The application shortcuts use a common resilient launcher. When all three
+programs are stopped, it fetches and validates the current manifest, updates
+the reviewed application packages when their published hashes change, updates
+the launchers, `rrdata.json`, WIUs, icon, shortcuts, and truck-client server
+profile, and then starts the selected application. When any program is already running, it safely
 defers updates instead of rejecting the launch. Selecting an already-running
 application reports that state and points the operator to the Windows
 notification area rather than silently closing.
@@ -94,7 +107,8 @@ pattern. Use
   milepost. No `MP` value is synthesized for unresolved WIUs or for 57th
   Street because its WIU has not yet been observed.
 - `manifest.json`: expected counts and SHA-256 for every distributed machine
-  file plus the reviewed ITCMon and ITCWatch application packages.
+  file plus the reviewed ITCMon, ITCWatch, and ATCSMon packages and the ITCMon
+  shortcut icon.
 - `scripts/Install-ITCMon-Truck-Client.ps1`: complete Windows client installer.
 - `scripts/Start-ITCMon-With-Update.ps1`: validation, update, and launch wrapper.
 - `scripts/Launch-ITCM-Truck-Client.ps1`: process-aware launcher,
@@ -130,9 +144,9 @@ Every shortcut launch writes a timestamped log under
 On failure, the error remains in the console, a message box names the persistent
 log, and the batch launcher waits for a keypress.
 
-`Diagnose ITCM Truck Client` validates both executables, the manifest-selected
+`Diagnose ITCM Truck Client` validates all three executables, the manifest-selected
 combined server count, ITCWatch's exact local endpoint, `rrdata.json`, the installed
-WIU inventory, DNS resolution, current ITCMon/ITCWatch processes, local zjpub
+WIU inventory, DNS resolution, current ITCMon/ITCWatch/ATCSMon processes, local zjpub
 port 18001, representative telemetry-node HR/FR ports, and representative
 Railfan-01 HR/FR ports. Endpoint failures are
 reported but do not mark an otherwise valid offline laptop installation as
@@ -164,9 +178,9 @@ per-user cache. If Git is unavailable, it downloads the selected GitHub branch
 archive over HTTPS. Native Git status text is captured separately, so it cannot
 be mistaken for the repository-root return value.
 
-The wrapper refuses to update while ITCMon or ITCWatch is running. It validates
+The wrapper refuses to update while ITCMon, ITCWatch, or ATCSMon is running. It validates
 every published file, refreshes itself, updates the reviewed application
-packages, `rrdata.json`, WIUs, and selected server profile, and keeps
+packages, shortcut icon, shortcuts, `rrdata.json`, WIUs, and selected server profile, and keeps
 timestamped configuration and application backups before replacement. Software
 updates are deliberately manifest-controlled: a newly released upstream build
 is installed only after its version, URL, and hashes are published here. This

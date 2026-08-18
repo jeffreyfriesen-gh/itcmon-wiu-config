@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$InstallRoot = (Join-Path $env:LOCALAPPDATA 'Programs\ITCMon-v0.9'),
+    [string]$InstallRoot,
 
     [string]$TruckHost = 'telemetry-node.lan',
 
@@ -9,6 +9,10 @@ param(
     [string]$ReleaseArchivePath,
 
     [string]$ITCWatchExecutablePath,
+
+    [string]$ATCSMonArchivePath,
+
+    [string]$ShortcutIconPath,
 
     [string]$ConfigurationSourceRoot,
 
@@ -23,13 +27,51 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 $configurationUrl = 'https://github.com/jeffreyfriesen-gh/itcmon-wiu-config/archive/refs/heads/main.zip'
 $profileName = 'truck-client'
+$privateArtifactHost = 'svc-cache.lan'
+$privateArtifactPort = 8080
+$privateArtifactPathPrefix = '/r/8c2e6a/'
 $stamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
 $workRoot = Join-Path $env:TEMP "itcmon-truck-client-$PID-$stamp"
 $releaseArchive = "$workRoot-release.zip"
 $itcWatchDownload = "$workRoot-itcwatch.exe"
+$atcsMonArchive = "$workRoot-atcsmon.zip"
+$atcsMonPackageRoot = Join-Path $workRoot 'atcsmon-package'
+$shortcutIconDownload = "$workRoot-itcmon-truck.ico"
 $configurationArchive = "$workRoot-config.zip"
 $packageRoot = Join-Path $workRoot 'package'
 $configurationExtract = Join-Path $workRoot 'configuration'
+
+if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+    $candidateRoots = New-Object 'System.Collections.Generic.List[string]'
+    try {
+        $desktop = [Environment]::GetFolderPath('Desktop')
+        $existingShortcut = Join-Path $desktop 'ITCMon - Truck.lnk'
+        if (Test-Path -LiteralPath $existingShortcut -PathType Leaf) {
+            $shell = New-Object -ComObject WScript.Shell
+            $savedShortcut = $shell.CreateShortcut($existingShortcut)
+            if (-not [string]::IsNullOrWhiteSpace([string]$savedShortcut.WorkingDirectory)) {
+                $candidateRoots.Add([string]$savedShortcut.WorkingDirectory)
+            }
+        }
+    } catch {
+        # Common install roots below remain the deterministic fallback.
+    }
+    foreach ($candidate in @(
+        (Join-Path $env:LOCALAPPDATA 'Programs\ITCM-Client'),
+        (Join-Path $env:LOCALAPPDATA 'Programs\ITCMon-v1.0'),
+        (Join-Path $env:LOCALAPPDATA 'Programs\ITCMon-v0.9')
+    )) {
+        $candidateRoots.Add($candidate)
+    }
+    $InstallRoot = @($candidateRoots | Where-Object {
+        Test-Path -LiteralPath (Join-Path $_ 'itcmon.exe') -PathType Leaf
+    } | Select-Object -First 1)
+    if ($InstallRoot.Count -eq 0) {
+        $InstallRoot = Join-Path $env:LOCALAPPDATA 'Programs\ITCM-Client'
+    } else {
+        $InstallRoot = [string]$InstallRoot[0]
+    }
+}
 $installFull = [IO.Path]::GetFullPath($InstallRoot).TrimEnd(
     [IO.Path]::DirectorySeparatorChar,
     [IO.Path]::AltDirectorySeparatorChar
@@ -47,8 +89,8 @@ function Write-InstallStage {
         [Parameter(Mandatory)][string]$Description
     )
 
-    $script:currentStage = "stage $Number of 7: $Description"
-    Write-Host "[stage $Number/7] $Description"
+    $script:currentStage = "stage $Number of 8: $Description"
+    Write-Host "[stage $Number/8] $Description"
 }
 
 function Read-JsonFile {
@@ -296,12 +338,88 @@ function Get-ApplicationEntry {
         throw "Application '$Name' has an invalid SHA-256 value."
     }
     $uri = [Uri]([string]$entry.url)
-    if ($uri.Scheme -ne 'https' -or
-        $uri.Host -notin @('github.com', 'raw.githubusercontent.com') -or
-        -not $uri.AbsolutePath.StartsWith('/katsojuna/', [StringComparison]::OrdinalIgnoreCase)) {
-        throw "Application '$Name' does not use an allowed official katsojuna GitHub URL."
+    $isOfficialGitHub = $uri.Scheme -eq 'https' -and
+        $uri.Host -in @('github.com', 'raw.githubusercontent.com') -and
+        $uri.AbsolutePath.StartsWith('/katsojuna/', [StringComparison]::OrdinalIgnoreCase)
+    $isPrivateArtifactHost = $uri.Scheme -eq 'http' -and
+        $uri.Host -eq $privateArtifactHost -and
+        $uri.Port -eq $privateArtifactPort -and
+        $uri.AbsolutePath.StartsWith($privateArtifactPathPrefix, [StringComparison]::Ordinal)
+    if (-not $isOfficialGitHub -and -not $isPrivateArtifactHost) {
+        throw "Application '$Name' does not use an approved release origin."
     }
     return $entry
+}
+
+function Get-ClientAssetEntry {
+    param(
+        [Parameter(Mandatory)]$Manifest,
+        [Parameter(Mandatory)][string]$Name,
+        [Parameter(Mandatory)][string]$Destination
+    )
+
+    $match = @($Manifest.client_assets | Where-Object name -eq $Name)
+    if ($match.Count -ne 1) {
+        throw "Configuration manifest has no unique '$Name' client asset."
+    }
+    $entry = $match[0]
+    foreach ($field in @('version', 'url', 'sha256', 'destination')) {
+        if ([string]::IsNullOrWhiteSpace([string]$entry.$field)) {
+            throw "Client asset '$Name' has no $field value."
+        }
+    }
+    if ([string]$entry.destination -ne $Destination -or
+        [string]$entry.sha256 -notmatch '^[A-Fa-f0-9]{64}$') {
+        throw "Client asset '$Name' has an unsupported destination or SHA-256 value."
+    }
+    $uri = [Uri]([string]$entry.url)
+    if ($uri.Scheme -ne 'http' -or $uri.Host -ne $privateArtifactHost -or
+        $uri.Port -ne $privateArtifactPort -or
+        -not $uri.AbsolutePath.StartsWith($privateArtifactPathPrefix, [StringComparison]::Ordinal)) {
+        throw "Client asset '$Name' does not use the approved private artifact origin."
+    }
+    return $entry
+}
+
+function Install-ATCSMonRuntime {
+    param(
+        [Parameter(Mandatory)][string]$ATCSRoot,
+        [switch]$SkipRegistration
+    )
+
+    $runtimeRoot = Join-Path $ATCSRoot 'runtime'
+    $registerNames = @(
+        'msstdfmt.dll', 'mscomctl.ocx', 'comdlg32.ocx', 'mswinsck.ocx',
+        'mscomm32.ocx', 'spin32.ocx', 'richtx32.ocx', 'msscript.ocx'
+    )
+    $registerNames += '..\subclass.ocx'
+    $regsvr32 = if ([Environment]::Is64BitOperatingSystem) {
+        Join-Path $env:WINDIR 'SysWOW64\regsvr32.exe'
+    } else {
+        Join-Path $env:WINDIR 'System32\regsvr32.exe'
+    }
+    foreach ($relative in $registerNames) {
+        $component = [IO.Path]::GetFullPath((Join-Path $runtimeRoot $relative))
+        if (-not (Test-Path -LiteralPath $component -PathType Leaf)) {
+            throw "ATCSMon runtime component is missing: $component"
+        }
+        if (-not $SkipRegistration) {
+            $process = Start-Process -FilePath $regsvr32 -ArgumentList @('/s', $component) -Wait -PassThru
+            if ($process.ExitCode -ne 0) {
+                throw "ATCSMon runtime registration failed for $component with exit code $($process.ExitCode). Run the installer from an elevated PowerShell window."
+            }
+        }
+    }
+
+    $defaultIni = Join-Path $ATCSRoot 'atcsmon.default.ini'
+    $activeIni = Join-Path $ATCSRoot 'atcsmon.ini'
+    if (-not (Test-Path -LiteralPath $activeIni -PathType Leaf)) {
+        $iniText = [IO.File]::ReadAllText($defaultIni).Replace('__ATCS_ROOT__', $ATCSRoot)
+        [IO.File]::WriteAllText($activeIni, $iniText, (New-Object Text.UTF8Encoding($false)))
+    }
+    foreach ($directory in @('Downloads', 'Import', 'kmz', 'Layouts', 'Logs', 'MCPs', 'Notes')) {
+        New-Item -ItemType Directory -Path (Join-Path $ATCSRoot $directory) -Force | Out-Null
+    }
 }
 
 function Test-TcpEndpoint {
@@ -338,9 +456,11 @@ if ($installFull.StartsWith(
 )) {
     throw 'Refusing to install ITCMon under the Windows system directory.'
 }
-if (@(Get-Process -Name itcmon, itcwatch -ErrorAction SilentlyContinue).Count -ne 0) {
-    throw 'ITCMon or ITCWatch is running. Close both before provisioning or updating the client.'
+if (@(Get-Process -Name itcmon, itcwatch, atcsmon -ErrorAction SilentlyContinue).Count -ne 0) {
+    throw 'ITCMon, ITCWatch, or ATCSMon is running. Close all three before provisioning or updating the client.'
 }
+$existingATCSRuntime = (Test-Path -LiteralPath (Join-Path $installFull 'ATCSMon\atcsmon.exe') -PathType Leaf) -or
+    (Test-Path -LiteralPath 'C:\ATCS Monitor\atcsmon.exe' -PathType Leaf)
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 New-Item -ItemType Directory -Path $workRoot -Force | Out-Null
@@ -364,6 +484,10 @@ try {
         -PackageType 'zip' -Executable 'itcmon.exe'
     $itcWatchApplication = Get-ApplicationEntry -Manifest $manifest -Name 'itcwatch' `
         -PackageType 'file' -Executable 'itcwatch.exe'
+    $atcsMonApplication = Get-ApplicationEntry -Manifest $manifest -Name 'atcsmon' `
+        -PackageType 'zip' -Executable 'ATCSMon/atcsmon.exe'
+    $shortcutIcon = Get-ClientAssetEntry -Manifest $manifest -Name 'itcmon-shortcut-icon' `
+        -Destination 'assets/itcmon-truck.ico'
     $releaseVersion = [string]$itcmonApplication.version
     $releaseArchiveUrl = [string]$itcmonApplication.url
     $releaseArchiveSHA256 = ([string]$itcmonApplication.sha256).ToUpperInvariant()
@@ -371,6 +495,11 @@ try {
     $itcWatchVersion = [string]$itcWatchApplication.version
     $itcWatchUrl = [string]$itcWatchApplication.url
     $itcWatchSHA256 = ([string]$itcWatchApplication.executable_sha256).ToUpperInvariant()
+    $atcsMonVersion = [string]$atcsMonApplication.version
+    $atcsMonUrl = [string]$atcsMonApplication.url
+    $atcsMonArchiveSHA256 = ([string]$atcsMonApplication.sha256).ToUpperInvariant()
+    $atcsMonExecutableSHA256 = ([string]$atcsMonApplication.executable_sha256).ToUpperInvariant()
+    $shortcutIconSHA256 = ([string]$shortcutIcon.sha256).ToUpperInvariant()
 
     Write-InstallStage -Number 2 -Description "Acquire and validate ITCMon $releaseVersion."
     if ([string]::IsNullOrWhiteSpace($ReleaseArchivePath)) {
@@ -401,12 +530,40 @@ try {
         throw "Official ITCWatch $itcWatchVersion executable failed SHA-256 validation: $itcWatchDownloadHash"
     }
 
+    Write-InstallStage -Number 4 -Description "Acquire and validate ATCSMon $atcsMonVersion and the managed shortcut icon."
+    if ([string]::IsNullOrWhiteSpace($ATCSMonArchivePath)) {
+        Save-RemoteFile -Uri $atcsMonUrl -Destination $atcsMonArchive `
+            -Description "ATCSMon $atcsMonVersion package"
+    } else {
+        Copy-Item -LiteralPath (Resolve-Path -LiteralPath $ATCSMonArchivePath).Path -Destination $atcsMonArchive
+    }
+    $atcsMonArchiveHash = (Get-FileHash -LiteralPath $atcsMonArchive -Algorithm SHA256).Hash
+    if ($atcsMonArchiveHash -ne $atcsMonArchiveSHA256) {
+        throw "ATCSMon $atcsMonVersion package failed SHA-256 validation: $atcsMonArchiveHash"
+    }
+    Expand-Archive -LiteralPath $atcsMonArchive -DestinationPath $atcsMonPackageRoot
+    $atcsMonReleasedExecutable = Join-Path $atcsMonPackageRoot 'ATCSMon\atcsmon.exe'
+    if (-not (Test-Path -LiteralPath $atcsMonReleasedExecutable -PathType Leaf) -or
+        (Get-FileHash -LiteralPath $atcsMonReleasedExecutable -Algorithm SHA256).Hash -ne $atcsMonExecutableSHA256) {
+        throw "ATCSMon $atcsMonVersion executable failed SHA-256 validation."
+    }
+    if ([string]::IsNullOrWhiteSpace($ShortcutIconPath)) {
+        Save-RemoteFile -Uri ([string]$shortcutIcon.url) -Destination $shortcutIconDownload `
+            -Description 'ITCMon shortcut icon'
+    } else {
+        Copy-Item -LiteralPath (Resolve-Path -LiteralPath $ShortcutIconPath).Path -Destination $shortcutIconDownload
+    }
+    if ((Get-FileHash -LiteralPath $shortcutIconDownload -Algorithm SHA256).Hash -ne $shortcutIconSHA256) {
+        throw 'ITCMon shortcut icon failed SHA-256 validation.'
+    }
+
     $clientScriptNames = @(
         'Start-ITCMon-With-Update.ps1',
         'Start-ITCMon-With-Update.cmd',
         'Launch-ITCM-Truck-Client.ps1',
         'Start ITCMon - Truck.cmd',
         'Start ITCWatch - Truck.cmd',
+        'Start ATCSMon - Truck.cmd',
         'Diagnose ITCM Truck Client.cmd'
     )
     $clientScriptSources = @($clientScriptNames | ForEach-Object {
@@ -418,7 +575,7 @@ try {
         }
     }
 
-    Write-InstallStage -Number 4 -Description 'Install application files and preserve prior local data.'
+    Write-InstallStage -Number 5 -Description 'Install application files and preserve prior local data.'
     New-Item -ItemType Directory -Path $installParent -Force | Out-Null
     if (Test-Path -LiteralPath $installFull) {
         $backupParent = Join-Path $installParent 'ITCMon-backups'
@@ -440,6 +597,22 @@ try {
         throw 'Installed ITCWatch executable failed SHA-256 acceptance.'
     }
 
+    $atcsMonInstalledRoot = Join-Path $installFull 'ATCSMon'
+    Copy-Item -LiteralPath (Join-Path $atcsMonPackageRoot 'ATCSMon') -Destination $atcsMonInstalledRoot -Recurse -Force
+    $atcsMonInstalled = Join-Path $atcsMonInstalledRoot 'atcsmon.exe'
+    $atcsMonInstalledHash = (Get-FileHash -LiteralPath $atcsMonInstalled -Algorithm SHA256).Hash
+    if ($atcsMonInstalledHash -ne $atcsMonExecutableSHA256) {
+        throw 'Installed ATCSMon executable failed SHA-256 acceptance.'
+    }
+    Install-ATCSMonRuntime -ATCSRoot $atcsMonInstalledRoot -SkipRegistration:$existingATCSRuntime
+
+    $shortcutIconInstalled = Join-Path $installFull 'assets\itcmon-truck.ico'
+    New-Item -ItemType Directory -Path (Split-Path -Parent $shortcutIconInstalled) -Force | Out-Null
+    Copy-Item -LiteralPath $shortcutIconDownload -Destination $shortcutIconInstalled -Force
+    if ((Get-FileHash -LiteralPath $shortcutIconInstalled -Algorithm SHA256).Hash -ne $shortcutIconSHA256) {
+        throw 'Installed ITCMon shortcut icon failed SHA-256 acceptance.'
+    }
+
     if ($backupRoot) {
         foreach ($name in @('packets.hex', 'config-backups', 'application-backups')) {
             $preserved = Join-Path $backupRoot $name
@@ -447,6 +620,30 @@ try {
                 Copy-Item -LiteralPath $preserved -Destination (Join-Path $installFull $name) -Recurse -Force
             }
         }
+    }
+    $previousATCSRoot = if ($backupRoot -and
+        (Test-Path -LiteralPath (Join-Path $backupRoot 'ATCSMon') -PathType Container)) {
+        Join-Path $backupRoot 'ATCSMon'
+    } elseif (Test-Path -LiteralPath 'C:\ATCS Monitor\atcsmon.exe' -PathType Leaf) {
+        'C:\ATCS Monitor'
+    } else {
+        $null
+    }
+    if ($previousATCSRoot -and
+        -not [string]::Equals($previousATCSRoot, $atcsMonInstalledRoot, [StringComparison]::OrdinalIgnoreCase)) {
+            foreach ($relative in @('atcsmon.ini', 'atcsdb.mdb', 'Downloads', 'Import', 'kmz', 'Layouts', 'Logs', 'MCPs', 'Notes')) {
+                $preserved = Join-Path $previousATCSRoot $relative
+                if (Test-Path -LiteralPath $preserved) {
+                    $destination = Join-Path $atcsMonInstalledRoot $relative
+                    if ((Get-Item -LiteralPath $preserved).PSIsContainer) {
+                        New-Item -ItemType Directory -Path $destination -Force | Out-Null
+                        Get-ChildItem -LiteralPath $preserved -Force |
+                            Copy-Item -Destination $destination -Recurse -Force
+                    } else {
+                        Copy-Item -LiteralPath $preserved -Destination $destination -Force
+                    }
+                }
+            }
     }
 
     foreach ($name in $clientScriptNames) {
@@ -472,23 +669,26 @@ try {
     if ($profileHash -ne ([string]$profileEntry[0].sha256).ToUpperInvariant()) {
         throw "Truck-client profile failed manifest acceptance: $profileHash"
     }
-    Write-InstallStage -Number 5 -Description 'Apply both truck receiver endpoints, local ITCWatch endpoint, WIUs, railroad data, and automatic updater.'
+    Write-InstallStage -Number 6 -Description 'Apply both truck receiver endpoints, local ITCWatch endpoint, WIUs, railroad data, and automatic updater.'
     & $updaterInstalled -InstallRoot $installFull -SourceRoot $configurationRoot `
         -ProfileName $profileName -ServerHostOverride $TruckHost `
         -UpdateApplications -ITCMonArchivePath $releaseArchive `
-        -ITCWatchExecutablePath $itcWatchDownload -NoLaunch
+        -ITCWatchExecutablePath $itcWatchDownload `
+        -ATCSMonArchivePath $atcsMonArchive -ShortcutIconPath $shortcutIconDownload `
+        -NoDesktopShortcut:$NoDesktopShortcut -NoLaunch
 
-    Write-InstallStage -Number 6 -Description 'Create the ITCMon and ITCWatch truck launchers and desktop shortcuts.'
+    Write-InstallStage -Number 7 -Description 'Create the ITCMon, ITCWatch, and ATCSMon launchers and desktop shortcuts.'
     $truckCommand = Join-Path $installFull 'Start ITCMon - Truck.cmd'
     $itcWatchCommand = Join-Path $installFull 'Start ITCWatch - Truck.cmd'
+    $atcsMonCommand = Join-Path $installFull 'Start ATCSMon - Truck.cmd'
     $diagnosticCommand = Join-Path $installFull 'Diagnose ITCM Truck Client.cmd'
-    foreach ($requiredLauncher in @($launcherInstalled, $truckCommand, $itcWatchCommand, $diagnosticCommand)) {
+    foreach ($requiredLauncher in @($launcherInstalled, $truckCommand, $itcWatchCommand, $atcsMonCommand, $diagnosticCommand)) {
         if (-not (Test-Path -LiteralPath $requiredLauncher -PathType Leaf)) {
             throw "Installed launcher is missing: $requiredLauncher"
         }
     }
 
-    $installedProfile = Read-JsonFile -Path (Join-Path $installFull 'itcmon.json')
+    $installedProfile = Read-JsonFile -Path (Join-Path $installFull 'local\itcmon.json')
     $installedServers = @($installedProfile.servers)
     $installedHosts = @($installedServers.ip | Sort-Object -Unique)
     $telemetryServers = @($installedServers | Where-Object {
@@ -518,15 +718,17 @@ try {
     if ($itcWatchServers.Count -ne 1 -or
         [string]$itcWatchServers[0].host -ne '127.0.0.1' -or
         [int]$itcWatchServers[0].port -ne 18001 -or
-        -not [bool]$itcWatchServers[0].enabled) {
-        throw 'ITCWatch viewer configuration must contain only the enabled local ITCMon endpoint 127.0.0.1:18001.'
+        -not [bool]$itcWatchServers[0].enabled -or
+        [string]$itcWatchViewer.wiusRoot -ne (Join-Path $installFull 'wius') -or
+        [string]$itcWatchViewer.rrdataPath -ne (Join-Path $installFull 'local\rrdata.json')) {
+        throw 'ITCWatch viewer configuration failed local endpoint/data-path acceptance.'
     }
 
     $rrdataEntry = @($manifest.files | Where-Object path -eq ([string]$manifest.rrdata_path))
     if ($rrdataEntry.Count -ne 1) {
         throw 'Configuration manifest has no unique rrdata entry.'
     }
-    $installedRRDataHash = (Get-FileHash -LiteralPath (Join-Path $installFull 'rrdata.json') -Algorithm SHA256).Hash
+    $installedRRDataHash = (Get-FileHash -LiteralPath (Join-Path $installFull 'local\rrdata.json') -Algorithm SHA256).Hash
     if ($installedRRDataHash -ne ([string]$rrdataEntry[0].sha256).ToUpperInvariant()) {
         throw 'Installed rrdata.json failed manifest acceptance.'
     }
@@ -547,6 +749,7 @@ try {
 
     $desktopShortcut = $null
     $itcWatchDesktopShortcut = $null
+    $atcsMonDesktopShortcut = $null
     $diagnosticDesktopShortcut = $null
     if (-not $NoDesktopShortcut) {
         $desktop = if ([string]::IsNullOrWhiteSpace($DesktopPath)) {
@@ -562,7 +765,7 @@ try {
             $shortcut.TargetPath = $env:ComSpec
             $shortcut.Arguments = '/d /c ""{0}""' -f $truckCommand
             $shortcut.WorkingDirectory = $installFull
-            $shortcut.IconLocation = (Join-Path $installFull 'itcmon.exe')
+            $shortcut.IconLocation = $shortcutIconInstalled
             $shortcut.Description = 'Start ITCMon with truck configuration, automatic updates, and persistent diagnostics.'
             $shortcut.Save()
 
@@ -574,6 +777,15 @@ try {
             $itcWatchShortcut.IconLocation = $itcWatchInstalled
             $itcWatchShortcut.Description = 'Start ITCWatch with the truck ITCMon stack and persistent diagnostics.'
             $itcWatchShortcut.Save()
+
+            $atcsMonDesktopShortcut = Join-Path $desktop 'ATCSMon - Truck.lnk'
+            $atcsMonShortcut = $shell.CreateShortcut($atcsMonDesktopShortcut)
+            $atcsMonShortcut.TargetPath = $env:ComSpec
+            $atcsMonShortcut.Arguments = '/d /c ""{0}""' -f $atcsMonCommand
+            $atcsMonShortcut.WorkingDirectory = $installFull
+            $atcsMonShortcut.IconLocation = $atcsMonInstalled
+            $atcsMonShortcut.Description = 'Check for managed client updates, then start ATCSMon.'
+            $atcsMonShortcut.Save()
 
             $diagnosticDesktopShortcut = Join-Path $desktop 'Diagnose ITCM Truck Client.lnk'
             $diagnosticShortcut = $shell.CreateShortcut($diagnosticDesktopShortcut)
@@ -587,6 +799,7 @@ try {
             foreach ($shortcutCheck in @(
                 [pscustomobject]@{ Path = $desktopShortcut; Command = $truckCommand },
                 [pscustomobject]@{ Path = $itcWatchDesktopShortcut; Command = $itcWatchCommand },
+                [pscustomobject]@{ Path = $atcsMonDesktopShortcut; Command = $atcsMonCommand },
                 [pscustomobject]@{ Path = $diagnosticDesktopShortcut; Command = $diagnosticCommand }
             )) {
                 $savedShortcut = $shell.CreateShortcut($shortcutCheck.Path)
@@ -600,7 +813,7 @@ try {
         }
     }
 
-    Write-InstallStage -Number 7 -Description 'Run final acceptance checks and record installation status.'
+    Write-InstallStage -Number 8 -Description 'Run final acceptance checks and record installation status.'
     $connectivity = [ordered]@{
         local_zjpub_18001 = Test-TcpEndpoint -HostName '127.0.0.1' -Port 18001
         telemetry_host = $TruckHost
@@ -617,6 +830,11 @@ try {
         itcwatch_release = $itcWatchVersion
         itcwatch_sha256 = $itcWatchInstalledHash
         itcwatch_executable = $itcWatchInstalled
+        atcsmon_release = $atcsMonVersion
+        atcsmon_sha256 = $atcsMonInstalledHash
+        atcsmon_executable = $atcsMonInstalled
+        itcmon_shortcut_icon = $shortcutIconInstalled
+        itcmon_shortcut_icon_sha256 = $shortcutIconSHA256
         install_root = $installFull
         rollback_root = $backupRoot
         server_profile = $profileName
@@ -631,6 +849,7 @@ try {
         rrdata_sha256 = $installedRRDataHash
         desktop_shortcut = $desktopShortcut
         itcwatch_desktop_shortcut = $itcWatchDesktopShortcut
+        atcsmon_desktop_shortcut = $atcsMonDesktopShortcut
         diagnostic_desktop_shortcut = $diagnosticDesktopShortcut
         launch_log_root = (Join-Path $env:LOCALAPPDATA 'ITCMon\Logs')
         launch_status = (Join-Path $env:LOCALAPPDATA 'ITCMon\last-launch-status.json')
@@ -666,7 +885,10 @@ try {
             Move-Item -LiteralPath $backupRoot -Destination $installFull
         }
     }
-    foreach ($temporary in @($releaseArchive, $itcWatchDownload, $configurationArchive, $workRoot)) {
+    foreach ($temporary in @(
+        $releaseArchive, $itcWatchDownload, $atcsMonArchive,
+        $shortcutIconDownload, $configurationArchive, $workRoot
+    )) {
         if (Test-Path -LiteralPath $temporary) {
             Remove-Item -LiteralPath $temporary -Recurse -Force
         }
