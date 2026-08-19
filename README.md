@@ -6,6 +6,43 @@ for ITCMon, ITCWatch, and ATCSMon.
 
 ## Net-new Windows laptop
 
+Connect the laptop to the truck LAN, open **Windows PowerShell**, and paste the
+following block into that already-open window. This resolves public `main` to
+an immutable commit, downloads the new `itc-truck-mon.ps1` entry point, and
+runs it in the same visible console:
+
+```powershell
+$ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+$repo = 'jeffreyfriesen-gh/itcmon-wiu-config'
+$headers = @{ 'User-Agent'='ITCM-Truck-Net-New-Installer'; 'Accept'='application/vnd.github+json' }
+$commit = (Invoke-RestMethod -UseBasicParsing -TimeoutSec 60 -Headers $headers -Uri "https://api.github.com/repos/$repo/commits/main").sha
+if ($commit -notmatch '^[0-9a-fA-F]{40}$') { throw "GitHub returned an invalid commit: $commit" }
+$script = Join-Path $env:TEMP "itc-truck-mon-$commit.ps1"
+$uri = "https://raw.githubusercontent.com/$repo/$commit/itc-truck-mon.ps1"
+if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+  & curl.exe --fail --location --retry 4 --retry-delay 2 --connect-timeout 20 --max-time 180 --output $script $uri
+  if ($LASTEXITCODE -ne 0) { throw "Installer entry-point download failed with curl exit $LASTEXITCODE" }
+} else {
+  Invoke-WebRequest -UseBasicParsing -TimeoutSec 180 -Uri $uri -OutFile $script
+}
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $script
+if ($LASTEXITCODE -ne 0) { throw "ITC truck client installer failed with exit code $LASTEXITCODE. The visible window and persistent log identify the failed stage." }
+```
+
+The entry point logs before doing work, downloads and validates the immutable
+repository bundle, checks the truck artifact host's actual HTTP health, and
+keeps the visible console open on failure. Before replacing any application
+files, the elevated installer force-stops each running `itcmon.exe`,
+`itcwatch.exe`, and `atcsmon.exe` process belonging to the resolved install
+root (plus the known legacy ATCSMon path), then verifies those target processes
+remain absent for the remainder of the pre-install gate.
+
+## Legacy inline bootstrap reference
+
+The block below is retained as an implementation reference. Use the shorter
+`itc-truck-mon.ps1` block above for normal net-new installations.
+
 Connect the laptop to the truck LAN and paste this into an already-open Windows
 PowerShell 5.1 or newer window:
 

@@ -1,7 +1,7 @@
 {
   "schema": "itcmon.config.manifest.v1",
-  "version": "2026-08-19.2",
-  "generated_utc": "2026-08-19T00:52:32Z",
+  "version": "2026-08-19.3",
+  "generated_utc": "2026-08-19T02:21:36Z",
   "wiu_count": 95,
   "rrdata_path": "rrdata.json",
   "applications": [
@@ -58,6 +58,10 @@
   ],
   "files": [
     {
+      "path": "itc-truck-mon.ps1",
+      "sha256": "6806C8B911B786F7BD6A7E5EDB4FF5E52F35505902A84ED729BA421807F0D231"
+    },
+    {
       "path": "rrdata.json",
       "sha256": "7EB40B97CEC28F24112E00DE504EFF190CD6CA8C7B0B3039F9A985EE6E16D1DB"
     },
@@ -99,7 +103,7 @@
     },
     {
       "path": "scripts/Bootstrap-ITCM-Truck-Client.ps1",
-      "sha256": "257A144745B700EEC88E63A31D93D4DFA6F861E14BF483869F3B59E533A44F3A"
+      "sha256": "5176FC1EBC45737A7646A8CB0B2EE2AC72510ECE8132CCCA0B88F9708B223DBA"
     },
     {
       "path": "scripts/Invoke-ITCM-ElevatedInstaller.ps1",
@@ -107,7 +111,7 @@
     },
     {
       "path": "scripts/Install-ITCMon-Truck-Client.ps1",
-      "sha256": "C0E489D7D7DFFD7701AB57413B8B1E8E788A207A07A5B12665D16B7555CE4157"
+      "sha256": "A70C9EE2F1CD2EEA88C4203A7F7817DA5FB9961768F149681DBD46BE067F465C"
     },
     {
       "path": "scripts/Start-ITCMon-With-Update.ps1",

@@ -506,7 +506,12 @@ try {
         throw "No address resolved for application artifact host $artifactHost"
     }
     Test-TcpEndpoint -HostName $artifactHost -Port 8080
-    Write-Host "[bootstrap] $artifactHost resolves to $($addresses -join ', ') and accepts TCP 8080."
+    $healthUri = "http://${artifactHost}:8080/healthz"
+    $health = Invoke-RestMethod -UseBasicParsing -TimeoutSec 15 -Uri $healthUri
+    if ([string]$health.status -ne 'ok') {
+        throw "Artifact host health check returned status '$($health.status)' from $healthUri"
+    }
+    Write-Host "[bootstrap] $artifactHost resolves to $($addresses -join ', '), accepts TCP 8080, and reports healthy."
 
     Set-BootstrapStage -Stage 'launch the validated installer with persistent failure diagnostics'
     if (-not (Test-Path -LiteralPath $PowerShellPath -PathType Leaf)) {
