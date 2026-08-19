@@ -6,31 +6,86 @@ for ITCMon, ITCWatch, and ATCSMon.
 
 ## Net-new Windows laptop
 
-Connect the laptop to the truck LAN and use Windows PowerShell 5.1 or newer:
+Connect the laptop to the truck LAN and paste this into an already-open Windows
+PowerShell 5.1 or newer window:
 
 ```powershell
-$installer = Join-Path $env:TEMP 'Install-ITCMon-Truck-Client.ps1'
-$installerUrl = 'https://raw.githubusercontent.com/jeffreyfriesen-gh/itcmon-wiu-config/main/scripts/Install-ITCMon-Truck-Client.ps1'
-$installStarted = Get-Date
-$installerLogRoot = Join-Path $env:LOCALAPPDATA 'ITCMon\InstallerLogs'
-if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
-  & curl.exe --fail --location --retry 4 --connect-timeout 20 --max-time 120 --output $installer $installerUrl
-  if ($LASTEXITCODE -ne 0) { throw "Installer download failed with curl exit $LASTEXITCODE." }
-} else {
-  Invoke-WebRequest -UseBasicParsing -TimeoutSec 120 -Uri $installerUrl -OutFile $installer
+$ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+$repo = 'jeffreyfriesen-gh/itcmon-wiu-config'
+$run = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
+$logRoot = Join-Path $env:LOCALAPPDATA 'ITCMon\InstallerLogs'
+try { New-Item -ItemType Directory -Path $logRoot -Force | Out-Null } catch {
+  $logRoot = Join-Path $env:TEMP 'ITCMon-InstallerLogs'
+  New-Item -ItemType Directory -Path $logRoot -Force | Out-Null
 }
-$argumentLine = '-NoProfile -ExecutionPolicy Bypass -File "{0}"' -f $installer
-$result = Start-Process powershell.exe -Verb RunAs -Wait -PassThru -ArgumentList $argumentLine
-if ($result.ExitCode -ne 0) {
-  $latestLog = Get-ChildItem -LiteralPath $installerLogRoot -File -Filter 'install-*.log' -ErrorAction SilentlyContinue |
-    Where-Object LastWriteTime -ge $installStarted.AddMinutes(-1) |
-    Sort-Object LastWriteTime -Descending |
-    Select-Object -First 1
-  if ($latestLog) {
-    Write-Host "Installer diagnostic log: $($latestLog.FullName)" -ForegroundColor Yellow
-    Get-Content -LiteralPath $latestLog.FullName -Tail 80
+$preLog = Join-Path $logRoot "prebootstrap-$run.log"
+$preStatus = Join-Path $logRoot 'last-prebootstrap-status.json'
+$work = Join-Path $env:TEMP "itcm-prebootstrap-$run-$PID"
+$failed = $false
+$stage = 'initialize diagnostics'
+function Save-PrebootstrapStatus([string]$outcome, [string]$errorMessage = '') {
+  [ordered]@{
+    schema='itcm.client.prebootstrap.status.v1'; run_id=$run
+    updated_at=(Get-Date).ToUniversalTime().ToString('o'); outcome=$outcome
+    stage=$stage; error=$errorMessage; prebootstrap_log=$preLog; work_root=$work
+  } | ConvertTo-Json | Set-Content -LiteralPath $preStatus -Encoding UTF8
+}
+Start-Transcript -LiteralPath $preLog -Force | Out-Null
+try {
+  Save-PrebootstrapStatus 'running'
+  Write-Host "[prebootstrap] Log: $preLog"
+  $stage = 'resolve GitHub main to an immutable commit'
+  $headers = @{ 'User-Agent'='ITCM-Client-Prebootstrap'; 'Accept'='application/vnd.github+json' }
+  $commit = (Invoke-RestMethod -UseBasicParsing -TimeoutSec 60 -Headers $headers -Uri "https://api.github.com/repos/$repo/commits/main").sha
+  if ($commit -notmatch '^[0-9a-fA-F]{40}$') { throw "GitHub returned an invalid main commit: $commit" }
+  $stage = 'download immutable GitHub archive'
+  New-Item -ItemType Directory -Path $work -Force | Out-Null
+  $zip = "$work.zip"
+  if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+    & curl.exe --fail --location --retry 4 --connect-timeout 20 --max-time 180 --output $zip "https://github.com/$repo/archive/$commit.zip"
+    if ($LASTEXITCODE -ne 0) { throw "Immutable archive download failed with curl exit $LASTEXITCODE." }
+  } else {
+    Invoke-WebRequest -UseBasicParsing -TimeoutSec 180 -Uri "https://github.com/$repo/archive/$commit.zip" -OutFile $zip
   }
-  throw "Installer failed with exit code $($result.ExitCode). See the diagnostic output and retained log above."
+  $stage = 'validate bootstrap against manifest'
+  Expand-Archive -LiteralPath $zip -DestinationPath $work -Force
+  $roots = @(Get-ChildItem -LiteralPath $work -Directory)
+  if ($roots.Count -ne 1) { throw "GitHub archive contained $($roots.Count) roots; expected one." }
+  $manifest = Get-Content -Raw -LiteralPath (Join-Path $roots[0].FullName 'manifest.json') | ConvertFrom-Json
+  $entry = @($manifest.files | Where-Object path -eq 'scripts/Bootstrap-ITCM-Truck-Client.ps1')
+  if ($entry.Count -ne 1) { throw 'Manifest has no unique net-new bootstrap entry.' }
+  $bootstrap = Join-Path $roots[0].FullName 'scripts\Bootstrap-ITCM-Truck-Client.ps1'
+  $actual = (Get-FileHash -LiteralPath $bootstrap -Algorithm SHA256).Hash
+  if ($actual -ne ([string]$entry[0].sha256).ToUpperInvariant()) { throw "Bootstrap SHA-256 mismatch: $actual" }
+  $stage = 'run validated bootstrap'
+  & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $bootstrap -LogRoot $logRoot
+  if ($LASTEXITCODE -ne 0) { throw "Validated bootstrap exited with code $LASTEXITCODE." }
+  $stage = 'complete'
+  Save-PrebootstrapStatus 'success'
+} catch {
+  $failed = $true
+  $failureMessage = $_.Exception.Message
+  Save-PrebootstrapStatus 'failed' $failureMessage
+  Write-Host '========== NET-NEW PREBOOTSTRAP FAILED ==========' -ForegroundColor Red
+  Write-Host "Stage: $stage" -ForegroundColor Red
+  Write-Host $failureMessage -ForegroundColor Red
+  Write-Host "Prebootstrap log: $preLog" -ForegroundColor Yellow
+  Write-Host "Prebootstrap status: $preStatus" -ForegroundColor Yellow
+  if (Test-Path -LiteralPath $work) {
+    Write-Host "Retained work directory: $work" -ForegroundColor Yellow
+  }
+  Write-Host '=================================================' -ForegroundColor Red
+} finally {
+  if (-not $failed) {
+    if (Test-Path -LiteralPath $work) { Remove-Item -LiteralPath $work -Recurse -Force }
+    if (Test-Path -LiteralPath "$work.zip") { Remove-Item -LiteralPath "$work.zip" -Force }
+  }
+  Stop-Transcript | Out-Null
+}
+if ($failed) {
+  [void](Read-Host 'Installation failed. Press Enter after recording the log path')
+  throw "Net-new installation failed. See $preLog"
 }
 ```
 
@@ -80,10 +135,18 @@ stall. A failure names the active stage and its final error. Windows
 PowerShell's `Invoke-WebRequest` is only a three-attempt fallback when
 `curl.exe` is absent; that fallback explicitly reports that it cannot resume a
 partial file before restarting an attempt.
-Every elevated installer run also retains a transcript under
-`%LOCALAPPDATA%\ITCMon\InstallerLogs`. If installation fails, the paste-in
-bootstrap prints the newest transcript path and its final 80 lines back into
-the original PowerShell window instead of reporting only the child exit code.
+The paste-in prebootstrap logs before downloading executable PowerShell. It
+resolves GitHub `main` to an immutable commit, downloads that commit ZIP, and
+checks the bootstrap against the ZIP's manifest instead of trusting a mutable
+raw-branch cache. The validated bootstrap then independently validates every
+manifest-managed file, checks DNS and TCP reachability for the internal
+artifact host, and only then starts the elevated runner and installer.
+Prebootstrap, bootstrap, elevated-runner, and installer transcripts plus
+structured last-status JSON are retained under
+`%LOCALAPPDATA%\ITCMon\InstallerLogs`.
+On failure, both the elevated window and the original bootstrap window remain
+open until Enter is pressed; the bootstrap prints the exact failed stage,
+error, relevant log paths, and the final 120 lines of the installer log.
 
 The truck-client profile combines 36 ITCM-PVE endpoints with Railfan-01's 17
 resource-bounded endpoints, for 53 enabled ITCMon servers. ITCM-PVE monitors
@@ -125,6 +188,11 @@ pattern. Use
 - `manifest.json`: expected counts and SHA-256 for every distributed machine
   file plus the reviewed ITCMon, ITCWatch, and ATCSMon packages and the ITCMon
   shortcut icon.
+- `scripts/Bootstrap-ITCM-Truck-Client.ps1`: pre-elevation diagnostics,
+  immutable GitHub archive validation, artifact-host preflight, structured
+  status, failure pause, and orchestration of the elevated runner.
+- `scripts/Invoke-ITCM-ElevatedInstaller.ps1`: captures failures that occur
+  before the installer body can initialize its own transcript.
 - `scripts/Install-ITCMon-Truck-Client.ps1`: complete Windows client installer.
 - `scripts/Start-ITCMon-With-Update.ps1`: validation, update, and launch wrapper.
 - `scripts/Launch-ITCM-Truck-Client.ps1`: process-aware launcher,

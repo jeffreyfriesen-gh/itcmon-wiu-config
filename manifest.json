@@ -1,7 +1,7 @@
 {
   "schema": "itcmon.config.manifest.v1",
-  "version": "2026-08-18.3",
-  "generated_utc": "2026-08-18T23:58:00Z",
+  "version": "2026-08-19.1",
+  "generated_utc": "2026-08-19T00:27:04Z",
   "wiu_count": 95,
   "rrdata_path": "rrdata.json",
   "applications": [
@@ -98,8 +98,16 @@
       "sha256": "6F8CB0C294783983A39CEF21458A8A5942C95466D6E127FB24420B5E2C8CE3AC"
     },
     {
+      "path": "scripts/Bootstrap-ITCM-Truck-Client.ps1",
+      "sha256": "BED6009D4CD993781CED3551DB72F8525B9263DB792740AC25E74D4FDE5C35C8"
+    },
+    {
+      "path": "scripts/Invoke-ITCM-ElevatedInstaller.ps1",
+      "sha256": "C2261914FFA55E77DC733CA921D5C04343B5C9C28E1902A43FE4B7C73254C842"
+    },
+    {
       "path": "scripts/Install-ITCMon-Truck-Client.ps1",
-      "sha256": "534DCD9561A11485B511EEF7C62C2CF2EE6E2AB1A31AA21C99E79A9E548A3843"
+      "sha256": "C5FDB289E7C3F31C368ACC9CE64E85F1496C103CDA2DE960931EF23F2C8C7D52"
     },
     {
       "path": "scripts/Start-ITCMon-With-Update.ps1",
