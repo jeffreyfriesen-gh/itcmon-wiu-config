@@ -39,6 +39,8 @@ $installerLogPath = $null
 $runnerLogPath = $null
 $failureMessage = $null
 $workRoot = Join-Path $env:TEMP "itcm-client-bootstrap-$runId"
+$installRootSource = $null
+$installRootCandidates = @()
 
 function Resolve-LogRoot {
     param([string]$Requested)
@@ -118,6 +120,8 @@ function Write-BootstrapStatus {
         installer_log = $installerLogPath
         work_root = $workRoot
         install_root = $InstallRoot
+        install_root_source = $installRootSource
+        install_root_candidates = $installRootCandidates
         powershell = $PowerShellPath
         powershell_version = $PSVersionTable.PSVersion.ToString()
         process_is_64_bit = [Environment]::Is64BitProcess
@@ -197,6 +201,166 @@ function Quote-ProcessArgument {
     return '"' + $Value + '"'
 }
 
+function ConvertTo-SafeInstallRoot {
+    param([Parameter(Mandatory)][string]$Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        throw 'The installation root is empty.'
+    }
+    $full = [IO.Path]::GetFullPath($Path).TrimEnd(
+        [IO.Path]::DirectorySeparatorChar,
+        [IO.Path]::AltDirectorySeparatorChar
+    )
+    if ([string]::IsNullOrWhiteSpace((Split-Path -Parent $full)) -or
+        $full -eq [IO.Path]::GetPathRoot($full)) {
+        throw "Unsafe installation root: $full"
+    }
+    foreach ($systemDirectory in @($env:windir, $env:SystemRoot) |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+        Select-Object -Unique) {
+        $systemRoot = [IO.Path]::GetFullPath($systemDirectory).TrimEnd('\')
+        if ([string]::Equals($full, $systemRoot, [StringComparison]::OrdinalIgnoreCase) -or
+            $full.StartsWith($systemRoot + '\', [StringComparison]::OrdinalIgnoreCase)) {
+            throw "Refusing to install ITCMon under the Windows system directory: $full"
+        }
+    }
+    return $full
+}
+
+function Resolve-InstallRootBeforeElevation {
+    param(
+        [string]$Requested,
+        [string]$PreferredDesktop
+    )
+
+    $records = New-Object 'System.Collections.Generic.List[object]'
+    if (-not [string]::IsNullOrWhiteSpace($Requested)) {
+        try {
+            $resolved = ConvertTo-SafeInstallRoot -Path $Requested
+        } catch {
+            $records.Add([pscustomobject][ordered]@{
+                source = 'explicit parameter'
+                path = $Requested
+                has_itcmon = $false
+                safe = $false
+                decision = 'rejected'
+                reason = $_.Exception.Message
+            }) | Out-Null
+            $script:installRootCandidates = $records.ToArray()
+            throw
+        }
+        $records.Add([pscustomobject][ordered]@{
+            source = 'explicit parameter'
+            path = $resolved
+            has_itcmon = (Test-Path -LiteralPath (Join-Path $resolved 'itcmon.exe') -PathType Leaf)
+            safe = $true
+            decision = 'selected'
+            reason = 'caller supplied an explicit safe root'
+        }) | Out-Null
+        return [pscustomobject]@{
+            Root = $resolved
+            Source = 'explicit parameter'
+            Candidates = $records.ToArray()
+        }
+    }
+
+    $localAppData = $env:LOCALAPPDATA
+    if ([string]::IsNullOrWhiteSpace($localAppData)) {
+        $localAppData = [Environment]::GetFolderPath('LocalApplicationData')
+    }
+    if ([string]::IsNullOrWhiteSpace($localAppData)) {
+        throw 'The current user has no LocalApplicationData path for the default installation root.'
+    }
+
+    $candidates = New-Object 'System.Collections.Generic.List[object]'
+    $desktop = $PreferredDesktop
+    if ([string]::IsNullOrWhiteSpace($desktop)) {
+        $desktop = [Environment]::GetFolderPath('Desktop')
+    }
+    if (-not [string]::IsNullOrWhiteSpace($desktop)) {
+        $existingShortcut = Join-Path $desktop 'ITCMon - Truck.lnk'
+        if (Test-Path -LiteralPath $existingShortcut -PathType Leaf) {
+            try {
+                $shell = New-Object -ComObject WScript.Shell
+                $savedShortcut = $shell.CreateShortcut($existingShortcut)
+                if (-not [string]::IsNullOrWhiteSpace([string]$savedShortcut.WorkingDirectory)) {
+                    $candidates.Add([pscustomobject]@{
+                        Source = "desktop shortcut $existingShortcut"
+                        Path = [string]$savedShortcut.WorkingDirectory
+                    }) | Out-Null
+                }
+            } catch {
+                $records.Add([pscustomobject][ordered]@{
+                    source = "desktop shortcut $existingShortcut"
+                    path = $null
+                    has_itcmon = $false
+                    safe = $null
+                    decision = 'ignored'
+                    reason = "shortcut inspection failed: $($_.Exception.Message)"
+                }) | Out-Null
+            }
+        }
+    }
+    foreach ($candidate in @(
+        (Join-Path $localAppData 'Programs\ITCM-Client'),
+        (Join-Path $localAppData 'Programs\ITCMon-v1.0'),
+        (Join-Path $localAppData 'Programs\ITCMon-v0.9')
+    )) {
+        $candidates.Add([pscustomobject]@{
+            Source = 'current-user known install root'
+            Path = $candidate
+        }) | Out-Null
+    }
+
+    foreach ($candidate in $candidates) {
+        try {
+            $resolved = ConvertTo-SafeInstallRoot -Path ([string]$candidate.Path)
+        } catch {
+            $records.Add([pscustomobject][ordered]@{
+                source = [string]$candidate.Source
+                path = [string]$candidate.Path
+                has_itcmon = (Test-Path -LiteralPath (Join-Path ([string]$candidate.Path) 'itcmon.exe') -PathType Leaf)
+                safe = $false
+                decision = 'rejected'
+                reason = $_.Exception.Message
+            }) | Out-Null
+            continue
+        }
+        $hasITCMon = Test-Path -LiteralPath (Join-Path $resolved 'itcmon.exe') -PathType Leaf
+        $decision = if ($hasITCMon) { 'selected-existing' } else { 'not-installed' }
+        $records.Add([pscustomobject][ordered]@{
+            source = [string]$candidate.Source
+            path = $resolved
+            has_itcmon = $hasITCMon
+            safe = $true
+            decision = $decision
+            reason = if ($hasITCMon) { 'existing itcmon.exe found' } else { 'itcmon.exe not present' }
+        }) | Out-Null
+        if ($hasITCMon) {
+            return [pscustomobject]@{
+                Root = $resolved
+                Source = [string]$candidate.Source
+                Candidates = $records.ToArray()
+            }
+        }
+    }
+
+    $fallback = ConvertTo-SafeInstallRoot -Path (Join-Path $localAppData 'Programs\ITCM-Client')
+    $records.Add([pscustomobject][ordered]@{
+        source = 'current-user default'
+        path = $fallback
+        has_itcmon = $false
+        safe = $true
+        decision = 'selected-new'
+        reason = 'no safe existing installation was found'
+    }) | Out-Null
+    return [pscustomobject]@{
+        Root = $fallback
+        Source = 'current-user default'
+        Candidates = $records.ToArray()
+    }
+}
+
 function Get-LatestLog {
     param([Parameter(Mandatory)][string]$Filter)
     $logs = @(Get-ChildItem -LiteralPath $LogRoot -File -Filter $Filter `
@@ -213,6 +377,21 @@ try {
     Start-Transcript -LiteralPath $bootstrapLogPath -Force | Out-Null
     $transcriptStarted = $true
     Write-Host "[bootstrap] Persistent log: $bootstrapLogPath"
+    Write-BootstrapStatus -Outcome 'running'
+
+    Set-BootstrapStage -Stage 'resolve a safe current-user install root before elevation'
+    $rootResolution = Resolve-InstallRootBeforeElevation `
+        -Requested $InstallRoot -PreferredDesktop $DesktopPath
+    $InstallRoot = [string]$rootResolution.Root
+    $installRootSource = [string]$rootResolution.Source
+    $installRootCandidates = @($rootResolution.Candidates)
+    Write-Host "[bootstrap] Selected install root: $InstallRoot"
+    Write-Host "[bootstrap] Install-root source: $installRootSource"
+    foreach ($candidate in $installRootCandidates) {
+        Write-Host ("[bootstrap] Install-root candidate: source='{0}' path='{1}' safe={2} has_itcmon={3} decision={4} reason='{5}'" -f
+            $candidate.source, $candidate.path, $candidate.safe, $candidate.has_itcmon,
+            $candidate.decision, $candidate.reason)
+    }
     Write-BootstrapStatus -Outcome 'running'
 
     if (Test-Path -LiteralPath $workRoot) {
@@ -346,10 +525,8 @@ try {
     )) {
         $installerArguments.Add($value)
     }
-    if (-not [string]::IsNullOrWhiteSpace($InstallRoot)) {
-        $installerArguments.Add('-InstallRoot')
-        $installerArguments.Add((Quote-ProcessArgument -Value $InstallRoot))
-    }
+    $installerArguments.Add('-InstallRoot')
+    $installerArguments.Add((Quote-ProcessArgument -Value $InstallRoot))
     if (-not [string]::IsNullOrWhiteSpace($DesktopPath)) {
         $installerArguments.Add('-DesktopPath')
         $installerArguments.Add((Quote-ProcessArgument -Value $DesktopPath))
@@ -436,7 +613,9 @@ try {
     if ($installerLogPath) {
         Write-Host "Installer log: $installerLogPath" -ForegroundColor Yellow
     }
-    Write-Host "Retained diagnostic work directory: $workRoot" -ForegroundColor Yellow
+    if (Test-Path -LiteralPath $workRoot) {
+        Write-Host "Retained diagnostic work directory: $workRoot" -ForegroundColor Yellow
+    }
     Write-Host '=====================================================' -ForegroundColor Red
     $pauseRequired = (-not $NoPause -and [Environment]::UserInteractive)
     $exitCode = 1

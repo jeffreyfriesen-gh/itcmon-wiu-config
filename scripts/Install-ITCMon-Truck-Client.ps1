@@ -62,41 +62,99 @@ try {
     Write-Warning "Persistent installer transcript could not be started: $($_.Exception.Message)"
 }
 
+function ConvertTo-SafeInstallRoot {
+    param([Parameter(Mandatory)][string]$Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        throw 'The installation root is empty.'
+    }
+    $full = [IO.Path]::GetFullPath($Path).TrimEnd(
+        [IO.Path]::DirectorySeparatorChar,
+        [IO.Path]::AltDirectorySeparatorChar
+    )
+    if ([string]::IsNullOrWhiteSpace((Split-Path -Parent $full)) -or
+        $full -eq [IO.Path]::GetPathRoot($full)) {
+        throw "Unsafe installation root: $full"
+    }
+    foreach ($systemDirectory in @($env:windir, $env:SystemRoot) |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+        Select-Object -Unique) {
+        $systemRoot = [IO.Path]::GetFullPath($systemDirectory).TrimEnd('\')
+        if ([string]::Equals($full, $systemRoot, [StringComparison]::OrdinalIgnoreCase) -or
+            $full.StartsWith($systemRoot + '\', [StringComparison]::OrdinalIgnoreCase)) {
+            throw "Refusing to install ITCMon under the Windows system directory: $full"
+        }
+    }
+    return $full
+}
+
+$installRootSource = 'explicit parameter'
 if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
-    $candidateRoots = New-Object 'System.Collections.Generic.List[string]'
+    $candidateRoots = New-Object 'System.Collections.Generic.List[object]'
     try {
-        $desktop = [Environment]::GetFolderPath('Desktop')
+        $desktop = if (-not [string]::IsNullOrWhiteSpace($DesktopPath)) {
+            $DesktopPath
+        } else {
+            [Environment]::GetFolderPath('Desktop')
+        }
         $existingShortcut = Join-Path $desktop 'ITCMon - Truck.lnk'
         if (Test-Path -LiteralPath $existingShortcut -PathType Leaf) {
             $shell = New-Object -ComObject WScript.Shell
             $savedShortcut = $shell.CreateShortcut($existingShortcut)
             if (-not [string]::IsNullOrWhiteSpace([string]$savedShortcut.WorkingDirectory)) {
-                $candidateRoots.Add([string]$savedShortcut.WorkingDirectory)
+                $candidateRoots.Add([pscustomobject]@{
+                    Source = "desktop shortcut $existingShortcut"
+                    Path = [string]$savedShortcut.WorkingDirectory
+                }) | Out-Null
             }
         }
     } catch {
-        # Common install roots below remain the deterministic fallback.
+        Write-Warning "Existing shortcut could not be inspected for install-root discovery: $($_.Exception.Message)"
+    }
+    $localAppData = $env:LOCALAPPDATA
+    if ([string]::IsNullOrWhiteSpace($localAppData)) {
+        $localAppData = [Environment]::GetFolderPath('LocalApplicationData')
+    }
+    if ([string]::IsNullOrWhiteSpace($localAppData)) {
+        throw 'The current user has no LocalApplicationData path for the default installation root.'
     }
     foreach ($candidate in @(
-        (Join-Path $env:LOCALAPPDATA 'Programs\ITCM-Client'),
-        (Join-Path $env:LOCALAPPDATA 'Programs\ITCMon-v1.0'),
-        (Join-Path $env:LOCALAPPDATA 'Programs\ITCMon-v0.9')
+        (Join-Path $localAppData 'Programs\ITCM-Client'),
+        (Join-Path $localAppData 'Programs\ITCMon-v1.0'),
+        (Join-Path $localAppData 'Programs\ITCMon-v0.9')
     )) {
-        $candidateRoots.Add($candidate)
+        $candidateRoots.Add([pscustomobject]@{
+            Source = 'current-user known install root'
+            Path = $candidate
+        }) | Out-Null
     }
-    $InstallRoot = @($candidateRoots | Where-Object {
-        Test-Path -LiteralPath (Join-Path $_ 'itcmon.exe') -PathType Leaf
-    } | Select-Object -First 1)
-    if ($InstallRoot.Count -eq 0) {
-        $InstallRoot = Join-Path $env:LOCALAPPDATA 'Programs\ITCM-Client'
-    } else {
-        $InstallRoot = [string]$InstallRoot[0]
+
+    $selectedRoot = $null
+    foreach ($candidate in $candidateRoots) {
+        try {
+            $candidateFull = ConvertTo-SafeInstallRoot -Path ([string]$candidate.Path)
+        } catch {
+            Write-Warning ("Ignoring install-root candidate from {0}: path='{1}'; reason='{2}'" -f
+                $candidate.Source, $candidate.Path, $_.Exception.Message)
+            continue
+        }
+        $hasITCMon = Test-Path -LiteralPath (Join-Path $candidateFull 'itcmon.exe') -PathType Leaf
+        Write-Host ("[install-root] Candidate source='{0}' path='{1}' safe=True has_itcmon={2}" -f
+            $candidate.Source, $candidateFull, $hasITCMon)
+        if ($hasITCMon) {
+            $selectedRoot = $candidateFull
+            $installRootSource = [string]$candidate.Source
+            break
+        }
     }
+    if ([string]::IsNullOrWhiteSpace($selectedRoot)) {
+        $selectedRoot = ConvertTo-SafeInstallRoot -Path (Join-Path $localAppData 'Programs\ITCM-Client')
+        $installRootSource = 'current-user default'
+    }
+    $InstallRoot = $selectedRoot
 }
-$installFull = [IO.Path]::GetFullPath($InstallRoot).TrimEnd(
-    [IO.Path]::DirectorySeparatorChar,
-    [IO.Path]::AltDirectorySeparatorChar
-)
+$installFull = ConvertTo-SafeInstallRoot -Path $InstallRoot
+Write-Host "[install-root] Selected '$installFull' from $installRootSource."
 $installParent = Split-Path -Parent $installFull
 $backupRoot = $null
 $previousMoved = $false

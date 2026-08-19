@@ -140,7 +140,11 @@ resolves GitHub `main` to an immutable commit, downloads that commit ZIP, and
 checks the bootstrap against the ZIP's manifest instead of trusting a mutable
 raw-branch cache. The validated bootstrap then independently validates every
 manifest-managed file, checks DNS and TCP reachability for the internal
-artifact host, and only then starts the elevated runner and installer.
+artifact host, resolves a safe current-user installation root before elevation,
+and only then starts the elevated runner and installer. Existing shortcut
+locations under the Windows system directory are rejected and recorded instead
+of being reused; a new install falls back to
+`%LOCALAPPDATA%\Programs\ITCM-Client`.
 Prebootstrap, bootstrap, elevated-runner, and installer transcripts plus
 structured last-status JSON are retained under
 `%LOCALAPPDATA%\ITCMon\InstallerLogs`.
