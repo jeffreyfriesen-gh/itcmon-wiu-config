@@ -379,6 +379,15 @@ try {
     $runnerLogPath = Get-LatestLog -Filter 'runner-*.log'
     $installerLogPath = Get-LatestLog -Filter 'install-*.log'
     if ($childExitCode -ne 0) {
+        $runnerFailure = $null
+        $lastRunnerStatus = Join-Path $LogRoot 'last-runner-status.json'
+        if (Test-Path -LiteralPath $lastRunnerStatus -PathType Leaf) {
+            try {
+                $runnerFailure = Read-JsonFile -Path $lastRunnerStatus
+            } catch {
+                Write-Host "[bootstrap warning] Runner status could not be read: $($_.Exception.Message)" -ForegroundColor Yellow
+            }
+        }
         if ($runnerLogPath) {
             Write-Host "[bootstrap failed] Elevated-runner log: $runnerLogPath" -ForegroundColor Red
             Write-Host '----- elevated-runner log tail -----' -ForegroundColor Yellow
@@ -391,7 +400,10 @@ try {
             Get-Content -LiteralPath $installerLogPath -Tail 120
             Write-Host '----- end installer log tail -----' -ForegroundColor Yellow
         }
-        throw "Validated installer exited with code $childExitCode."
+        if ($runnerFailure -and -not [string]::IsNullOrWhiteSpace([string]$runnerFailure.error)) {
+            throw "Elevated runner failed during '$($runnerFailure.stage)': $($runnerFailure.error) (exit $childExitCode)."
+        }
+        throw "Validated elevated runner exited with code $childExitCode without a readable root-error status."
     }
 
     $currentStage = 'complete'

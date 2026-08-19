@@ -471,10 +471,9 @@ if ($TruckHost -notmatch '^[A-Za-z0-9.-]+$') {
 if ([string]::IsNullOrWhiteSpace($installParent) -or $installFull -eq [IO.Path]::GetPathRoot($installFull)) {
     throw "Unsafe installation root: $installFull"
 }
-if ($installFull.StartsWith(
-    [IO.Path]::GetFullPath($env:windir).TrimEnd('\') + '\',
-    [StringComparison]::OrdinalIgnoreCase
-)) {
+$windowsRoot = [IO.Path]::GetFullPath($env:windir).TrimEnd('\')
+if ([string]::Equals($installFull, $windowsRoot, [StringComparison]::OrdinalIgnoreCase) -or
+    $installFull.StartsWith($windowsRoot + '\', [StringComparison]::OrdinalIgnoreCase)) {
     throw 'Refusing to install ITCMon under the Windows system directory.'
 }
 if (@(Get-Process -Name itcmon, itcwatch, atcsmon -ErrorAction SilentlyContinue).Count -ne 0) {
