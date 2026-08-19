@@ -523,6 +523,68 @@ function Test-TcpEndpoint {
     }
 }
 
+function Get-InstallTargetProcesses {
+    param([Parameter(Mandatory)][string]$TargetRoot)
+
+    $root = [IO.Path]::GetFullPath($TargetRoot).TrimEnd('\')
+    $expectedPaths = @{
+        itcmon = @((Join-Path $root 'itcmon.exe'))
+        itcwatch = @((Join-Path $root 'itcwatch.exe'))
+        atcsmon = @(
+            (Join-Path $root 'ATCSMon\atcsmon.exe'),
+            'C:\ATCS Monitor\atcsmon.exe'
+        )
+    }
+    return @(
+        Get-Process -Name itcmon, itcwatch, atcsmon -ErrorAction SilentlyContinue |
+            Where-Object {
+                $processPath = $null
+                try { $processPath = [IO.Path]::GetFullPath($_.Path) } catch { }
+                if ([string]::IsNullOrWhiteSpace($processPath)) {
+                    return $false
+                }
+                $name = $_.ProcessName.ToLowerInvariant()
+                @($expectedPaths[$name] | Where-Object {
+                    [string]::Equals($_, $processPath, [StringComparison]::OrdinalIgnoreCase)
+                }).Count -ne 0
+            }
+    )
+}
+
+function Stop-ClientProcessesForInstall {
+    param([Parameter(Mandatory)][string]$TargetRoot)
+
+    $running = @(Get-InstallTargetProcesses -TargetRoot $TargetRoot)
+    if ($running.Count -eq 0) {
+        Write-Host '[pre-install] No running ITCMon, ITCWatch, or ATCSMon processes were found.'
+        return
+    }
+
+    foreach ($process in $running | Sort-Object Id) {
+        $path = '<unavailable>'
+        try { $path = $process.Path } catch { }
+        Write-Host "[pre-install] Stopping $($process.ProcessName).exe PID $($process.Id) ($path)."
+        try {
+            Stop-Process -Id $process.Id -Force -ErrorAction Stop
+        } catch {
+            throw "Could not stop $($process.ProcessName).exe PID $($process.Id): $($_.Exception.Message)"
+        }
+    }
+
+    $deadline = (Get-Date).AddSeconds(15)
+    do {
+        $remaining = @(Get-InstallTargetProcesses -TargetRoot $TargetRoot)
+        if ($remaining.Count -eq 0) {
+            Write-Host '[pre-install] All ITCM client processes are stopped.'
+            return
+        }
+        Start-Sleep -Milliseconds 250
+    } while ((Get-Date) -lt $deadline)
+
+    $detail = ($remaining | ForEach-Object { "$($_.ProcessName).exe PID $($_.Id)" }) -join ', '
+    throw "ITCM client processes remain after the 15-second stop deadline: $detail"
+}
+
 if ($TruckHost -notmatch '^[A-Za-z0-9.-]+$') {
     throw 'TruckHost must be an IPv4 address or DNS hostname containing only letters, digits, dots, and hyphens.'
 }
@@ -534,9 +596,7 @@ if ([string]::Equals($installFull, $windowsRoot, [StringComparison]::OrdinalIgno
     $installFull.StartsWith($windowsRoot + '\', [StringComparison]::OrdinalIgnoreCase)) {
     throw 'Refusing to install ITCMon under the Windows system directory.'
 }
-if (@(Get-Process -Name itcmon, itcwatch, atcsmon -ErrorAction SilentlyContinue).Count -ne 0) {
-    throw 'ITCMon, ITCWatch, or ATCSMon is running. Close all three before provisioning or updating the client.'
-}
+Stop-ClientProcessesForInstall -TargetRoot $installFull
 $existingATCSRuntime = (Test-Path -LiteralPath (Join-Path $installFull 'ATCSMon\atcsmon.exe') -PathType Leaf) -or
     (Test-Path -LiteralPath 'C:\ATCS Monitor\atcsmon.exe' -PathType Leaf)
 
