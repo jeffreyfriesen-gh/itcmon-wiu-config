@@ -6,32 +6,19 @@ for ITCMon, ITCWatch, and ATCSMon.
 
 ## Net-new Windows laptop
 
-Connect the laptop to the truck LAN and use Windows PowerShell 5.1 or newer:
+Connect the laptop to the truck LAN and paste this into an already-open Windows
+PowerShell 5.1 or newer window:
 
 ```powershell
-$installer = Join-Path $env:TEMP 'Install-ITCMon-Truck-Client.ps1'
-$installerUrl = 'https://raw.githubusercontent.com/jeffreyfriesen-gh/itcmon-wiu-config/main/scripts/Install-ITCMon-Truck-Client.ps1'
-$installStarted = Get-Date
-$installerLogRoot = Join-Path $env:LOCALAPPDATA 'ITCMon\InstallerLogs'
+$bootstrap = Join-Path $env:TEMP 'Bootstrap-ITCM-Truck-Client.ps1'
+$bootstrapUrl = 'https://raw.githubusercontent.com/jeffreyfriesen-gh/itcmon-wiu-config/main/scripts/Bootstrap-ITCM-Truck-Client.ps1'
 if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
-  & curl.exe --fail --location --retry 4 --connect-timeout 20 --max-time 120 --output $installer $installerUrl
-  if ($LASTEXITCODE -ne 0) { throw "Installer download failed with curl exit $LASTEXITCODE." }
+  & curl.exe --fail --location --retry 4 --connect-timeout 20 --max-time 120 --output $bootstrap $bootstrapUrl
+  if ($LASTEXITCODE -ne 0) { throw "Bootstrap download failed with curl exit $LASTEXITCODE." }
 } else {
-  Invoke-WebRequest -UseBasicParsing -TimeoutSec 120 -Uri $installerUrl -OutFile $installer
+  Invoke-WebRequest -UseBasicParsing -TimeoutSec 120 -Uri $bootstrapUrl -OutFile $bootstrap
 }
-$argumentLine = '-NoProfile -ExecutionPolicy Bypass -File "{0}"' -f $installer
-$result = Start-Process powershell.exe -Verb RunAs -Wait -PassThru -ArgumentList $argumentLine
-if ($result.ExitCode -ne 0) {
-  $latestLog = Get-ChildItem -LiteralPath $installerLogRoot -File -Filter 'install-*.log' -ErrorAction SilentlyContinue |
-    Where-Object LastWriteTime -ge $installStarted.AddMinutes(-1) |
-    Sort-Object LastWriteTime -Descending |
-    Select-Object -First 1
-  if ($latestLog) {
-    Write-Host "Installer diagnostic log: $($latestLog.FullName)" -ForegroundColor Yellow
-    Get-Content -LiteralPath $latestLog.FullName -Tail 80
-  }
-  throw "Installer failed with exit code $($result.ExitCode). See the diagnostic output and retained log above."
-}
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $bootstrap
 ```
 
 The installer downloads SHA-256-pinned packages for ITCMon v1.0, ITCWatch
@@ -80,10 +67,14 @@ stall. A failure names the active stage and its final error. Windows
 PowerShell's `Invoke-WebRequest` is only a three-attempt fallback when
 `curl.exe` is absent; that fallback explicitly reports that it cannot resume a
 partial file before restarting an attempt.
-Every elevated installer run also retains a transcript under
-`%LOCALAPPDATA%\ITCMon\InstallerLogs`. If installation fails, the paste-in
-bootstrap prints the newest transcript path and its final 80 lines back into
-the original PowerShell window instead of reporting only the child exit code.
+The bootstrap begins logging before it requests elevation. It resolves GitHub
+`main` to an immutable commit, validates every manifest-managed file, checks
+DNS and TCP reachability for the internal artifact host, and only then starts
+the elevated installer. Bootstrap and installer transcripts plus structured
+last-status JSON are retained under `%LOCALAPPDATA%\ITCMon\InstallerLogs`.
+On failure, both the elevated window and the original bootstrap window remain
+open until Enter is pressed; the bootstrap prints the exact failed stage,
+error, relevant log paths, and the final 120 lines of the installer log.
 
 The truck-client profile combines 36 ITCM-PVE endpoints with Railfan-01's 17
 resource-bounded endpoints, for 53 enabled ITCMon servers. ITCM-PVE monitors
@@ -125,6 +116,11 @@ pattern. Use
 - `manifest.json`: expected counts and SHA-256 for every distributed machine
   file plus the reviewed ITCMon, ITCWatch, and ATCSMon packages and the ITCMon
   shortcut icon.
+- `scripts/Bootstrap-ITCM-Truck-Client.ps1`: pre-elevation diagnostics,
+  immutable GitHub archive validation, artifact-host preflight, structured
+  status, failure pause, and orchestration of the elevated runner.
+- `scripts/Invoke-ITCM-ElevatedInstaller.ps1`: captures failures that occur
+  before the installer body can initialize its own transcript.
 - `scripts/Install-ITCMon-Truck-Client.ps1`: complete Windows client installer.
 - `scripts/Start-ITCMon-With-Update.ps1`: validation, update, and launch wrapper.
 - `scripts/Launch-ITCM-Truck-Client.ps1`: process-aware launcher,

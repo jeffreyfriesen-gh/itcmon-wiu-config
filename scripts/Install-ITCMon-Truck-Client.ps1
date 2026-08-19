@@ -18,9 +18,13 @@ param(
 
     [string]$DesktopPath,
 
+    [string]$InstallerLogRoot,
+
     [switch]$NoDesktopShortcut,
 
-    [switch]$NoLaunch
+    [switch]$NoLaunch,
+
+    [switch]$PauseOnFailure
 )
 
 $ErrorActionPreference = 'Stop'
@@ -40,7 +44,9 @@ $shortcutIconDownload = "$workRoot-itcmon-truck.ico"
 $configurationArchive = "$workRoot-config.zip"
 $packageRoot = Join-Path $workRoot 'package'
 $configurationExtract = Join-Path $workRoot 'configuration'
-$installerLogRoot = if (-not [string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) {
+$installerLogRoot = if (-not [string]::IsNullOrWhiteSpace($InstallerLogRoot)) {
+    $InstallerLogRoot
+} elseif (-not [string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) {
     Join-Path $env:LOCALAPPDATA 'ITCMon\InstallerLogs'
 } else {
     Join-Path $env:TEMP 'ITCMon-InstallerLogs'
@@ -892,6 +898,10 @@ try {
     Write-Host "[failed] $($_.Exception.Message)" -ForegroundColor Red
     if ($installerTranscriptStarted) {
         Write-Host "[failed] Persistent transcript: $installerLogPath" -ForegroundColor Red
+    }
+    if ($PauseOnFailure -and [Environment]::UserInteractive) {
+        Write-Host ''
+        [void](Read-Host 'The installer failed. Press Enter to close this window')
     }
     throw
 } finally {
