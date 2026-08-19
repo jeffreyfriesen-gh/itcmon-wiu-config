@@ -10,15 +10,83 @@ Connect the laptop to the truck LAN and paste this into an already-open Windows
 PowerShell 5.1 or newer window:
 
 ```powershell
-$bootstrap = Join-Path $env:TEMP 'Bootstrap-ITCM-Truck-Client.ps1'
-$bootstrapUrl = 'https://raw.githubusercontent.com/jeffreyfriesen-gh/itcmon-wiu-config/main/scripts/Bootstrap-ITCM-Truck-Client.ps1'
-if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
-  & curl.exe --fail --location --retry 4 --connect-timeout 20 --max-time 120 --output $bootstrap $bootstrapUrl
-  if ($LASTEXITCODE -ne 0) { throw "Bootstrap download failed with curl exit $LASTEXITCODE." }
-} else {
-  Invoke-WebRequest -UseBasicParsing -TimeoutSec 120 -Uri $bootstrapUrl -OutFile $bootstrap
+$ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+$repo = 'jeffreyfriesen-gh/itcmon-wiu-config'
+$run = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
+$logRoot = Join-Path $env:LOCALAPPDATA 'ITCMon\InstallerLogs'
+try { New-Item -ItemType Directory -Path $logRoot -Force | Out-Null } catch {
+  $logRoot = Join-Path $env:TEMP 'ITCMon-InstallerLogs'
+  New-Item -ItemType Directory -Path $logRoot -Force | Out-Null
 }
-& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $bootstrap
+$preLog = Join-Path $logRoot "prebootstrap-$run.log"
+$preStatus = Join-Path $logRoot 'last-prebootstrap-status.json'
+$work = Join-Path $env:TEMP "itcm-prebootstrap-$run-$PID"
+$failed = $false
+$stage = 'initialize diagnostics'
+function Save-PrebootstrapStatus([string]$outcome, [string]$errorMessage = '') {
+  [ordered]@{
+    schema='itcm.client.prebootstrap.status.v1'; run_id=$run
+    updated_at=(Get-Date).ToUniversalTime().ToString('o'); outcome=$outcome
+    stage=$stage; error=$errorMessage; prebootstrap_log=$preLog; work_root=$work
+  } | ConvertTo-Json | Set-Content -LiteralPath $preStatus -Encoding UTF8
+}
+Start-Transcript -LiteralPath $preLog -Force | Out-Null
+try {
+  Save-PrebootstrapStatus 'running'
+  Write-Host "[prebootstrap] Log: $preLog"
+  $stage = 'resolve GitHub main to an immutable commit'
+  $headers = @{ 'User-Agent'='ITCM-Client-Prebootstrap'; 'Accept'='application/vnd.github+json' }
+  $commit = (Invoke-RestMethod -UseBasicParsing -TimeoutSec 60 -Headers $headers -Uri "https://api.github.com/repos/$repo/commits/main").sha
+  if ($commit -notmatch '^[0-9a-fA-F]{40}$') { throw "GitHub returned an invalid main commit: $commit" }
+  $stage = 'download immutable GitHub archive'
+  New-Item -ItemType Directory -Path $work -Force | Out-Null
+  $zip = "$work.zip"
+  if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
+    & curl.exe --fail --location --retry 4 --connect-timeout 20 --max-time 180 --output $zip "https://github.com/$repo/archive/$commit.zip"
+    if ($LASTEXITCODE -ne 0) { throw "Immutable archive download failed with curl exit $LASTEXITCODE." }
+  } else {
+    Invoke-WebRequest -UseBasicParsing -TimeoutSec 180 -Uri "https://github.com/$repo/archive/$commit.zip" -OutFile $zip
+  }
+  $stage = 'validate bootstrap against manifest'
+  Expand-Archive -LiteralPath $zip -DestinationPath $work -Force
+  $roots = @(Get-ChildItem -LiteralPath $work -Directory)
+  if ($roots.Count -ne 1) { throw "GitHub archive contained $($roots.Count) roots; expected one." }
+  $manifest = Get-Content -Raw -LiteralPath (Join-Path $roots[0].FullName 'manifest.json') | ConvertFrom-Json
+  $entry = @($manifest.files | Where-Object path -eq 'scripts/Bootstrap-ITCM-Truck-Client.ps1')
+  if ($entry.Count -ne 1) { throw 'Manifest has no unique net-new bootstrap entry.' }
+  $bootstrap = Join-Path $roots[0].FullName 'scripts\Bootstrap-ITCM-Truck-Client.ps1'
+  $actual = (Get-FileHash -LiteralPath $bootstrap -Algorithm SHA256).Hash
+  if ($actual -ne ([string]$entry[0].sha256).ToUpperInvariant()) { throw "Bootstrap SHA-256 mismatch: $actual" }
+  $stage = 'run validated bootstrap'
+  & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $bootstrap -LogRoot $logRoot
+  if ($LASTEXITCODE -ne 0) { throw "Validated bootstrap exited with code $LASTEXITCODE." }
+  $stage = 'complete'
+  Save-PrebootstrapStatus 'success'
+} catch {
+  $failed = $true
+  $failureMessage = $_.Exception.Message
+  Save-PrebootstrapStatus 'failed' $failureMessage
+  Write-Host '========== NET-NEW PREBOOTSTRAP FAILED ==========' -ForegroundColor Red
+  Write-Host "Stage: $stage" -ForegroundColor Red
+  Write-Host $failureMessage -ForegroundColor Red
+  Write-Host "Prebootstrap log: $preLog" -ForegroundColor Yellow
+  Write-Host "Prebootstrap status: $preStatus" -ForegroundColor Yellow
+  if (Test-Path -LiteralPath $work) {
+    Write-Host "Retained work directory: $work" -ForegroundColor Yellow
+  }
+  Write-Host '=================================================' -ForegroundColor Red
+} finally {
+  if (-not $failed) {
+    if (Test-Path -LiteralPath $work) { Remove-Item -LiteralPath $work -Recurse -Force }
+    if (Test-Path -LiteralPath "$work.zip") { Remove-Item -LiteralPath "$work.zip" -Force }
+  }
+  Stop-Transcript | Out-Null
+}
+if ($failed) {
+  [void](Read-Host 'Installation failed. Press Enter after recording the log path')
+  throw "Net-new installation failed. See $preLog"
+}
 ```
 
 The installer downloads SHA-256-pinned packages for ITCMon v1.0, ITCWatch
@@ -67,11 +135,15 @@ stall. A failure names the active stage and its final error. Windows
 PowerShell's `Invoke-WebRequest` is only a three-attempt fallback when
 `curl.exe` is absent; that fallback explicitly reports that it cannot resume a
 partial file before restarting an attempt.
-The bootstrap begins logging before it requests elevation. It resolves GitHub
-`main` to an immutable commit, validates every manifest-managed file, checks
-DNS and TCP reachability for the internal artifact host, and only then starts
-the elevated installer. Bootstrap and installer transcripts plus structured
-last-status JSON are retained under `%LOCALAPPDATA%\ITCMon\InstallerLogs`.
+The paste-in prebootstrap logs before downloading executable PowerShell. It
+resolves GitHub `main` to an immutable commit, downloads that commit ZIP, and
+checks the bootstrap against the ZIP's manifest instead of trusting a mutable
+raw-branch cache. The validated bootstrap then independently validates every
+manifest-managed file, checks DNS and TCP reachability for the internal
+artifact host, and only then starts the elevated runner and installer.
+Prebootstrap, bootstrap, elevated-runner, and installer transcripts plus
+structured last-status JSON are retained under
+`%LOCALAPPDATA%\ITCMon\InstallerLogs`.
 On failure, both the elevated window and the original bootstrap window remain
 open until Enter is pressed; the bootstrap prints the exact failed stage,
 error, relevant log paths, and the final 120 lines of the installer log.
