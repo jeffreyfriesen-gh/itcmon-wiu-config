@@ -40,6 +40,21 @@ $shortcutIconDownload = "$workRoot-itcmon-truck.ico"
 $configurationArchive = "$workRoot-config.zip"
 $packageRoot = Join-Path $workRoot 'package'
 $configurationExtract = Join-Path $workRoot 'configuration'
+$installerLogRoot = if (-not [string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) {
+    Join-Path $env:LOCALAPPDATA 'ITCMon\InstallerLogs'
+} else {
+    Join-Path $env:TEMP 'ITCMon-InstallerLogs'
+}
+$installerLogPath = Join-Path $installerLogRoot "install-$stamp-pid$PID.log"
+$installerTranscriptStarted = $false
+try {
+    New-Item -ItemType Directory -Path $installerLogRoot -Force | Out-Null
+    Start-Transcript -LiteralPath $installerLogPath -Force | Out-Null
+    $installerTranscriptStarted = $true
+    Write-Host "[log] Persistent installer transcript: $installerLogPath"
+} catch {
+    Write-Warning "Persistent installer transcript could not be started: $($_.Exception.Message)"
+}
 
 if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
     $candidateRoots = New-Object 'System.Collections.Generic.List[string]'
@@ -875,6 +890,9 @@ try {
 } catch {
     Write-Host "[failed] Installer stopped during $currentStage" -ForegroundColor Red
     Write-Host "[failed] $($_.Exception.Message)" -ForegroundColor Red
+    if ($installerTranscriptStarted) {
+        Write-Host "[failed] Persistent transcript: $installerLogPath" -ForegroundColor Red
+    }
     throw
 } finally {
     if (-not $success -and $newInstalled) {
@@ -891,6 +909,14 @@ try {
     )) {
         if (Test-Path -LiteralPath $temporary) {
             Remove-Item -LiteralPath $temporary -Recurse -Force
+        }
+    }
+    if ($installerTranscriptStarted) {
+        Write-Host "[log] Installer transcript retained at $installerLogPath"
+        try {
+            Stop-Transcript | Out-Null
+        } catch {
+            # Do not mask the installer result if transcript shutdown fails.
         }
     }
 }

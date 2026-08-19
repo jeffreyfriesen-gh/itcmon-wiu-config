@@ -11,6 +11,8 @@ Connect the laptop to the truck LAN and use Windows PowerShell 5.1 or newer:
 ```powershell
 $installer = Join-Path $env:TEMP 'Install-ITCMon-Truck-Client.ps1'
 $installerUrl = 'https://raw.githubusercontent.com/jeffreyfriesen-gh/itcmon-wiu-config/main/scripts/Install-ITCMon-Truck-Client.ps1'
+$installStarted = Get-Date
+$installerLogRoot = Join-Path $env:LOCALAPPDATA 'ITCMon\InstallerLogs'
 if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
   & curl.exe --fail --location --retry 4 --connect-timeout 20 --max-time 120 --output $installer $installerUrl
   if ($LASTEXITCODE -ne 0) { throw "Installer download failed with curl exit $LASTEXITCODE." }
@@ -19,7 +21,17 @@ if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
 }
 $argumentLine = '-NoProfile -ExecutionPolicy Bypass -File "{0}"' -f $installer
 $result = Start-Process powershell.exe -Verb RunAs -Wait -PassThru -ArgumentList $argumentLine
-if ($result.ExitCode -ne 0) { throw "Installer failed with exit code $($result.ExitCode)." }
+if ($result.ExitCode -ne 0) {
+  $latestLog = Get-ChildItem -LiteralPath $installerLogRoot -File -Filter 'install-*.log' -ErrorAction SilentlyContinue |
+    Where-Object LastWriteTime -ge $installStarted.AddMinutes(-1) |
+    Sort-Object LastWriteTime -Descending |
+    Select-Object -First 1
+  if ($latestLog) {
+    Write-Host "Installer diagnostic log: $($latestLog.FullName)" -ForegroundColor Yellow
+    Get-Content -LiteralPath $latestLog.FullName -Tail 80
+  }
+  throw "Installer failed with exit code $($result.ExitCode). See the diagnostic output and retained log above."
+}
 ```
 
 The installer downloads SHA-256-pinned packages for ITCMon v1.0, ITCWatch
@@ -68,6 +80,10 @@ stall. A failure names the active stage and its final error. Windows
 PowerShell's `Invoke-WebRequest` is only a three-attempt fallback when
 `curl.exe` is absent; that fallback explicitly reports that it cannot resume a
 partial file before restarting an attempt.
+Every elevated installer run also retains a transcript under
+`%LOCALAPPDATA%\ITCMon\InstallerLogs`. If installation fails, the paste-in
+bootstrap prints the newest transcript path and its final 80 lines back into
+the original PowerShell window instead of reporting only the child exit code.
 
 The truck-client profile combines 36 ITCM-PVE endpoints with Railfan-01's 17
 resource-bounded endpoints, for 53 enabled ITCMon servers. ITCM-PVE monitors
