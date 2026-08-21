@@ -1,7 +1,7 @@
 {
   "schema": "itcmon.config.manifest.v1",
-  "version": "2026-08-21.4",
-  "generated_utc": "2026-08-21T05:46:08Z",
+  "version": "2026-08-21.5",
+  "generated_utc": "2026-08-21T06:05:19Z",
   "wiu_count": 95,
   "rrdata_path": "rrdata.json",
   "applications": [
@@ -123,7 +123,7 @@
     },
     {
       "path": "scripts/Invoke-ITCM-BackgroundUpdate.ps1",
-      "sha256": "96A4736872515BB5DD07A938F1549F1830D43334799E862A8AD25C5F6C75FF81"
+      "sha256": "F345A8496F5DF548E9278AB44A8F035BB8A1CCD2FE9670203683E1941290201A"
     },
     {
       "path": "scripts/Register-ITCM-GitHub-UpdateTask.ps1",

@@ -19,6 +19,21 @@ $outcome = 'failed'
 $detail = $null
 $manifestVersion = $null
 $logPath = $null
+$manifestDownload = $null
+
+function ConvertTo-ManifestVersionKey {
+    param([Parameter(Mandatory)][string]$Version)
+
+    if ($Version -notmatch '^(\d{4})-(\d{2})-(\d{2})\.(\d+)$') {
+        throw "Unsupported configuration manifest version: $Version"
+    }
+    $date = [int64]("{0}{1}{2}" -f $Matches[1], $Matches[2], $Matches[3])
+    $revision = [int64]$Matches[4]
+    if ($revision -ge 1000000) {
+        throw "Configuration manifest revision is too large: $Version"
+    }
+    return ($date * 1000000L) + $revision
+}
 
 function Write-Status {
     param([Parameter(Mandatory)][string]$Result)
@@ -62,6 +77,48 @@ try {
         $detail = 'Another GitHub configuration update is already running.'
         Write-Host $detail
         return
+    }
+
+    if ($RepositoryUrl -notmatch '^https://github\.com/([^/]+)/([^/]+?)(?:\.git)?$') {
+        throw "Background manifest preflight supports only an HTTPS GitHub repository URL: $RepositoryUrl"
+    }
+    $owner = $Matches[1]
+    $repositoryName = $Matches[2]
+    if ($Branch -notmatch '^[A-Za-z0-9._/-]+$') {
+        throw "Unsafe GitHub branch name: $Branch"
+    }
+    $manifestUri = "https://raw.githubusercontent.com/$owner/$repositoryName/$Branch/manifest.json"
+    $manifestDownload = Join-Path $env:TEMP "itcm-github-manifest-$PID.json"
+    if (Test-Path -LiteralPath $manifestDownload) {
+        throw "Refusing to replace unexpected manifest staging file: $manifestDownload"
+    }
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Invoke-WebRequest -UseBasicParsing -Uri $manifestUri -OutFile $manifestDownload -TimeoutSec 60
+    $remoteManifest = [IO.File]::ReadAllText($manifestDownload).TrimStart([char]0xFEFF) | ConvertFrom-Json
+    if ($remoteManifest.schema -ne 'itcmon.config.manifest.v1') {
+        throw "Unsupported GitHub manifest schema: $($remoteManifest.schema)"
+    }
+    $manifestVersion = [string]$remoteManifest.version
+    $remoteKey = ConvertTo-ManifestVersionKey -Version $manifestVersion
+    $installedManifestPath = Join-Path $InstallRoot 'itcmon-config-manifest.json'
+    if (Test-Path -LiteralPath $installedManifestPath -PathType Leaf) {
+        $installedManifest = [IO.File]::ReadAllText($installedManifestPath).TrimStart([char]0xFEFF) | ConvertFrom-Json
+        $installedVersion = [string]$installedManifest.version
+        $installedKey = ConvertTo-ManifestVersionKey -Version $installedVersion
+        if ($remoteKey -lt $installedKey) {
+            throw "Refusing configuration downgrade from $installedVersion to $manifestVersion."
+        }
+        if ($remoteKey -eq $installedKey) {
+            $remoteHash = (Get-FileHash -LiteralPath $manifestDownload -Algorithm SHA256).Hash
+            $installedHash = (Get-FileHash -LiteralPath $installedManifestPath -Algorithm SHA256).Hash
+            if ($remoteHash -ne $installedHash) {
+                throw "Refusing changed content published under existing manifest version $manifestVersion."
+            }
+            $outcome = 'current'
+            $detail = "Validated GitHub configuration $manifestVersion is already installed."
+            Write-Host $detail
+            return
+        }
     }
 
     $installFull = [IO.Path]::GetFullPath($InstallRoot).TrimEnd('\')
@@ -137,6 +194,9 @@ try {
     }
     if ($transcriptStarted) {
         try { Stop-Transcript | Out-Null } catch {}
+    }
+    if ($manifestDownload -and (Test-Path -LiteralPath $manifestDownload)) {
+        Remove-Item -LiteralPath $manifestDownload -Force -ErrorAction SilentlyContinue
     }
     if ($logPath) {
         Get-ChildItem -LiteralPath (Split-Path -Parent $logPath) -Filter 'update-*.log' -File |
