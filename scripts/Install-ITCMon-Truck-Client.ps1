@@ -523,32 +523,227 @@ function Test-TcpEndpoint {
     }
 }
 
+if (-not ([System.Management.Automation.PSTypeName]'ITCMRestartManager').Type) {
+    Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+using System.Text;
+
+public static class ITCMRestartManager
+{
+    private const int ERROR_SUCCESS = 0;
+    private const int ERROR_MORE_DATA = 234;
+    private const int CCH_RM_SESSION_KEY = 32;
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RM_UNIQUE_PROCESS
+    {
+        public int dwProcessId;
+        public System.Runtime.InteropServices.ComTypes.FILETIME ProcessStartTime;
+    }
+
+    public enum RM_APP_TYPE
+    {
+        RmUnknownApp = 0,
+        RmMainWindow = 1,
+        RmOtherWindow = 2,
+        RmService = 3,
+        RmExplorer = 4,
+        RmConsole = 5,
+        RmCritical = 1000
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    public struct RM_PROCESS_INFO
+    {
+        public RM_UNIQUE_PROCESS Process;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+        public string strAppName;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
+        public string strServiceShortName;
+        public RM_APP_TYPE ApplicationType;
+        public uint AppStatus;
+        public uint TSSessionId;
+        [MarshalAs(UnmanagedType.Bool)]
+        public bool bRestartable;
+    }
+
+    [DllImport("rstrtmgr.dll", CharSet = CharSet.Unicode)]
+    private static extern int RmStartSession(out uint sessionHandle, int sessionFlags, StringBuilder sessionKey);
+
+    [DllImport("rstrtmgr.dll", CharSet = CharSet.Unicode)]
+    private static extern int RmRegisterResources(
+        uint sessionHandle,
+        uint fileCount,
+        string[] fileNames,
+        uint applicationCount,
+        RM_UNIQUE_PROCESS[] applications,
+        uint serviceCount,
+        string[] serviceNames);
+
+    [DllImport("rstrtmgr.dll")]
+    private static extern int RmGetList(
+        uint sessionHandle,
+        out uint processInfoNeeded,
+        ref uint processInfoCount,
+        [In, Out] RM_PROCESS_INFO[] affectedApps,
+        ref uint rebootReasons);
+
+    [DllImport("rstrtmgr.dll")]
+    private static extern int RmEndSession(uint sessionHandle);
+
+    public static RM_PROCESS_INFO[] GetLockingProcesses(string[] fileNames)
+    {
+        if (fileNames == null || fileNames.Length == 0)
+            return new RM_PROCESS_INFO[0];
+
+        uint handle;
+        var key = new StringBuilder(CCH_RM_SESSION_KEY + 1);
+        int result = RmStartSession(out handle, 0, key);
+        if (result != ERROR_SUCCESS)
+            throw new InvalidOperationException("RmStartSession failed with Win32 error " + result + ".");
+
+        try
+        {
+            result = RmRegisterResources(handle, (uint)fileNames.Length, fileNames, 0, null, 0, null);
+            if (result != ERROR_SUCCESS)
+                throw new InvalidOperationException("RmRegisterResources failed with Win32 error " + result + ".");
+
+            uint needed = 0;
+            uint count = 0;
+            uint rebootReasons = 0;
+            result = RmGetList(handle, out needed, ref count, null, ref rebootReasons);
+            if (result == ERROR_SUCCESS)
+                return new RM_PROCESS_INFO[0];
+            if (result != ERROR_MORE_DATA)
+                throw new InvalidOperationException("RmGetList(size) failed with Win32 error " + result + ".");
+
+            var processes = new RM_PROCESS_INFO[needed];
+            count = needed;
+            result = RmGetList(handle, out needed, ref count, processes, ref rebootReasons);
+            if (result != ERROR_SUCCESS)
+                throw new InvalidOperationException("RmGetList(data) failed with Win32 error " + result + ".");
+            if (count == processes.Length)
+                return processes;
+            var trimmed = new RM_PROCESS_INFO[count];
+            Array.Copy(processes, trimmed, count);
+            return trimmed;
+        }
+        finally
+        {
+            RmEndSession(handle);
+        }
+    }
+}
+'@
+}
+
+function Test-PathInsideRoot {
+    param(
+        [string]$Path,
+        [Parameter(Mandatory)][string]$Root
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        return $false
+    }
+    try {
+        $fullPath = [IO.Path]::GetFullPath($Path)
+        $fullRoot = [IO.Path]::GetFullPath($Root).TrimEnd('\') + '\'
+        return $fullPath.StartsWith($fullRoot, [StringComparison]::OrdinalIgnoreCase)
+    } catch {
+        return $false
+    }
+}
+
 function Get-InstallTargetProcesses {
     param([Parameter(Mandatory)][string]$TargetRoot)
 
-    $root = [IO.Path]::GetFullPath($TargetRoot).TrimEnd('\')
-    $expectedPaths = @{
-        itcmon = @((Join-Path $root 'itcmon.exe'))
-        itcwatch = @((Join-Path $root 'itcwatch.exe'))
-        atcsmon = @(
-            (Join-Path $root 'ATCSMon\atcsmon.exe'),
-            'C:\ATCS Monitor\atcsmon.exe'
-        )
-    }
+    $legacyATCSMon = 'C:\ATCS Monitor\atcsmon.exe'
     return @(
-        Get-Process -Name itcmon, itcwatch, atcsmon -ErrorAction SilentlyContinue |
+        Get-Process -ErrorAction SilentlyContinue |
             Where-Object {
                 $processPath = $null
-                try { $processPath = [IO.Path]::GetFullPath($_.Path) } catch { }
-                if ([string]::IsNullOrWhiteSpace($processPath)) {
-                    return $false
-                }
-                $name = $_.ProcessName.ToLowerInvariant()
-                @($expectedPaths[$name] | Where-Object {
-                    [string]::Equals($_, $processPath, [StringComparison]::OrdinalIgnoreCase)
-                }).Count -ne 0
+                try { $processPath = $_.Path } catch { }
+                (Test-PathInsideRoot -Path $processPath -Root $TargetRoot) -or
+                    ([string]::Equals($processPath, $legacyATCSMon, [StringComparison]::OrdinalIgnoreCase))
             }
     )
+}
+
+function Get-InstallResourceLockers {
+    param([Parameter(Mandatory)][string]$TargetRoot)
+
+    if (-not (Test-Path -LiteralPath $TargetRoot -PathType Container)) {
+        return @()
+    }
+    $files = @(Get-ChildItem -LiteralPath $TargetRoot -Recurse -File -Force -ErrorAction SilentlyContinue |
+        Select-Object -ExpandProperty FullName)
+    if ($files.Count -eq 0) {
+        return @()
+    }
+
+    try {
+        $lockInfo = @([ITCMRestartManager]::GetLockingProcesses([string[]]$files))
+    } catch {
+        Write-Warning "Windows Restart Manager could not enumerate install-directory locks: $($_.Exception.Message)"
+        return @()
+    }
+
+    return @($lockInfo | ForEach-Object {
+        $lockerPID = [int]$_.Process.dwProcessId
+        $process = Get-Process -Id $lockerPID -ErrorAction SilentlyContinue
+        $processPath = $null
+        if ($process) {
+            try { $processPath = $process.Path } catch { }
+        }
+        $commandLine = $null
+        try {
+            $cim = Get-CimInstance Win32_Process -Filter "ProcessId = $lockerPID" -ErrorAction Stop
+            $commandLine = [string]$cim.CommandLine
+        } catch { }
+        [pscustomobject]@{
+            Id = $lockerPID
+            ProcessName = if ($process) { [string]$process.ProcessName } else { [string]$_.strAppName }
+            Path = $processPath
+            CommandLine = $commandLine
+            ApplicationType = [string]$_.ApplicationType
+            ServiceName = [string]$_.strServiceShortName
+        }
+    } | Sort-Object Id -Unique)
+}
+
+function Test-ApprovedInstallLocker {
+    param(
+        [Parameter(Mandatory)]$Locker,
+        [Parameter(Mandatory)][string]$TargetRoot
+    )
+
+    if ([int]$Locker.Id -le 4 -or [int]$Locker.Id -eq $PID) {
+        return $false
+    }
+    if ((Test-PathInsideRoot -Path ([string]$Locker.Path) -Root $TargetRoot) -or
+        [string]::Equals([string]$Locker.Path, 'C:\ATCS Monitor\atcsmon.exe', [StringComparison]::OrdinalIgnoreCase)) {
+        return $true
+    }
+
+    $scriptHosts = @('cmd', 'powershell', 'pwsh', 'python', 'pythonw')
+    $rootPrefix = [IO.Path]::GetFullPath($TargetRoot).TrimEnd('\') + '\'
+    return ([string]$Locker.ProcessName).ToLowerInvariant() -in $scriptHosts -and
+        -not [string]::IsNullOrWhiteSpace([string]$Locker.CommandLine) -and
+        ([string]$Locker.CommandLine).IndexOf($rootPrefix, [StringComparison]::OrdinalIgnoreCase) -ge 0
+}
+
+function Format-InstallLockerList {
+    param([object[]]$Lockers)
+
+    if (@($Lockers).Count -eq 0) {
+        return '<none reported>'
+    }
+    return (@($Lockers | ForEach-Object {
+        $path = if ([string]::IsNullOrWhiteSpace([string]$_.Path)) { '<path unavailable>' } else { [string]$_.Path }
+        "PID $($_.Id) $($_.ProcessName) [$($_.ApplicationType)] $path"
+    }) -join '; ')
 }
 
 function Stop-ClientProcessesForInstall {
@@ -556,8 +751,7 @@ function Stop-ClientProcessesForInstall {
 
     $running = @(Get-InstallTargetProcesses -TargetRoot $TargetRoot)
     if ($running.Count -eq 0) {
-        Write-Host '[pre-install] No running ITCMon, ITCWatch, or ATCSMon processes were found.'
-        return
+        Write-Host '[pre-install] No executable processes launched from the ITCM installation tree were found.'
     }
 
     foreach ($process in $running | Sort-Object Id) {
@@ -571,11 +765,27 @@ function Stop-ClientProcessesForInstall {
         }
     }
 
+    $lockers = @(Get-InstallResourceLockers -TargetRoot $TargetRoot)
+    foreach ($locker in $lockers) {
+        if (-not (Test-ApprovedInstallLocker -Locker $locker -TargetRoot $TargetRoot)) {
+            Write-Warning ("Install resource is held by an unrecognized process; it will not be force-stopped: {0}" -f `
+                (Format-InstallLockerList -Lockers @($locker)))
+            continue
+        }
+        Write-Host ("[pre-install] Stopping approved install-resource locker: {0}" -f `
+            (Format-InstallLockerList -Lockers @($locker)))
+        try {
+            Stop-Process -Id ([int]$locker.Id) -Force -ErrorAction Stop
+        } catch {
+            throw "Could not stop install-resource locker PID $($locker.Id): $($_.Exception.Message)"
+        }
+    }
+
     $deadline = (Get-Date).AddSeconds(15)
     do {
         $remaining = @(Get-InstallTargetProcesses -TargetRoot $TargetRoot)
         if ($remaining.Count -eq 0) {
-            Write-Host '[pre-install] All ITCM client processes are stopped.'
+            Write-Host '[pre-install] All approved ITCM application processes are stopped.'
             return
         }
         Start-Sleep -Milliseconds 250
@@ -583,6 +793,41 @@ function Stop-ClientProcessesForInstall {
 
     $detail = ($remaining | ForEach-Object { "$($_.ProcessName).exe PID $($_.Id)" }) -join ', '
     throw "ITCM client processes remain after the 15-second stop deadline: $detail"
+}
+
+function Move-InstallDirectoryWithRetry {
+    param(
+        [Parameter(Mandatory)][string]$Source,
+        [Parameter(Mandatory)][string]$Destination,
+        [Parameter(Mandatory)][string]$TargetRoot,
+        [int]$MaximumAttempts = 20
+    )
+
+    $lastError = $null
+    $lastLockers = @()
+    for ($attempt = 1; $attempt -le $MaximumAttempts; $attempt++) {
+        Stop-ClientProcessesForInstall -TargetRoot $TargetRoot
+        try {
+            Move-Item -LiteralPath $Source -Destination $Destination -ErrorAction Stop
+            if ($attempt -gt 1) {
+                Write-Host "[install] Directory replacement lock cleared on attempt $attempt of $MaximumAttempts."
+            }
+            return
+        } catch {
+            $lastError = $_
+            $lastLockers = @(Get-InstallResourceLockers -TargetRoot $TargetRoot)
+            $lockerText = Format-InstallLockerList -Lockers $lastLockers
+            Write-Warning ("Directory move attempt {0}/{1} failed. Source='{2}' Destination='{3}' Lockers={4} Error={5}" -f `
+                $attempt, $MaximumAttempts, $Source, $Destination, $lockerText, $_.Exception.Message)
+            if ($attempt -lt $MaximumAttempts) {
+                Start-Sleep -Seconds 1
+            }
+        }
+    }
+
+    $finalLockerText = Format-InstallLockerList -Lockers $lastLockers
+    throw ("Could not move the existing installation after {0} attempts. Source='{1}' Destination='{2}' Lockers={3} LastError={4}" -f `
+        $MaximumAttempts, $Source, $Destination, $finalLockerText, $lastError.Exception.Message)
 }
 
 if ($TruckHost -notmatch '^[A-Za-z0-9.-]+$') {
@@ -716,6 +961,7 @@ try {
     }
 
     Write-InstallStage -Number 5 -Description 'Install application files and preserve prior local data.'
+    Stop-ClientProcessesForInstall -TargetRoot $installFull
     New-Item -ItemType Directory -Path $installParent -Force | Out-Null
     if (Test-Path -LiteralPath $installFull) {
         $backupParent = Join-Path $installParent 'ITCMon-backups'
@@ -724,7 +970,7 @@ try {
         if (Test-Path -LiteralPath $backupRoot) {
             throw "Refusing to replace an existing backup: $backupRoot"
         }
-        Move-Item -LiteralPath $installFull -Destination $backupRoot
+        Move-InstallDirectoryWithRetry -Source $installFull -Destination $backupRoot -TargetRoot $installFull
         $previousMoved = $true
     }
     Move-Item -LiteralPath $packageRoot -Destination $installFull
@@ -1015,6 +1261,12 @@ try {
 } catch {
     Write-Host "[failed] Installer stopped during $currentStage" -ForegroundColor Red
     Write-Host "[failed] $($_.Exception.Message)" -ForegroundColor Red
+    if (-not [string]::IsNullOrWhiteSpace([string]$_.InvocationInfo.PositionMessage)) {
+        Write-Host "[failed] Source: $($_.InvocationInfo.PositionMessage)" -ForegroundColor Red
+    }
+    if (-not [string]::IsNullOrWhiteSpace([string]$_.ScriptStackTrace)) {
+        Write-Host "[failed] Stack: $($_.ScriptStackTrace)" -ForegroundColor Red
+    }
     if ($installerTranscriptStarted) {
         Write-Host "[failed] Persistent transcript: $installerLogPath" -ForegroundColor Red
     }

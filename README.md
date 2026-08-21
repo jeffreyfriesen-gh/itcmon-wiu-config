@@ -33,10 +33,14 @@ if ($LASTEXITCODE -ne 0) { throw "ITC truck client installer failed with exit co
 The entry point logs before doing work, downloads and validates the immutable
 repository bundle, checks the truck artifact host's actual HTTP health, and
 keeps the visible console open on failure. Before replacing any application
-files, the elevated installer force-stops each running `itcmon.exe`,
-`itcwatch.exe`, and `atcsmon.exe` process belonging to the resolved install
-root (plus the known legacy ATCSMon path), then verifies those target processes
-remain absent for the remainder of the pre-install gate.
+files, the elevated installer force-stops every executable launched from the
+resolved ITCM installation tree plus the known legacy ATCSMon path. It also
+uses Windows Restart Manager to identify file-handle owners, stops an owning
+script host only when its command line references a file inside that exact
+installation tree, and never force-stops an unrecognized lock owner. The
+atomic rollback move is retried for up to 20 seconds so transient antivirus or
+indexer locks can clear; a persistent failure reports the exact source,
+destination, owning PID/application when Windows supplies one, and script line.
 
 ## Legacy inline bootstrap reference
 
