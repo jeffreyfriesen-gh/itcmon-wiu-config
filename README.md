@@ -41,6 +41,12 @@ installation tree, and never force-stops an unrecognized lock owner. The
 atomic rollback move is retried for up to 20 seconds so transient antivirus or
 indexer locks can clear; a persistent failure reports the exact source,
 destination, owning PID/application when Windows supplies one, and script line.
+When an older version-named root such as `ITCMon-v0.9` is being upgraded to a
+new version and the versioned destination does not yet exist, the installer
+hash-verifies a complete rollback copy and installs into the new sibling path
+(`ITCMon-v1.0`). The locked legacy directory is retained instead of making its
+rename a prerequisite for the upgrade; the new shortcuts point to the accepted
+new path.
 
 ## Legacy inline bootstrap reference
 
