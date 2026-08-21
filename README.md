@@ -229,6 +229,10 @@ pattern. Use
 - `manifest.json`: expected counts and SHA-256 for every distributed machine
   file plus the reviewed ITCMon, ITCWatch, and ATCSMon packages and the ITCMon
   shortcut icon.
+- `runtime/vm202/up-omaha.json`: the manifest-pinned curated decoder catalog
+  consumed by VM202. Its Linux timer downloads this exact GitHub `main` file,
+  validates its manifest hash and schema, and restarts `itcmhub` only when the
+  installed hash changes.
 - `scripts/Bootstrap-ITCM-Truck-Client.ps1`: pre-elevation diagnostics,
   immutable GitHub archive validation, artifact-host preflight, structured
   status, failure pause, and orchestration of the elevated runner.
@@ -236,6 +240,10 @@ pattern. Use
   before the installer body can initialize its own transcript.
 - `scripts/Install-ITCMon-Truck-Client.ps1`: complete Windows client installer.
 - `scripts/Start-ITCMon-With-Update.ps1`: validation, update, and launch wrapper.
+- `scripts/Invoke-ITCM-BackgroundUpdate.ps1`: non-interactive, process-safe,
+  logged GitHub `main` updater for scheduled execution.
+- `scripts/Register-ITCM-GitHub-UpdateTask.ps1`: installs the SYSTEM startup
+  and 15-minute retry task used by VM201.
 - `scripts/Launch-ITCM-Truck-Client.ps1`: process-aware launcher,
   last-known-good fallback, endpoint diagnostics, persistent status, and
   bounded launch logs.
@@ -310,6 +318,14 @@ timestamped configuration and application backups before replacement. Software
 updates are deliberately manifest-controlled: a newly released upstream build
 is installed only after its version, URL, and hashes are published here. This
 prevents an unreviewed upstream change from silently replacing the truck client.
+
+VM201 also uses the `ITCM GitHub Configuration Update` scheduled task. It runs
+at startup and every 15 minutes as SYSTEM, pulls only branch `main` into the
+machine cache under `C:\ProgramData\ITCMon`, validates the complete manifest,
+and applies configuration only while ITCMon, ITCWatch, and ATCSMon are stopped.
+A busy client is a successful deferral, not an unsafe in-use replacement.
+Status and bounded transcripts are retained under
+`C:\ProgramData\ITCMon\GitHubUpdater`.
 
 For an offline bootstrap, `-SourceRoot <path>` applies a previously extracted
 copy of this repository without contacting GitHub.

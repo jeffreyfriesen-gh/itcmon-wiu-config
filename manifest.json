@@ -1,7 +1,7 @@
 {
   "schema": "itcmon.config.manifest.v1",
-  "version": "2026-08-19.3",
-  "generated_utc": "2026-08-19T02:21:36Z",
+  "version": "2026-08-21.4",
+  "generated_utc": "2026-08-21T05:46:08Z",
   "wiu_count": 95,
   "rrdata_path": "rrdata.json",
   "applications": [
@@ -111,15 +111,23 @@
     },
     {
       "path": "scripts/Install-ITCMon-Truck-Client.ps1",
-      "sha256": "A70C9EE2F1CD2EEA88C4203A7F7817DA5FB9961768F149681DBD46BE067F465C"
+      "sha256": "2AF6C2F528F7B4F259213E858D2638E5FDA6D31534F5A6B8030639CDE0FD9D4E"
     },
     {
       "path": "scripts/Start-ITCMon-With-Update.ps1",
-      "sha256": "79AFA7F3ACEB1EA1CC76EE746BC2F6F17E6C8620AFFC9004EC97684DCF2BEEC4"
+      "sha256": "A04FD9AA1E06D7DF59F8EF5A14D6C071DF23610139864D6D77A3E95F71403AF4"
     },
     {
       "path": "scripts/Start-ITCMon-With-Update.cmd",
       "sha256": "BEC34A714AB5A04E0F76F85DED7A23785BC95F13E6A2728FA0276821377117C0"
+    },
+    {
+      "path": "scripts/Invoke-ITCM-BackgroundUpdate.ps1",
+      "sha256": "96A4736872515BB5DD07A938F1549F1830D43334799E862A8AD25C5F6C75FF81"
+    },
+    {
+      "path": "scripts/Register-ITCM-GitHub-UpdateTask.ps1",
+      "sha256": "71765B703151B85D754416E90021E8D9228A4C987B19D3768ED932BE1497E5A2"
     },
     {
       "path": "scripts/Launch-ITCM-Truck-Client.ps1",
@@ -142,6 +150,10 @@
       "sha256": "CDC6002FB3FA90A40C6A6FB0C8E2D6B4EEAE9DC4807B2DEE2C466D3BCA2B94A1"
     },
     {
+      "path": "runtime/vm202/up-omaha.json",
+      "sha256": "79F2E69FF3E142DB731D04E4D1205F7C067E58EFE0D28DD94CC169574858F8AF"
+    },
+    {
       "path": "wius/076/076457.json",
       "sha256": "A0BE2494ADE01C0284B8A43D2B653C416590E05242A805EBC9E8F938A587E5D3"
     },
@@ -155,7 +167,7 @@
     },
     {
       "path": "wius/802/802001.json",
-      "sha256": "F92F11F0CD1A97FA92CA4F7B768B1B3711DD5F0DBBA30F314B7BE7E92639CA0B"
+      "sha256": "8B20189AABFC4166525B8745F3C3A7EA7DEEC51092076A7A2AC6629E90E1F811"
     },
     {
       "path": "wius/802/802027.json",
