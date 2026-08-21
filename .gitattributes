@@ -1,5 +1,6 @@
 # Hash-validated configuration files must not be rewritten by Git on Windows.
 .gitattributes text eol=lf
+itc-truck-mon.ps1 binary
 wius/**/*.json binary
 rrdata.json binary
 profiles/**/*.json binary
