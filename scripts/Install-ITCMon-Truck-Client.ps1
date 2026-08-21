@@ -158,6 +158,7 @@ Write-Host "[install-root] Selected '$installFull' from $installRootSource."
 $installParent = Split-Path -Parent $installFull
 $backupRoot = $null
 $previousMoved = $false
+$legacyInstallRoot = $null
 $newInstalled = $false
 $success = $false
 $currentStage = 'initial validation'
@@ -830,6 +831,42 @@ function Move-InstallDirectoryWithRetry {
         $MaximumAttempts, $Source, $Destination, $finalLockerText, $lastError.Exception.Message)
 }
 
+function Copy-InstallDirectoryBackup {
+    param(
+        [Parameter(Mandatory)][string]$Source,
+        [Parameter(Mandatory)][string]$Destination
+    )
+
+    try {
+        Copy-Item -LiteralPath $Source -Destination $Destination -Recurse -Force -ErrorAction Stop
+        $sourceRoot = [IO.Path]::GetFullPath($Source).TrimEnd('\') + '\'
+        $destinationRoot = [IO.Path]::GetFullPath($Destination).TrimEnd('\') + '\'
+        $sourceFiles = @(Get-ChildItem -LiteralPath $Source -Recurse -File -Force)
+        $destinationFiles = @(Get-ChildItem -LiteralPath $Destination -Recurse -File -Force)
+        if ($sourceFiles.Count -ne $destinationFiles.Count) {
+            throw "Backup file-count mismatch: source=$($sourceFiles.Count), destination=$($destinationFiles.Count)."
+        }
+        foreach ($sourceFile in $sourceFiles) {
+            $relative = $sourceFile.FullName.Substring($sourceRoot.Length)
+            $destinationFile = Join-Path $destinationRoot $relative
+            if (-not (Test-Path -LiteralPath $destinationFile -PathType Leaf)) {
+                throw "Backup is missing file: $relative"
+            }
+            if ($sourceFile.Length -ne (Get-Item -LiteralPath $destinationFile).Length -or
+                (Get-FileHash -LiteralPath $sourceFile.FullName -Algorithm SHA256).Hash -ne
+                    (Get-FileHash -LiteralPath $destinationFile -Algorithm SHA256).Hash) {
+                throw "Backup integrity mismatch: $relative"
+            }
+        }
+        Write-Host "[install] Verified side-by-side rollback copy: $($sourceFiles.Count) files at $Destination"
+    } catch {
+        if (Test-Path -LiteralPath $Destination) {
+            Remove-Item -LiteralPath $Destination -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        throw
+    }
+}
+
 if ($TruckHost -notmatch '^[A-Za-z0-9.-]+$') {
     throw 'TruckHost must be an IPv4 address or DNS hostname containing only letters, digits, dots, and hyphens.'
 }
@@ -872,6 +909,21 @@ try {
     $shortcutIcon = Get-ClientAssetEntry -Manifest $manifest -Name 'itcmon-shortcut-icon' `
         -Destination 'assets/itcmon-truck.ico'
     $releaseVersion = [string]$itcmonApplication.version
+    $currentInstallLeaf = Split-Path -Leaf $installFull
+    $releaseInstallLeaf = "ITCMon-$releaseVersion"
+    if ((Test-Path -LiteralPath $installFull -PathType Container) -and
+        $currentInstallLeaf -match '^ITCMon-v[0-9]+(?:\.[0-9]+)*$' -and
+        -not [string]::Equals($currentInstallLeaf, $releaseInstallLeaf, [StringComparison]::OrdinalIgnoreCase)) {
+        $versionedInstallRoot = ConvertTo-SafeInstallRoot -Path (Join-Path $installParent $releaseInstallLeaf)
+        if (-not (Test-Path -LiteralPath $versionedInstallRoot)) {
+            $legacyInstallRoot = $installFull
+            $installFull = $versionedInstallRoot
+            $installParent = Split-Path -Parent $installFull
+            Write-Host "[install-root] Legacy version path '$legacyInstallRoot' will be retained; installing $releaseVersion side-by-side at '$installFull'."
+        } else {
+            Write-Warning "Versioned target already exists; retaining the explicitly selected install root: $installFull"
+        }
+    }
     $releaseArchiveUrl = [string]$itcmonApplication.url
     $releaseArchiveSHA256 = ([string]$itcmonApplication.sha256).ToUpperInvariant()
     $releaseITCMonSHA256 = ([string]$itcmonApplication.executable_sha256).ToUpperInvariant()
@@ -961,9 +1013,17 @@ try {
     }
 
     Write-InstallStage -Number 5 -Description 'Install application files and preserve prior local data.'
-    Stop-ClientProcessesForInstall -TargetRoot $installFull
+    Stop-ClientProcessesForInstall -TargetRoot $(if ($legacyInstallRoot) { $legacyInstallRoot } else { $installFull })
     New-Item -ItemType Directory -Path $installParent -Force | Out-Null
-    if (Test-Path -LiteralPath $installFull) {
+    if ($legacyInstallRoot) {
+        $backupParent = Join-Path $installParent 'ITCMon-backups'
+        New-Item -ItemType Directory -Path $backupParent -Force | Out-Null
+        $backupRoot = Join-Path $backupParent "ITCMon-before-$releaseVersion-$stamp"
+        if (Test-Path -LiteralPath $backupRoot) {
+            throw "Refusing to replace an existing backup: $backupRoot"
+        }
+        Copy-InstallDirectoryBackup -Source $legacyInstallRoot -Destination $backupRoot
+    } elseif (Test-Path -LiteralPath $installFull) {
         $backupParent = Join-Path $installParent 'ITCMon-backups'
         New-Item -ItemType Directory -Path $backupParent -Force | Out-Null
         $backupRoot = Join-Path $backupParent "ITCMon-before-$releaseVersion-$stamp"
