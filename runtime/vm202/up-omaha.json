@@ -1,0 +1,201 @@
+{
+  "version": "1.0",
+  "description": "Curated UP Omaha WIU field layouts and signal-aspect meanings",
+  "provenance": {
+    "wiu_source": "ITCMon 0.7 curated 802001.json",
+    "aspect_source": "ITCMon 0.7 rrdata.json",
+    "physical_mapping_rule": "Direction/track claims are used only when the field label contains that information. Candidate and unresolved site names remain explicitly provisional."
+  },
+  "signal_tables": {
+    "UP": {
+      "1": "Clear",
+      "2": "Approach 60",
+      "3": "Approach 50",
+      "4": "Advance Approach",
+      "5": "Approach Diverging",
+      "6": "Approach",
+      "7": "Approach Restricting",
+      "8": "Diverging Clear Limited",
+      "9": "Diverging Clear",
+      "10": "Diverging Advance Approach",
+      "11": "Diverging Approach",
+      "12": "Diverging Approach Diverging",
+      "13": "Distant Approach",
+      "14": "Restricting",
+      "15": "Stop",
+      "16": "Diverging Approach Clear 50",
+      "30": "Dark",
+      "31": "Stop"
+    }
+  },
+  "waysides": {
+    "780200120103": {
+      "name": "75th Street MP 9.2 Automatic M1 WIU candidate",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"signal": "1W", "mapping_status": "provisional"},
+        {"signal": "1E", "mapping_status": "provisional"}
+      ]
+    },
+    "780200120104": {
+      "name": "75th Street MP 9.2 Automatic M2 WIU candidate",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"signal": "2W", "mapping_status": "provisional"},
+        {"signal": "2E", "mapping_status": "provisional"},
+        {"signal": "3", "mapping_status": "unresolved"}
+      ]
+    },
+    "780200120203": {
+      "name": "95th Street MP 10.9 WIU candidate",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"signal": "1W", "mapping_status": "provisional"},
+        {"signal": "1E", "mapping_status": "provisional"},
+        {"signal": "2W", "mapping_status": "provisional"},
+        {"signal": "2E", "mapping_status": "provisional"}
+      ]
+    },
+    "780200120303": {
+      "name": "121st Street MP 13.1 Automatic M1 WIU candidate",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"signal": "1W", "mapping_status": "provisional"},
+        {"signal": "1E", "mapping_status": "provisional"}
+      ]
+    },
+    "780200120304": {
+      "name": "121st Street MP 13.1 Automatic M2 WIU candidate",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"signal": "2W", "mapping_status": "provisional"},
+        {"signal": "2E", "mapping_status": "provisional"}
+      ]
+    },
+    "780200120403": {
+      "name": "144th Street M1 WIU",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"signal": "1W", "mapping_status": "provisional"},
+        {"signal": "1E", "mapping_status": "provisional"}
+      ]
+    },
+    "780200120404": {
+      "name": "144th Street MP 14.9 Main 2 WIU",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"switch": "1", "mapping_status": "provisional"},
+        {"signal": "2W", "mapping_status": "observed"},
+        {"signal": "3", "mapping_status": "unresolved"},
+        {"signal": "2E", "mapping_status": "observed"}
+      ],
+      "atcs": {"mcp": "8802680070012", "proto": "s"}
+    },
+    "780200120503": {
+      "name": "Pacific Street",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"switch": "1", "mapping_status": "unresolved"},
+        {"switch": "2", "mapping_status": "unresolved"},
+        {"switch": "3", "mapping_status": "unresolved"},
+        {"switch": "4", "mapping_status": "unresolved"},
+        {"signal": "1W", "mapping_status": "provisional"},
+        {"signal": "2W", "mapping_status": "observed"},
+        {"signal": "1E", "mapping_status": "provisional"},
+        {"signal": "2E", "mapping_status": "observed"}
+      ],
+      "atcs": {"mcp": "8802680070013", "proto": "s"}
+    },
+    "780200120603": {
+      "name": "East Elkhorn MP 19.8 Automatic M1 WIU",
+      "sig": "UP",
+      "mapping_status": "observed",
+      "ind": [
+        {"signal": "1W", "mapping_status": "observed"},
+        {"signal": "1E", "mapping_status": "observed"}
+      ]
+    },
+    "780200120604": {
+      "name": "East Elkhorn MP 19.8 Automatic M2 WIU",
+      "sig": "UP",
+      "mapping_status": "observed",
+      "ind": [
+        {"signal": "2W", "mapping_status": "observed"},
+        {"signal": "2E", "mapping_status": "observed"},
+        {"signal": "3", "mapping_status": "unresolved"}
+      ]
+    },
+    "780200120703": {
+      "name": "Elkhorn MP 21.0 M1 WIU",
+      "sig": "UP",
+      "mapping_status": "observed",
+      "ind": [
+        {"signal": "1W", "mapping_status": "observed"},
+        {"signal": "1E", "mapping_status": "observed"}
+      ]
+    },
+    "780200120704": {
+      "name": "Elkhorn MP 21.0 M2 WIU",
+      "sig": "UP",
+      "mapping_status": "observed",
+      "ind": [
+        {"signal": "2W", "mapping_status": "observed"},
+        {"signal": "2E", "mapping_status": "observed"}
+      ]
+    },
+    "780200120803": {
+      "name": "West Elkhorn MP 22.7 Main 1 WIU",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"signal": "1W", "mapping_status": "observed"},
+        {"signal": "1E", "mapping_status": "provisional"}
+      ]
+    },
+    "780200120804": {
+      "name": "West Elkhorn MP 22.7 Main 2 WIU",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"signal": "2W", "mapping_status": "provisional"},
+        {"signal": "2E", "mapping_status": "provisional"}
+      ]
+    },
+    "780200120904": {
+      "name": "Waterloo MP 24.7 Main 1 WIU",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"signal": "1E", "mapping_status": "provisional"},
+        {"signal": "1W", "mapping_status": "observed"},
+        {"signal": "3", "mapping_status": "unresolved"}
+      ]
+    },
+    "780200121003": {
+      "name": "Unresolved UP Omaha site 210 Main 1 WIU",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"signal": "1W", "mapping_status": "provisional"},
+        {"signal": "1E", "mapping_status": "provisional"}
+      ]
+    },
+    "780200121004": {
+      "name": "Unresolved UP Omaha site 210 Main 2 WIU",
+      "sig": "UP",
+      "mapping_status": "provisional",
+      "ind": [
+        {"signal": "2W", "mapping_status": "provisional"},
+        {"signal": "2E", "mapping_status": "provisional"}
+      ]
+    }
+  }
+}

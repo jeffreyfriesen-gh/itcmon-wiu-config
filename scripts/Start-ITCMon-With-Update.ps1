@@ -60,6 +60,20 @@ function Read-JsonFile {
     return $text | ConvertFrom-Json
 }
 
+function ConvertTo-ManifestVersionKey {
+    param([Parameter(Mandatory)][string]$Version)
+
+    if ($Version -notmatch '^(\d{4})-(\d{2})-(\d{2})\.(\d+)$') {
+        throw "Unsupported configuration manifest version: $Version"
+    }
+    $date = [int64]("{0}{1}{2}" -f $Matches[1], $Matches[2], $Matches[3])
+    $revision = [int64]$Matches[4]
+    if ($revision -ge 1000000) {
+        throw "Configuration manifest revision is too large: $Version"
+    }
+    return ($date * 1000000L) + $revision
+}
+
 function Install-ITCWatchViewerConfiguration {
     param(
         [Parameter(Mandatory)][string]$BackupRoot
@@ -1128,6 +1142,8 @@ function Sync-ClientScripts {
     foreach ($relative in @(
         'scripts/Start-ITCMon-With-Update.ps1',
         'scripts/Start-ITCMon-With-Update.cmd',
+        'scripts/Invoke-ITCM-BackgroundUpdate.ps1',
+        'scripts/Register-ITCM-GitHub-UpdateTask.ps1',
         'scripts/Launch-ITCM-Truck-Client.ps1',
         'scripts/Start ITCMon - Truck.cmd',
         'scripts/Start ITCWatch - Truck.cmd',
@@ -1413,6 +1429,24 @@ try {
         -ExternalProfilePath $ServerProfilePath `
         -ExpectedExternalProfileSHA256 $ExpectedServerProfileSHA256 `
         -HostOverride $ServerHostOverride
+    $installedManifestPath = Join-Path $InstallRoot 'itcmon-config-manifest.json'
+    if (Test-Path -LiteralPath $installedManifestPath -PathType Leaf) {
+        $installedManifest = Read-JsonFile -Path $installedManifestPath
+        $installedVersion = [string]$installedManifest.version
+        $remoteVersion = [string]$validated.Manifest.version
+        $installedKey = ConvertTo-ManifestVersionKey -Version $installedVersion
+        $remoteKey = ConvertTo-ManifestVersionKey -Version $remoteVersion
+        if ($remoteKey -lt $installedKey) {
+            throw "Refusing configuration downgrade from $installedVersion to $remoteVersion."
+        }
+        if ($remoteKey -eq $installedKey) {
+            $installedManifestHash = (Get-FileHash -LiteralPath $installedManifestPath -Algorithm SHA256).Hash
+            $remoteManifestHash = (Get-FileHash -LiteralPath $validated.ManifestPath -Algorithm SHA256).Hash
+            if ($installedManifestHash -ne $remoteManifestHash) {
+                throw "Refusing changed content published under existing manifest version $remoteVersion."
+            }
+        }
+    }
     Write-UpdateStage -Number 2 -Description 'Check the installed ITCMon, ITCWatch, and ATCSMon application versions.'
     $applicationStatus = if ($UpdateApplications) {
         @(Update-ClientApplications -TargetRoot $InstallRoot -Manifest $validated.Manifest `

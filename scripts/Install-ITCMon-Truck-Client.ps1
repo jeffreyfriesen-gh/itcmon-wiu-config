@@ -698,6 +698,8 @@ try {
     $clientScriptNames = @(
         'Start-ITCMon-With-Update.ps1',
         'Start-ITCMon-With-Update.cmd',
+        'Invoke-ITCM-BackgroundUpdate.ps1',
+        'Register-ITCM-GitHub-UpdateTask.ps1',
         'Launch-ITCM-Truck-Client.ps1',
         'Start ITCMon - Truck.cmd',
         'Start ITCWatch - Truck.cmd',
