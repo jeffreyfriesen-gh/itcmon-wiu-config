@@ -14,3 +14,4 @@ scripts/*.cmd binary
 # Human-authored files have explicit, predictable line endings.
 manifest.json text eol=lf
 README.md text eol=lf
+observed-base-stations/* text eol=lf

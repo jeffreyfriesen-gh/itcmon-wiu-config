@@ -226,6 +226,9 @@ pattern. Use
   both `itcm-capture` and `itcmhub` must consume.
 - `rrdata.json`: railroad-number and signal-aspect mappings.
 - `wius/`: reviewed WIU decoder definitions.
+- `observed-base-stations/`: coordinate-bearing base-beacon inventory in
+  human-readable Markdown and machine-readable JSON/CSV, with railroad and
+  location confidence preserved.
 - `wius/802/802001.json`: reviewed Omaha-corridor definitions, including the
   v0.9 `MP` field on WIUs whose working site assignment has a known
   milepost. No `MP` value is synthesized for unresolved WIUs or for 57th
