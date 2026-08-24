@@ -1,0 +1,186 @@
+{
+  "schema": "itcm.observed-base-stations.v1",
+  "updated_date": "2026-08-24",
+  "coordinate_basis": "Valid nonzero transmitter coordinates decoded from ITCM application 0x02 base beacon payloads.",
+  "retained_inventory_observed_utc": "2026-08-23T08:58:06.701Z",
+  "retained_inventory_seconds": 604800,
+  "station_count": 14,
+  "stations": [
+    {
+      "radio_id": "1856C4",
+      "railroad": "BNSF",
+      "railroad_status": "confirmed",
+      "location": "North Glenwood, IA",
+      "location_status": "confirmed",
+      "latitude": 41.09695333333333,
+      "longitude": -95.760575,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "retained_inventory",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=41.096953,-95.760575"
+    },
+    {
+      "radio_id": "1856D8",
+      "railroad": "BNSF",
+      "railroad_status": "confirmed",
+      "location": "Ashland, NE",
+      "location_status": "confirmed",
+      "latitude": 41.02934666666667,
+      "longitude": -96.35037666666666,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "retained_inventory",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=41.029347,-96.350377"
+    },
+    {
+      "radio_id": "1857C5",
+      "railroad": "BNSF",
+      "railroad_status": "confirmed",
+      "location": "Lincoln, NE",
+      "location_status": "confirmed",
+      "latitude": 40.86197833333333,
+      "longitude": -96.626145,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "retained_inventory",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=40.861978,-96.626145"
+    },
+    {
+      "radio_id": "1857C6",
+      "railroad": "BNSF",
+      "railroad_status": "confirmed",
+      "location": "Red Oak, IA",
+      "location_status": "confirmed",
+      "latitude": 41.004575,
+      "longitude": -95.234952,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "historical_preserved_capture",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=41.004575,-95.234952"
+    },
+    {
+      "radio_id": "18582F",
+      "railroad": "BNSF",
+      "railroad_status": "confirmed",
+      "location": "East Glenwood, IA",
+      "location_status": "confirmed",
+      "latitude": 41.04908666666667,
+      "longitude": -95.67060333333333,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "retained_inventory",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=41.049087,-95.670603"
+    },
+    {
+      "radio_id": "185896",
+      "railroad": "BNSF",
+      "railroad_status": "confirmed",
+      "location": "Fremont, NE",
+      "location_status": "confirmed",
+      "latitude": 41.428033,
+      "longitude": -96.49599,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "historical_preserved_capture",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=41.428033,-96.495990"
+    },
+    {
+      "radio_id": "18589E",
+      "railroad": "BNSF",
+      "railroad_status": "confirmed",
+      "location": "Milford, NE",
+      "location_status": "confirmed",
+      "latitude": 40.726346666666664,
+      "longitude": -96.97700166666667,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "retained_inventory",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=40.726347,-96.977002"
+    },
+    {
+      "radio_id": "1858C0",
+      "railroad": "BNSF",
+      "railroad_status": "operator_supplied_radio_family_consistent",
+      "location": "Fairmont, NE",
+      "location_status": "operator_supplied",
+      "latitude": 40.64148,
+      "longitude": -97.50316333333333,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "retained_inventory",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=40.641480,-97.503163"
+    },
+    {
+      "radio_id": "185BE4",
+      "railroad": "BNSF",
+      "railroad_status": "operator_supplied_radio_family_consistent",
+      "location": "York, NE",
+      "location_status": "operator_supplied",
+      "latitude": 40.828248333333335,
+      "longitude": -97.55478666666667,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "retained_inventory",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=40.828248,-97.554787"
+    },
+    {
+      "radio_id": "4800AF",
+      "railroad": "UP",
+      "railroad_status": "confirmed",
+      "location": "Gretna, NE",
+      "location_status": "confirmed",
+      "latitude": 41.17537,
+      "longitude": -96.25773,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "retained_inventory",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=41.175370,-96.257730"
+    },
+    {
+      "radio_id": "4800D5",
+      "railroad": "UP",
+      "railroad_status": "confirmed",
+      "location": "Bennington, NE",
+      "location_status": "confirmed",
+      "latitude": 41.367783333333335,
+      "longitude": -96.23393333333334,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "retained_inventory",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=41.367783,-96.233933"
+    },
+    {
+      "radio_id": "4800D7",
+      "railroad": "UP",
+      "railroad_status": "confirmed",
+      "location": "Blair, NE",
+      "location_status": "confirmed",
+      "latitude": 41.50961,
+      "longitude": -96.17450166666667,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "retained_inventory",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=41.509610,-96.174502"
+    },
+    {
+      "radio_id": "4801FB",
+      "railroad": "UP",
+      "railroad_status": "operator_supplied_radio_family_consistent",
+      "location": "Marysville, KS",
+      "location_status": "operator_supplied",
+      "latitude": 39.78433,
+      "longitude": -96.70604,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "retained_inventory",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=39.784330,-96.706040"
+    },
+    {
+      "radio_id": "48035F",
+      "railroad": "UP",
+      "railroad_status": "operator_supplied_radio_family_consistent",
+      "location": "Weeping Water, NE",
+      "location_status": "operator_supplied",
+      "latitude": 40.86888,
+      "longitude": -96.14051,
+      "coordinate_status": "observed_base_beacon",
+      "evidence_scope": "retained_inventory",
+      "map_url": "https://www.google.com/maps/search/?api=1&query=40.868880,-96.140510"
+    }
+  ],
+  "excluded": [
+    "000000/0,0 placeholder beacons",
+    "Base-like radio IDs without a valid coordinate-bearing beacon"
+  ],
+  "notes": [
+    "The submitted 1856C4 row duplicated 4800AF/Gretna coordinates; this file uses the observed 1856C4/North Glenwood coordinates.",
+    "Unlabeled submitted values 2 and 411 are omitted because their semantics were not supplied."
+  ]
+}
