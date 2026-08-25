@@ -1,9 +1,9 @@
 # Observed ITCM base stations
 
-This directory records base stations for which a valid coordinate-bearing
-ITCM application `0x02` beacon has been preserved. Coordinates are the
-transmitter coordinates decoded from the beacon payload; they are not the
-truck receiver's GPS position.
+This directory records identified ITCM base stations with valid transmitter
+coordinates. Coordinates normally come from a preserved application `0x02`
+beacon; an explicitly operator-verified tower coordinate is retained as such.
+They are not the truck receiver's GPS position.
 
 The machine-readable inventory is available as
 [`base-stations.json`](base-stations.json) and
@@ -21,6 +21,7 @@ The machine-readable inventory is available as
 | `185896` | BNSF | Fremont, NE | `41.428033` | `-96.495990` | [Google Maps](https://www.google.com/maps/search/?api=1&query=41.428033,-96.495990) |
 | `18589E` | BNSF | Milford, NE | `40.726347` | `-96.977002` | [Google Maps](https://www.google.com/maps/search/?api=1&query=40.726347,-96.977002) |
 | `1858C0` | BNSF | Fairmont, NE | `40.641480` | `-97.503163` | [Google Maps](https://www.google.com/maps/search/?api=1&query=40.641480,-97.503163) |
+| `1858D4` | BNSF | Firth, NE | `40.560982` | `-96.573618` | [Google Maps](https://www.google.com/maps/search/?api=1&query=40.560982,-96.573618) |
 | `185BE4` | BNSF | York, NE | `40.828248` | `-97.554787` | [Google Maps](https://www.google.com/maps/search/?api=1&query=40.828248,-97.554787) |
 | `4800AF` | UP | Gretna, NE | `41.175370` | `-96.257730` | [Google Maps](https://www.google.com/maps/search/?api=1&query=41.175370,-96.257730) |
 | `4800D5` | UP | Bennington, NE | `41.367783` | `-96.233933` | [Google Maps](https://www.google.com/maps/search/?api=1&query=41.367783,-96.233933) |
@@ -28,9 +29,10 @@ The machine-readable inventory is available as
 | `4801FB` | UP | Marysville, KS | `39.784330` | `-96.706040` | [Google Maps](https://www.google.com/maps/search/?api=1&query=39.784330,-96.706040) |
 | `48035F` | UP | Weeping Water, NE | `40.868880` | `-96.140510` | [Google Maps](https://www.google.com/maps/search/?api=1&query=40.868880,-96.140510) |
 
-All 14 entries are observed base stations with valid, nonzero coordinates
-decoded from their own base-beacon payloads. Invalid `000000`/`0,0` beacons and
-coordinate-less base-like radios are excluded.
+All 15 entries have valid, nonzero transmitter/tower coordinates. Fourteen are
+decoded from their own preserved base-beacon payloads. `1858D4` is the
+operator-verified BNSF ITCM Firth tower at `40.560982,-96.573618`. Invalid
+`000000`/`0,0` beacons and coordinate-less base-like radios are excluded.
 
 The originally supplied `1856C4` row duplicated Gretna station `4800AF`'s
 coordinates. This inventory uses the observed North Glenwood coordinates

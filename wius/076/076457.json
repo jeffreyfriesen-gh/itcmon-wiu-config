@@ -141,7 +141,8 @@
       ]
     },
     "707645708005": {
-      "name": "",
+      "name": "BNSF CP 311 (I-80)",
+      "MP": "31.3",
       "sig": "BNSF",
       "ind": [
         {
@@ -157,52 +158,54 @@
           "switch": "4"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "1W"
         },
         {
-          "signal": "3"
+          "signal": "2E"
         },
         {
-          "signal": "4"
+          "signal": "2W"
         }
       ]
     },
     "707645709505": {
-      "name": "",
+      "name": "BNSF W Louisville",
+      "MP": "24.5",
       "sig": "BNSF",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "1W"
         },
         {
-          "signal": "3"
+          "signal": "2W"
         }
       ]
     },
     "707645710005": {
-      "name": "",
+      "name": "BNSF E Louisville",
+      "MP": "23.1",
       "sig": "BNSF",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "1W"
         },
         {
-          "signal": "3"
+          "signal": "2E"
         }
       ]
     },

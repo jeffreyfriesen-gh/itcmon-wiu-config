@@ -1,8 +1,8 @@
 {
   "schema": "itcm.observed-base-stations.v1",
-  "updated_date": "2026-08-24",
-  "coordinate_basis": "Valid nonzero transmitter coordinates decoded from ITCM application 0x02 base beacon payloads.",
-  "station_count": 14,
+  "updated_date": "2026-08-25",
+  "coordinate_basis": "Valid nonzero transmitter coordinates decoded from ITCM application 0x02 base beacon payloads, plus operator-verified tower coordinates where explicitly identified.",
+  "station_count": 15,
   "stations": [
     {
       "radio_id": "1856C4",
@@ -69,6 +69,15 @@
       "map_url": "https://www.google.com/maps/search/?api=1&query=40.641480,-97.503163"
     },
     {
+      "radio_id": "1858D4",
+      "railroad": "BNSF",
+      "location": "Firth, NE",
+      "latitude": 40.560982,
+      "longitude": -96.573618,
+      "map_url": "https://www.google.com/maps/search/?api=1&query=40.560982,-96.573618",
+      "coordinate_source": "operator-verified tower coordinates"
+    },
+    {
       "radio_id": "185BE4",
       "railroad": "BNSF",
       "location": "York, NE",
@@ -123,6 +132,7 @@
   ],
   "notes": [
     "The submitted 1856C4 row duplicated 4800AF/Gretna coordinates; this file uses the observed 1856C4/North Glenwood coordinates.",
+    "The operator identified 1858D4 as BNSF ITCM Firth, NE and supplied the tower coordinates 40.560982,-96.573618 on 2026-08-25.",
     "Unlabeled submitted values 2 and 411 are omitted because their semantics were not supplied."
   ]
 }
