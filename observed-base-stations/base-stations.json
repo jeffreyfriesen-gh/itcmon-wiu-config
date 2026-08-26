@@ -1,8 +1,8 @@
 {
   "schema": "itcm.observed-base-stations.v1",
-  "updated_date": "2026-08-25",
+  "updated_date": "2026-08-26",
   "coordinate_basis": "Valid nonzero transmitter coordinates decoded from ITCM application 0x02 base beacon payloads, plus operator-verified tower coordinates where explicitly identified.",
-  "station_count": 15,
+  "station_count": 16,
   "stations": [
     {
       "radio_id": "1856C4",
@@ -86,6 +86,15 @@
       "map_url": "https://www.google.com/maps/search/?api=1&query=40.828248,-97.554787"
     },
     {
+      "radio_id": "480009",
+      "railroad": "UP",
+      "location": "Dow City, IA",
+      "latitude": 41.84899,
+      "longitude": -95.4253,
+      "map_url": "https://www.google.com/maps/search/?api=1&query=41.848990,-95.425300",
+      "coordinate_source": "operator-supplied tower coordinates; corroborated by preserved base beacon"
+    },
+    {
       "radio_id": "4800AF",
       "railroad": "UP",
       "location": "Gretna, NE",
@@ -133,6 +142,7 @@
   "notes": [
     "The submitted 1856C4 row duplicated 4800AF/Gretna coordinates; this file uses the observed 1856C4/North Glenwood coordinates.",
     "The operator identified 1858D4 as BNSF ITCM Firth, NE and supplied the tower coordinates 40.560982,-96.573618 on 2026-08-25.",
+    "The operator identified 480009 as UPRR ITCM Dow City, IA and supplied tower coordinates 41.848990,-95.425300 on 2026-08-26; preserved beacons independently decode 41.848991,-95.425301 on channel 153 and advertise channels 127,126,125,114,113,101.",
     "Unlabeled submitted values 2 and 411 are omitted because their semantics were not supplied."
   ]
 }
