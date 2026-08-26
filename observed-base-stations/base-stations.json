@@ -2,7 +2,7 @@
   "schema": "itcm.observed-base-stations.v1",
   "updated_date": "2026-08-26",
   "coordinate_basis": "Valid nonzero transmitter coordinates decoded from ITCM application 0x02 base beacon payloads, plus operator-verified tower coordinates where explicitly identified.",
-  "station_count": 16,
+  "station_count": 17,
   "stations": [
     {
       "radio_id": "1856C4",
@@ -67,6 +67,14 @@
       "latitude": 40.64148,
       "longitude": -97.50316333333333,
       "map_url": "https://www.google.com/maps/search/?api=1&query=40.641480,-97.503163"
+    },
+    {
+      "radio_id": "1858D1",
+      "railroad": "BNSF",
+      "location": "Leavenworth, KS",
+      "latitude": 39.310918,
+      "longitude": -95.064203,
+      "map_url": "https://www.google.com/maps/search/?api=1&query=39.310918,-95.064203"
     },
     {
       "radio_id": "1858D4",
@@ -141,6 +149,7 @@
   ],
   "notes": [
     "The submitted 1856C4 row duplicated 4800AF/Gretna coordinates; this file uses the observed 1856C4/North Glenwood coordinates.",
+    "Preserved ITCMon output identifies 1858D1 as a channel-93 beacon at 39.310918,-95.064203 advertising channels 127,126,125,114,113,101; the operator identified it as BNSF ITCM Leavenworth, KS on 2026-08-26.",
     "The operator identified 1858D4 as BNSF ITCM Firth, NE and supplied the tower coordinates 40.560982,-96.573618 on 2026-08-25.",
     "The operator identified 480009 as UPRR ITCM Dow City, IA and supplied tower coordinates 41.848990,-95.425300 on 2026-08-26; preserved beacons independently decode 41.848991,-95.425301 on channel 153 and advertise channels 127,126,125,114,113,101.",
     "Unlabeled submitted values 2 and 411 are omitted because their semantics were not supplied."

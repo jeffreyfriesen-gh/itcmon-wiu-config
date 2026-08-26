@@ -21,6 +21,7 @@ The machine-readable inventory is available as
 | `185896` | BNSF | Fremont, NE | `41.428033` | `-96.495990` | [Google Maps](https://www.google.com/maps/search/?api=1&query=41.428033,-96.495990) |
 | `18589E` | BNSF | Milford, NE | `40.726347` | `-96.977002` | [Google Maps](https://www.google.com/maps/search/?api=1&query=40.726347,-96.977002) |
 | `1858C0` | BNSF | Fairmont, NE | `40.641480` | `-97.503163` | [Google Maps](https://www.google.com/maps/search/?api=1&query=40.641480,-97.503163) |
+| `1858D1` | BNSF | Leavenworth, KS | `39.310918` | `-95.064203` | [Google Maps](https://www.google.com/maps/search/?api=1&query=39.310918,-95.064203) |
 | `1858D4` | BNSF | Firth, NE | `40.560982` | `-96.573618` | [Google Maps](https://www.google.com/maps/search/?api=1&query=40.560982,-96.573618) |
 | `185BE4` | BNSF | York, NE | `40.828248` | `-97.554787` | [Google Maps](https://www.google.com/maps/search/?api=1&query=40.828248,-97.554787) |
 | `480009` | UP | Dow City, IA | `41.848990` | `-95.425300` | [Google Maps](https://www.google.com/maps/search/?api=1&query=41.848990,-95.425300) |
@@ -30,13 +31,17 @@ The machine-readable inventory is available as
 | `4801FB` | UP | Marysville, KS | `39.784330` | `-96.706040` | [Google Maps](https://www.google.com/maps/search/?api=1&query=39.784330,-96.706040) |
 | `48035F` | UP | Weeping Water, NE | `40.868880` | `-96.140510` | [Google Maps](https://www.google.com/maps/search/?api=1&query=40.868880,-96.140510) |
 
-All 16 entries have valid, nonzero transmitter/tower coordinates. Fifteen have
+All 17 entries have valid, nonzero transmitter/tower coordinates. Sixteen have
 preserved coordinate-bearing base beacons. `1858D4` is the operator-verified
 BNSF ITCM Firth tower at `40.560982,-96.573618`. `480009` is the
 operator-identified UPRR ITCM Dow City tower at `41.848990,-95.425300`; its
 preserved channel-153 beacon independently reports `41.848991,-95.425301` and
 advertises channels `127,126,125,114,113,101`. Invalid `000000`/`0,0` beacons
 and coordinate-less base-like radios are excluded.
+
+`1858D1` is the operator-identified BNSF ITCM Leavenworth tower. Preserved
+ITCMon output decodes its channel-93 beacon at `39.310918,-95.064203`,
+advertising channels `127,126,125,114,113,101`.
 
 The originally supplied `1856C4` row duplicated Gretna station `4800AF`'s
 coordinates. This inventory uses the observed North Glenwood coordinates

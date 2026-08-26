@@ -7,6 +7,7 @@ radio_id,railroad,location,latitude,longitude,map_url
 185896,BNSF,"Fremont, NE",41.428033,-96.495990,"https://www.google.com/maps/search/?api=1&query=41.428033,-96.495990"
 18589E,BNSF,"Milford, NE",40.726347,-96.977002,"https://www.google.com/maps/search/?api=1&query=40.726347,-96.977002"
 1858C0,BNSF,"Fairmont, NE",40.641480,-97.503163,"https://www.google.com/maps/search/?api=1&query=40.641480,-97.503163"
+1858D1,BNSF,"Leavenworth, KS",39.310918,-95.064203,"https://www.google.com/maps/search/?api=1&query=39.310918,-95.064203"
 1858D4,BNSF,"Firth, NE",40.560982,-96.573618,"https://www.google.com/maps/search/?api=1&query=40.560982,-96.573618"
 185BE4,BNSF,"York, NE",40.828248,-97.554787,"https://www.google.com/maps/search/?api=1&query=40.828248,-97.554787"
 480009,UP,"Dow City, IA",41.848990,-95.425300,"https://www.google.com/maps/search/?api=1&query=41.848990,-95.425300"
