@@ -1,7 +1,7 @@
 {
   "schema": "itcmon.config.manifest.v1",
-  "version": "2026-08-21.6",
-  "generated_utc": "2026-08-21T20:32:58Z",
+  "version": "2026-08-26.1",
+  "generated_utc": "2026-08-26T06:23:54Z",
   "wiu_count": 95,
   "rrdata_path": "rrdata.json",
   "applications": [
@@ -131,7 +131,7 @@
     },
     {
       "path": "scripts/Launch-ITCM-Truck-Client.ps1",
-      "sha256": "14EC82AF5FFA6B59E947502E3C3F7BFE959F18B10D20C1DE3A060EFF0F02C22A"
+      "sha256": "EDDB382032A48E7B2437B35587520D44468E217978F43D8DE1410934C4F5CCEF"
     },
     {
       "path": "scripts/Start ITCMon - Truck.cmd",

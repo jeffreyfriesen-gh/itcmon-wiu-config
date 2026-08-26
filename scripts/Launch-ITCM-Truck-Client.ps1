@@ -218,6 +218,110 @@ function Get-ClientProcesses {
     )
 }
 
+function Stop-ClientStackForUpdate {
+    $runningNames = New-Object 'System.Collections.Generic.List[string]'
+    $processesByName = [ordered]@{}
+
+    foreach ($name in @('itcmon', 'itcwatch', 'atcsmon')) {
+        $processes = @(Get-ClientProcesses -Name $name)
+        if ($processes.Count -eq 0) {
+            continue
+        }
+
+        $expectedPath = if ($name -eq 'atcsmon') {
+            Join-Path $installFull 'ATCSMon\atcsmon.exe'
+        } else {
+            Join-Path $installFull "$name.exe"
+        }
+        foreach ($process in $processes) {
+            $actualPath = try { [string]$process.Path } catch { '' }
+            if ([string]::IsNullOrWhiteSpace($actualPath) -or
+                -not [string]::Equals($actualPath, $expectedPath, [StringComparison]::OrdinalIgnoreCase)) {
+                throw "Refusing to stop an unverified $name process (PID $($process.Id)); expected $expectedPath, observed '$actualPath'."
+            }
+        }
+
+        $runningNames.Add($name)
+        $processesByName[$name] = @($processes)
+    }
+
+    if ($runningNames.Count -eq 0) {
+        return @()
+    }
+
+    Write-LaunchLog ("Stopping installed client processes for the bounded update: {0}." -f `
+        (($processesByName.GetEnumerator() | ForEach-Object {
+            "$($_.Key) PID(s) $(@($_.Value.Id) -join ', ')"
+        }) -join '; '))
+
+    foreach ($entry in $processesByName.GetEnumerator()) {
+        foreach ($process in @($entry.Value)) {
+            try {
+                if ($process.MainWindowHandle -ne 0) {
+                    $null = $process.CloseMainWindow()
+                }
+            } catch {
+                # The bounded forced stop below handles clients without a responsive window.
+            }
+        }
+    }
+
+    $graceDeadline = (Get-Date).AddSeconds(8)
+    do {
+        $remaining = @($runningNames | ForEach-Object { Get-ClientProcesses -Name $_ })
+        if ($remaining.Count -eq 0) {
+            break
+        }
+        Start-Sleep -Milliseconds 250
+    } while ((Get-Date) -lt $graceDeadline)
+
+    $remaining = @($runningNames | ForEach-Object { Get-ClientProcesses -Name $_ })
+    if ($remaining.Count -gt 0) {
+        Write-LaunchLog ("Graceful close timed out; force-stopping verified installed PID(s) {0}." -f `
+            (@($remaining.Id) -join ', ')) 'WARN'
+        $remaining | Stop-Process -Force
+    }
+
+    $stopDeadline = (Get-Date).AddSeconds(5)
+    do {
+        $remaining = @($runningNames | ForEach-Object { Get-ClientProcesses -Name $_ })
+        if ($remaining.Count -eq 0) {
+            break
+        }
+        Start-Sleep -Milliseconds 250
+    } while ((Get-Date) -lt $stopDeadline)
+    if ($remaining.Count -ne 0) {
+        throw "Installed client process PID(s) $(@($remaining.Id) -join ', ') did not stop; update was not attempted."
+    }
+
+    Write-LaunchLog 'All verified installed client processes stopped; unrelated executables were not touched.'
+    return @($runningNames)
+}
+
+function Restore-ClientStackAfterUpdate {
+    param([string[]]$Names)
+
+    $resume = @($Names | Select-Object -Unique)
+    if ($resume.Count -eq 0) {
+        return
+    }
+
+    Write-LaunchLog "Restoring the client applications that were running before the update: $($resume -join ', ')."
+    if ($resume -contains 'itcmon' -or $resume -contains 'itcwatch') {
+        $null = Start-ClientProcess -Name itcmon
+    }
+    if ($resume -contains 'itcwatch') {
+        Write-LaunchLog 'Waiting up to 30 seconds for restored ITCMon local zjpub at 127.0.0.1:18001.'
+        if (-not (Wait-TcpEndpoint -HostName '127.0.0.1' -Port 18001 -TimeoutSeconds 30)) {
+            throw 'Restored ITCMon did not expose local zjpub 127.0.0.1:18001; ITCWatch was not restarted.'
+        }
+        $null = Start-ClientProcess -Name itcwatch
+    }
+    if ($resume -contains 'atcsmon') {
+        $null = Start-ClientProcess -Name atcsmon
+    }
+}
+
 function Get-InstalledClientHealth {
     $issues = New-Object 'System.Collections.Generic.List[string]'
     $warnings = New-Object 'System.Collections.Generic.List[string]'
@@ -556,12 +660,8 @@ try {
         exit 0
     }
 
-    $stackRunning = @($diagnostics.itcmon_processes).Count -gt 0 -or
-        @($diagnostics.itcwatch_processes).Count -gt 0 -or
-        @($diagnostics.atcsmon_processes).Count -gt 0
-    if ($stackRunning) {
-        Write-LaunchLog 'An ITCMon, ITCWatch, or ATCSMon process is already active; skipping updates so running files are not replaced.' 'WARN'
-    } elseif ($NoUpdate) {
+    $restartAfterUpdate = @()
+    if ($NoUpdate) {
         Write-LaunchLog 'Automatic update was disabled for this launch.' 'WARN'
     } else {
         $updateAttempted = $true
@@ -576,6 +676,7 @@ try {
         } else {
             Write-LaunchLog 'Checking for validated application, configuration, railroad-data, WIU, and launcher updates.'
             try {
+                $restartAfterUpdate = @(Stop-ClientStackForUpdate)
                 $arguments = @{
                     InstallRoot = $installFull
                     ProfileName = $ProfileName
@@ -602,6 +703,10 @@ try {
                     $usedLastKnownGood = $true
                     Write-LaunchLog 'The installed client passed local validation. Launching the last-known-good copy despite the update failure.' 'WARN'
                 }
+            }
+
+            if ($restartAfterUpdate.Count -gt 0) {
+                Restore-ClientStackAfterUpdate -Names $restartAfterUpdate
             }
         }
     }
