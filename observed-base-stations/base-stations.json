@@ -8,6 +8,8 @@
       "radio_id": "1856C4",
       "railroad": "BNSF",
       "location": "North Glenwood, IA",
+      "base_channel": 77,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 41.09695333333333,
       "longitude": -95.760575,
       "map_url": "https://www.google.com/maps/search/?api=1&query=41.096953,-95.760575"
@@ -16,6 +18,8 @@
       "radio_id": "1856D8",
       "railroad": "BNSF",
       "location": "Ashland, NE",
+      "base_channel": 153,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 41.02934666666667,
       "longitude": -96.35037666666666,
       "map_url": "https://www.google.com/maps/search/?api=1&query=41.029347,-96.350377"
@@ -24,6 +28,8 @@
       "radio_id": "1857C5",
       "railroad": "BNSF",
       "location": "Lincoln, NE",
+      "base_channel": 125,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 40.86197833333333,
       "longitude": -96.626145,
       "map_url": "https://www.google.com/maps/search/?api=1&query=40.861978,-96.626145"
@@ -32,6 +38,8 @@
       "radio_id": "1857C6",
       "railroad": "BNSF",
       "location": "Red Oak, IA",
+      "base_channel": 141,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 41.004575,
       "longitude": -95.234952,
       "map_url": "https://www.google.com/maps/search/?api=1&query=41.004575,-95.234952"
@@ -40,6 +48,8 @@
       "radio_id": "18582F",
       "railroad": "BNSF",
       "location": "East Glenwood, IA",
+      "base_channel": 165,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 41.04908666666667,
       "longitude": -95.67060333333333,
       "map_url": "https://www.google.com/maps/search/?api=1&query=41.049087,-95.670603"
@@ -48,6 +58,8 @@
       "radio_id": "185896",
       "railroad": "BNSF",
       "location": "Fremont, NE",
+      "base_channel": 93,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 41.428033,
       "longitude": -96.49599,
       "map_url": "https://www.google.com/maps/search/?api=1&query=41.428033,-96.495990"
@@ -56,6 +68,8 @@
       "radio_id": "18589E",
       "railroad": "BNSF",
       "location": "Milford, NE",
+      "base_channel": 81,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 40.726346666666664,
       "longitude": -96.97700166666667,
       "map_url": "https://www.google.com/maps/search/?api=1&query=40.726347,-96.977002"
@@ -64,6 +78,8 @@
       "radio_id": "1858C0",
       "railroad": "BNSF",
       "location": "Fairmont, NE",
+      "base_channel": 142,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 40.64148,
       "longitude": -97.50316333333333,
       "map_url": "https://www.google.com/maps/search/?api=1&query=40.641480,-97.503163"
@@ -72,6 +88,8 @@
       "radio_id": "1858D1",
       "railroad": "BNSF",
       "location": "Leavenworth, KS",
+      "base_channel": 93,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 39.310918,
       "longitude": -95.064203,
       "map_url": "https://www.google.com/maps/search/?api=1&query=39.310918,-95.064203"
@@ -80,6 +98,8 @@
       "radio_id": "1858D4",
       "railroad": "BNSF",
       "location": "Firth, NE",
+      "base_channel": 85,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 40.560982,
       "longitude": -96.573618,
       "map_url": "https://www.google.com/maps/search/?api=1&query=40.560982,-96.573618",
@@ -89,6 +109,8 @@
       "radio_id": "185BE4",
       "railroad": "BNSF",
       "location": "York, NE",
+      "base_channel": 165,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 40.828248333333335,
       "longitude": -97.55478666666667,
       "map_url": "https://www.google.com/maps/search/?api=1&query=40.828248,-97.554787"
@@ -97,6 +119,8 @@
       "radio_id": "480009",
       "railroad": "UP",
       "location": "Dow City, IA",
+      "base_channel": 153,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 41.84899,
       "longitude": -95.4253,
       "map_url": "https://www.google.com/maps/search/?api=1&query=41.848990,-95.425300",
@@ -106,6 +130,8 @@
       "radio_id": "4800AF",
       "railroad": "UP",
       "location": "Gretna, NE",
+      "base_channel": 141,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 41.17537,
       "longitude": -96.25773,
       "map_url": "https://www.google.com/maps/search/?api=1&query=41.175370,-96.257730"
@@ -114,6 +140,8 @@
       "radio_id": "4800BF",
       "railroad": "UP",
       "location": "Gretna, NE",
+      "base_channel": 141,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 41.17539,
       "longitude": -96.25773,
       "map_url": "https://www.google.com/maps/search/?api=1&query=41.175390,-96.257730"
@@ -122,6 +150,8 @@
       "radio_id": "4800D5",
       "railroad": "UP",
       "location": "Bennington, NE",
+      "base_channel": 142,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 41.367783333333335,
       "longitude": -96.23393333333334,
       "map_url": "https://www.google.com/maps/search/?api=1&query=41.367783,-96.233933"
@@ -130,6 +160,8 @@
       "radio_id": "4800D7",
       "railroad": "UP",
       "location": "Blair, NE",
+      "base_channel": 154,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 41.50961,
       "longitude": -96.17450166666667,
       "map_url": "https://www.google.com/maps/search/?api=1&query=41.509610,-96.174502"
@@ -138,6 +170,8 @@
       "radio_id": "4801FB",
       "railroad": "UP",
       "location": "Marysville, KS",
+      "base_channel": 126,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 39.78433,
       "longitude": -96.70604,
       "map_url": "https://www.google.com/maps/search/?api=1&query=39.784330,-96.706040"
@@ -146,6 +180,8 @@
       "radio_id": "48035F",
       "railroad": "UP",
       "location": "Weeping Water, NE",
+      "base_channel": 142,
+      "mobile_channels": [127, 126, 125, 114, 113, 101],
       "latitude": 40.86888,
       "longitude": -96.14051,
       "map_url": "https://www.google.com/maps/search/?api=1&query=40.868880,-96.140510"
