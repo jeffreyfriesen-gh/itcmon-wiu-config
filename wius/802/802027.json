@@ -3,7 +3,6 @@
   "description": "Auto-generated + merged WIU decoders",
   "waysides": {
     "780202700703": {
-      "name": "UP Unresolved Blair site 007 device 03",
       "sig": "UP",
       "ind": [
         {
@@ -51,31 +50,28 @@
       ]
     },
     "780202701103": {
-      "name": "UP Unresolved Blair site 011 device 03",
       "sig": "UP",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1W"
         },
         {
-          "signal": "2"
+          "signal": "1E"
         }
       ]
     },
     "780202701203": {
-      "name": "UP Unresolved Blair site 012 device 03",
       "sig": "UP",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1W"
         },
         {
-          "signal": "2"
+          "signal": "1E"
         }
       ]
     },
     "780202701303": {
-      "name": "UP Unresolved Blair site 013 device 03",
       "sig": "UP",
       "ind": [
         {
@@ -105,7 +101,6 @@
       ]
     },
     "780202701403": {
-      "name": "UP Unresolved Blair site 014 device 03",
       "sig": "UP",
       "ind": [
         {
@@ -123,7 +118,34 @@
       ]
     },
     "780202701503": {
-      "name": "UP East Fremont - Main 1",
+      "name": "UP Waterloo - Main 1",
+      "MP": "24.7",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
+      ]
+    },
+    "780202701504": {
+      "name": "UP Waterloo - Main 2",
+      "MP": "24.7",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "2W"
+        },
+        {
+          "signal": "2E"
+        }
+      ]
+    },
+    "780202701603": {
+      "name": "CP B026 M1",
+      "MP": "26",
       "sig": "UP",
       "ind": [
         {
@@ -134,57 +156,106 @@
         }
       ],
       "atcs": {
-        "mcp": "8802680070018",
+        "mcp": "8802680070014",
         "proto": "s",
         "ibitsn": 32,
-        "ibits": "3EXK,2WXK,2EXK,1WXK,2RWK,2NWK,1RWK,1NWK,1WAK,2TK,1TK,2WGK,2EGK,1WGK,1EGK,1EXK,CEAK,BWAK,BEAK,AWAK,1EAK,3EAK,2WAK,2EAK,LCK,P0K,SMK,SWCURRK,,,,AEAK"
+        "ibits": "AWAK,1EAK,1WAK,1LAK,1WGK,1EGK,1EXK,1WXK,1LCK,P0K,,,,,,AEAK,,,,,,,,,,,,,,,,"
       }
     },
-    "780202701603": {
-      "name": "UP Unresolved Blair site 016 device 03",
+    "780202701604": {
+      "name": "CP B026 M2",
+      "MP": "26",
       "sig": "UP",
       "ind": [
         {
-          "signal": "1"
+          "signal": "2W"
         },
         {
-          "signal": "2"
+          "signal": "2E"
+        }
+      ],
+      "atcs": {
+        "mcp": "8802680070015",
+        "proto": "s",
+        "ibitsn": 32,
+        "ibits": "BWAK,2EAK,2WAK,2LAK,2WGK,2EGK,2EXK,2WXK,2LCK,P0K,,,,,,BEAK,,,,,,,,,,,,,,,,"
+      }
+    },
+    "780202701703": {
+      "name": "UP Valley - Main 1",
+      "MP": "28.0",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
         }
       ]
     },
-    "780202701703": {
-      "name": "UP Unresolved Blair site 017 device 03",
+    "780202701704": {
+      "name": "UP Valley - Main 2",
+      "MP": "28.0",
       "sig": "UP",
       "ind": [
         {
-          "signal": "1"
+          "signal": "2W"
         },
         {
-          "signal": "2"
+          "signal": "2E"
+        }
+      ]
+    },
+    "780202701803": {
+      "name": "UP Valmont - Main 1",
+      "MP": "29.6",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
+      ]
+    },
+    "780202701804": {
+      "name": "UP Valmont - Main 2",
+      "MP": "29.6",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "2W"
+        },
+        {
+          "signal": "2E"
         }
       ]
     },
     "780202701903": {
-      "name": "UP Unresolved Blair site 019 device 03",
+      "name": "UP Werner Airport - Main 1",
+      "MP": "31.1",
       "sig": "UP",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1W"
         },
         {
-          "signal": "2"
+          "signal": "1E"
         }
       ]
     },
     "780202701904": {
-      "name": "UP Unresolved Blair site 019 device 04",
+      "name": "UP Werner Airport - Main 2",
+      "MP": "31.1",
       "sig": "UP",
       "ind": [
         {
-          "signal": "1"
+          "signal": "2W"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         }
       ]
     },

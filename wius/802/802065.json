@@ -33,26 +33,24 @@
       }
     },
     "780206500403": {
-      "name": "UP Unresolved Columbus site 004 device 03",
       "sig": "UP",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1W"
         },
         {
-          "signal": "2"
+          "signal": "1E"
         }
       ]
     },
     "780206500404": {
-      "name": "UP Unresolved Columbus site 004 device 04",
       "sig": "UP",
       "ind": [
         {
-          "signal": "1"
+          "signal": "2W"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         }
       ]
     }

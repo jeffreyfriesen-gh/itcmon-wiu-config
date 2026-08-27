@@ -258,8 +258,10 @@ pattern. Use
 
 - Keep the display `name` free of mileposts; store a known milepost as the
   string property `MP` on the same wayside object.
-- Prefix every non-empty Union Pacific display name with `UP `. Railroad
-  prefixes for other carriers are intentionally deferred until defined.
+- Prefix every non-empty Union Pacific location display name with `UP `. An
+  exact `CP B...` MCP name may omit that prefix only when the same WIU record
+  contains its confirmed `atcs` mapping. Railroad prefixes for other carriers
+  are intentionally deferred until defined.
 - Use `UP Location - Main 1` or `UP Location - Main 2` for track-specific WIUs.
   Do not abbreviate the track as `M1` or `M2`.
 - Use `UP Location (CP Bxxx)` only for a control point tied to a confirmed
@@ -270,10 +272,10 @@ pattern. Use
 - Keep confidence and evidence status in the supporting records rather than
   adding `candidate`, `automatic`, or `WIU` to a confirmed display name.
 
-Repository validation rejects a non-empty UP name lacking the `UP ` prefix, a
-name that embeds an `MP` value or uses the `M1`/`M2` abbreviations, or a name
-that claims a CP without an `atcs` mapping so later updates preserve this
-convention.
+Repository validation rejects a non-empty UP location name lacking the `UP `
+prefix, except for an exact `CP B...` MCP name backed by an `atcs` block. It
+also rejects a name that embeds an `MP` value or uses `M1`/`M2` abbreviations
+outside an exact ATCS-backed MCP name, or a CP name without an `atcs` mapping.
 
 ## Launch diagnostics
 

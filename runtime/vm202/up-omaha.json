@@ -34,8 +34,14 @@
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
-        {"signal": "1W", "mapping_status": "provisional"},
-        {"signal": "1E", "mapping_status": "provisional"}
+        {
+          "signal": "1W",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "provisional"
+        }
       ]
     },
     "780200120104": {
@@ -43,9 +49,18 @@
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
-        {"signal": "2W", "mapping_status": "provisional"},
-        {"signal": "2E", "mapping_status": "provisional"},
-        {"signal": "3", "mapping_status": "unresolved"}
+        {
+          "signal": "2W",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "3",
+          "mapping_status": "unresolved"
+        }
       ]
     },
     "780200120203": {
@@ -53,10 +68,22 @@
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
-        {"signal": "1W", "mapping_status": "provisional"},
-        {"signal": "1E", "mapping_status": "provisional"},
-        {"signal": "2W", "mapping_status": "provisional"},
-        {"signal": "2E", "mapping_status": "provisional"}
+        {
+          "signal": "1W",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "2W",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "provisional"
+        }
       ]
     },
     "780200120303": {
@@ -64,8 +91,14 @@
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
-        {"signal": "1W", "mapping_status": "provisional"},
-        {"signal": "1E", "mapping_status": "provisional"}
+        {
+          "signal": "1W",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "provisional"
+        }
       ]
     },
     "780200120304": {
@@ -73,8 +106,14 @@
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
-        {"signal": "2W", "mapping_status": "provisional"},
-        {"signal": "2E", "mapping_status": "provisional"}
+        {
+          "signal": "2W",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "provisional"
+        }
       ]
     },
     "780200120403": {
@@ -82,8 +121,14 @@
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
-        {"signal": "1W", "mapping_status": "provisional"},
-        {"signal": "1E", "mapping_status": "provisional"}
+        {
+          "signal": "1W",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "provisional"
+        }
       ]
     },
     "780200120404": {
@@ -91,36 +136,84 @@
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
-        {"switch": "1", "mapping_status": "provisional"},
-        {"signal": "2W", "mapping_status": "observed"},
-        {"signal": "3", "mapping_status": "unresolved"},
-        {"signal": "2E", "mapping_status": "observed"}
+        {
+          "switch": "1",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "2W",
+          "mapping_status": "observed"
+        },
+        {
+          "signal": "3",
+          "mapping_status": "unresolved"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "observed"
+        }
       ],
-      "atcs": {"mcp": "8802680070012", "proto": "s"}
+      "atcs": {
+        "mcp": "8802680070012",
+        "proto": "s"
+      }
     },
     "780200120503": {
       "name": "Pacific Street",
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
-        {"switch": "1", "mapping_status": "unresolved"},
-        {"switch": "2", "mapping_status": "unresolved"},
-        {"switch": "3", "mapping_status": "unresolved"},
-        {"switch": "4", "mapping_status": "unresolved"},
-        {"signal": "1W", "mapping_status": "provisional"},
-        {"signal": "2W", "mapping_status": "observed"},
-        {"signal": "1E", "mapping_status": "provisional"},
-        {"signal": "2E", "mapping_status": "observed"}
+        {
+          "switch": "1",
+          "mapping_status": "unresolved"
+        },
+        {
+          "switch": "2",
+          "mapping_status": "unresolved"
+        },
+        {
+          "switch": "3",
+          "mapping_status": "unresolved"
+        },
+        {
+          "switch": "4",
+          "mapping_status": "unresolved"
+        },
+        {
+          "signal": "1W",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "2W",
+          "mapping_status": "observed"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "observed"
+        }
       ],
-      "atcs": {"mcp": "8802680070013", "proto": "s"}
+      "atcs": {
+        "mcp": "8802680070013",
+        "proto": "s"
+      }
     },
     "780200120603": {
       "name": "East Elkhorn MP 19.8 Automatic M1 WIU",
       "sig": "UP",
       "mapping_status": "observed",
       "ind": [
-        {"signal": "1W", "mapping_status": "observed"},
-        {"signal": "1E", "mapping_status": "observed"}
+        {
+          "signal": "1W",
+          "mapping_status": "observed"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "observed"
+        }
       ]
     },
     "780200120604": {
@@ -128,9 +221,18 @@
       "sig": "UP",
       "mapping_status": "observed",
       "ind": [
-        {"signal": "2W", "mapping_status": "observed"},
-        {"signal": "2E", "mapping_status": "observed"},
-        {"signal": "3", "mapping_status": "unresolved"}
+        {
+          "signal": "2W",
+          "mapping_status": "observed"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "observed"
+        },
+        {
+          "signal": "3",
+          "mapping_status": "unresolved"
+        }
       ]
     },
     "780200120703": {
@@ -138,8 +240,14 @@
       "sig": "UP",
       "mapping_status": "observed",
       "ind": [
-        {"signal": "1W", "mapping_status": "observed"},
-        {"signal": "1E", "mapping_status": "observed"}
+        {
+          "signal": "1W",
+          "mapping_status": "observed"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "observed"
+        }
       ]
     },
     "780200120704": {
@@ -147,8 +255,14 @@
       "sig": "UP",
       "mapping_status": "observed",
       "ind": [
-        {"signal": "2W", "mapping_status": "observed"},
-        {"signal": "2E", "mapping_status": "observed"}
+        {
+          "signal": "2W",
+          "mapping_status": "observed"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "observed"
+        }
       ]
     },
     "780200120803": {
@@ -156,8 +270,14 @@
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
-        {"signal": "1W", "mapping_status": "observed"},
-        {"signal": "1E", "mapping_status": "provisional"}
+        {
+          "signal": "1W",
+          "mapping_status": "observed"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "provisional"
+        }
       ]
     },
     "780200120804": {
@@ -165,37 +285,233 @@
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
-        {"signal": "2W", "mapping_status": "provisional"},
-        {"signal": "2E", "mapping_status": "provisional"}
+        {
+          "signal": "2W",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "provisional"
+        }
       ]
     },
     "780200120904": {
-      "name": "Waterloo MP 24.7 Main 1 WIU",
       "sig": "UP",
-      "mapping_status": "provisional",
+      "mapping_status": "unresolved",
       "ind": [
-        {"signal": "1E", "mapping_status": "provisional"},
-        {"signal": "1W", "mapping_status": "observed"},
-        {"signal": "3", "mapping_status": "unresolved"}
+        {
+          "signal": "1",
+          "mapping_status": "unresolved"
+        },
+        {
+          "signal": "2",
+          "mapping_status": "unresolved"
+        },
+        {
+          "signal": "3",
+          "mapping_status": "unresolved"
+        }
       ]
     },
     "780200121003": {
-      "name": "Unresolved UP Omaha site 210 Main 1 WIU",
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
-        {"signal": "1W", "mapping_status": "provisional"},
-        {"signal": "1E", "mapping_status": "provisional"}
+        {
+          "signal": "1W",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "provisional"
+        }
       ]
     },
     "780200121004": {
-      "name": "Unresolved UP Omaha site 210 Main 2 WIU",
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
-        {"signal": "2W", "mapping_status": "provisional"},
-        {"signal": "2E", "mapping_status": "provisional"}
+        {
+          "signal": "2W",
+          "mapping_status": "provisional"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "provisional"
+        }
       ]
+    },
+    "780202701503": {
+      "name": "UP Waterloo - Main 1",
+      "MP": "24.7",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1W",
+          "mapping_status": "operator_verified"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "operator_verified"
+        }
+      ],
+      "mapping_status": "operator_verified"
+    },
+    "780202701504": {
+      "name": "UP Waterloo - Main 2",
+      "MP": "24.7",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "2W",
+          "mapping_status": "operator_verified"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "operator_verified"
+        }
+      ],
+      "mapping_status": "operator_verified"
+    },
+    "780202701603": {
+      "name": "CP B026 M1",
+      "MP": "26",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1W",
+          "mapping_status": "operator_verified"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "operator_verified"
+        }
+      ],
+      "atcs": {
+        "mcp": "8802680070014",
+        "proto": "s",
+        "ibitsn": 32,
+        "ibits": "AWAK,1EAK,1WAK,1LAK,1WGK,1EGK,1EXK,1WXK,1LCK,P0K,,,,,,AEAK,,,,,,,,,,,,,,,,"
+      },
+      "mapping_status": "operator_verified"
+    },
+    "780202701604": {
+      "name": "CP B026 M2",
+      "MP": "26",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "2W",
+          "mapping_status": "operator_verified"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "operator_verified"
+        }
+      ],
+      "atcs": {
+        "mcp": "8802680070015",
+        "proto": "s",
+        "ibitsn": 32,
+        "ibits": "BWAK,2EAK,2WAK,2LAK,2WGK,2EGK,2EXK,2WXK,2LCK,P0K,,,,,,BEAK,,,,,,,,,,,,,,,,"
+      },
+      "mapping_status": "operator_verified"
+    },
+    "780202701703": {
+      "name": "UP Valley - Main 1",
+      "MP": "28.0",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1W",
+          "mapping_status": "operator_verified"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "operator_verified"
+        }
+      ],
+      "mapping_status": "operator_verified"
+    },
+    "780202701704": {
+      "name": "UP Valley - Main 2",
+      "MP": "28.0",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "2W",
+          "mapping_status": "operator_verified"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "operator_verified"
+        }
+      ],
+      "mapping_status": "operator_verified"
+    },
+    "780202701803": {
+      "name": "UP Valmont - Main 1",
+      "MP": "29.6",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1W",
+          "mapping_status": "operator_verified"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "operator_verified"
+        }
+      ],
+      "mapping_status": "operator_verified"
+    },
+    "780202701804": {
+      "name": "UP Valmont - Main 2",
+      "MP": "29.6",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "2W",
+          "mapping_status": "operator_verified"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "operator_verified"
+        }
+      ],
+      "mapping_status": "operator_verified"
+    },
+    "780202701903": {
+      "name": "UP Werner Airport - Main 1",
+      "MP": "31.1",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1W",
+          "mapping_status": "operator_verified"
+        },
+        {
+          "signal": "1E",
+          "mapping_status": "operator_verified"
+        }
+      ],
+      "mapping_status": "operator_verified"
+    },
+    "780202701904": {
+      "name": "UP Werner Airport - Main 2",
+      "MP": "31.1",
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "2W",
+          "mapping_status": "operator_verified"
+        },
+        {
+          "signal": "2E",
+          "mapping_status": "operator_verified"
+        }
+      ],
+      "mapping_status": "operator_verified"
     }
   }
 }

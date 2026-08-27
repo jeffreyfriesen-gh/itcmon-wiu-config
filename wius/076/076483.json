@@ -3,7 +3,6 @@
   "description": "Auto-generated + merged WIU decoders",
   "waysides": {
     "707648318505": {
-      "name": "Unresolved BNSF district 483 site 185 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -12,7 +11,6 @@
       ]
     },
     "707648320005": {
-      "name": "Unresolved BNSF district 483 site 200 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -21,7 +19,6 @@
       ]
     },
     "707648320505": {
-      "name": "Unresolved BNSF district 483 site 205 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -30,7 +27,6 @@
       ]
     },
     "707648321005": {
-      "name": "Unresolved BNSF district 483 site 210 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -57,7 +53,6 @@
       ]
     },
     "707648321505": {
-      "name": "Unresolved BNSF district 483 site 215 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -69,7 +64,6 @@
       ]
     },
     "707648322005": {
-      "name": "Unresolved BNSF district 483 site 220 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -78,7 +72,6 @@
       ]
     },
     "707648322505": {
-      "name": "Unresolved BNSF district 483 site 225 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -87,7 +80,6 @@
       ]
     },
     "707648323005": {
-      "name": "BNSF Unresolved district 483 site 230 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -99,7 +91,6 @@
       ]
     },
     "707648324005": {
-      "name": "BNSF Unresolved district 483 site 240 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -117,7 +108,6 @@
       ]
     },
     "707648325505": {
-      "name": "BNSF Unresolved district 483 site 255 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -144,7 +134,6 @@
       ]
     },
     "707648327005": {
-      "name": "BNSF Unresolved district 483 site 270 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -153,7 +142,6 @@
       ]
     },
     "707648327505": {
-      "name": "BNSF Unresolved district 483 site 275 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -162,7 +150,6 @@
       ]
     },
     "707648330005": {
-      "name": "BNSF Unresolved district 483 site 300 device 05",
       "sig": "BNSF",
       "ind": [
         {

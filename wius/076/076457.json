@@ -3,7 +3,6 @@
   "description": "Auto-generated + merged WIU decoders",
   "waysides": {
     "707645705005": {
-      "name": "BNSF Unresolved district 457 site 050 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -33,7 +32,6 @@
       ]
     },
     "707645705605": {
-      "name": "BNSF Unresolved district 457 site 056 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -45,7 +43,6 @@
       ]
     },
     "707645705606": {
-      "name": "BNSF Unresolved district 457 site 056 device 06",
       "sig": "BNSF",
       "ind": [
         {
@@ -57,7 +54,6 @@
       ]
     },
     "707645706005": {
-      "name": "BNSF Unresolved district 457 site 060 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -87,7 +83,6 @@
       ]
     },
     "707645706505": {
-      "name": "BNSF Unresolved district 457 site 065 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -117,7 +112,6 @@
       ]
     },
     "707645707005": {
-      "name": "BNSF Unresolved district 457 site 070 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -249,7 +243,6 @@
       ]
     },
     "707645712006": {
-      "name": "BNSF Unresolved district 457 site 120 device 06",
       "sig": "BNSF",
       "ind": [
         {
@@ -261,7 +254,6 @@
       ]
     },
     "707645713005": {
-      "name": "BNSF Unresolved district 457 site 130 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -273,7 +265,6 @@
       ]
     },
     "707645713505": {
-      "name": "BNSF Unresolved district 457 site 135 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -291,7 +282,6 @@
       ]
     },
     "707645714005": {
-      "name": "BNSF Unresolved district 457 site 140 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -312,7 +302,6 @@
       ]
     },
     "707645714505": {
-      "name": "BNSF Unresolved district 457 site 145 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -336,7 +325,6 @@
       ]
     },
     "707645715705": {
-      "name": "BNSF Unresolved district 457 site 157 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -354,7 +342,6 @@
       ]
     },
     "707645718505": {
-      "name": "BNSF Unresolved district 457 site 185 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -366,7 +353,6 @@
       ]
     },
     "707645719005": {
-      "name": "BNSF Unresolved district 457 site 190 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -381,7 +367,6 @@
       ]
     },
     "707645720505": {
-      "name": "BNSF Unresolved district 457 site 205 device 05",
       "sig": "BNSF",
       "ind": [
         {

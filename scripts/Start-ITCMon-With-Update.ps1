@@ -583,15 +583,17 @@ function Test-RepositoryConfiguration {
                 throw "Duplicate WIU ID $($property.Name) in $($wiuFile.FullName)."
             }
             $displayName = [string]$property.Value.name
+            $isAtcsControlPointName = ($displayName -match '^CP B[0-9]+(?: M[12])?$' -and $null -ne $property.Value.atcs)
             if ([string]$property.Value.sig -eq 'UP' -and
                 -not [string]::IsNullOrWhiteSpace($displayName) -and
+                -not $isAtcsControlPointName -and
                 -not $displayName.StartsWith('UP ', [StringComparison]::Ordinal)) {
-                throw "WIU $($property.Name) is a named UP wayside; prefix its display name with 'UP '."
+                throw "WIU $($property.Name) is a named UP wayside; prefix its display name with 'UP ', or use an exact CP B... MCP name with an ATCS block."
             }
             if ($displayName -match '(?i)\bMP\s*[0-9]') {
                 throw "WIU $($property.Name) embeds a milepost in its name; store it in the MP property instead."
             }
-            if ($displayName -match '(?i)(?:^|[\s-])M[12](?:$|[\s-])') {
+            if (-not $isAtcsControlPointName -and $displayName -match '(?i)(?:^|[\s-])M[12](?:$|[\s-])') {
                 throw "WIU $($property.Name) abbreviates a track as M1/M2; use Main 1/Main 2."
             }
             if ($displayName -match '(?i)\bCP\s+B[0-9]+' -and -not $property.Value.atcs) {

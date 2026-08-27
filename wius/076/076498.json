@@ -3,7 +3,6 @@
   "description": "Auto-generated + merged WIU decoders",
   "waysides": {
     "707649804005": {
-      "name": "BNSF Unresolved district 498 site 040 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -30,7 +29,6 @@
       ]
     },
     "707649805005": {
-      "name": "BNSF Unresolved district 498 site 050 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -48,7 +46,6 @@
       ]
     },
     "707649805505": {
-      "name": "BNSF Unresolved district 498 site 055 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -78,7 +75,6 @@
       ]
     },
     "707649808005": {
-      "name": "BNSF Unresolved district 498 site 080 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -96,7 +92,6 @@
       ]
     },
     "707649814505": {
-      "name": "BNSF Unresolved district 498 site 145 device 05",
       "sig": "BNSF",
       "ind": [
         {
@@ -111,7 +106,6 @@
       ]
     },
     "707649815005": {
-      "name": "BNSF Unresolved district 498 site 150 device 05",
       "sig": "BNSF",
       "ind": [
         {
