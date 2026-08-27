@@ -258,7 +258,9 @@ pattern. Use
   and 15-minute retry task used by VM201.
 - `scripts/Launch-ITCM-Truck-Client.ps1`: process-aware launcher,
   last-known-good fallback, endpoint diagnostics, persistent status, and
-  bounded launch logs.
+  bounded launch logs. When a validated update source is supplied, it invokes
+  that source's updater so an older installed validator cannot block its own
+  replacement.
 
 ## WIU naming convention
 

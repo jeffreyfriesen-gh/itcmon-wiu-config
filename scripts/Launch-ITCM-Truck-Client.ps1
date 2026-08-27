@@ -665,7 +665,16 @@ try {
         Write-LaunchLog 'Automatic update was disabled for this launch.' 'WARN'
     } else {
         $updateAttempted = $true
-        $updater = Join-Path $installFull 'Start-ITCMon-With-Update.ps1'
+        $sourceUpdater = if (-not [string]::IsNullOrWhiteSpace($UpdateSourceRoot)) {
+            Join-Path $UpdateSourceRoot 'scripts\Start-ITCMon-With-Update.ps1'
+        } else {
+            $null
+        }
+        $updater = if ($sourceUpdater -and (Test-Path -LiteralPath $sourceUpdater -PathType Leaf)) {
+            $sourceUpdater
+        } else {
+            Join-Path $installFull 'Start-ITCMon-With-Update.ps1'
+        }
         if (-not (Test-Path -LiteralPath $updater -PathType Leaf)) {
             $updateError = "Missing updater: $updater"
             Write-LaunchLog $updateError 'ERROR'
