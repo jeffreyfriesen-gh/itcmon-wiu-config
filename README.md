@@ -277,7 +277,7 @@ pattern. Use
 - A `7802...03` WIU represented with exactly two signals uses `1W`, `1E`.
 - A `7802...04` WIU represented with exactly two signals uses `2W`, `2E`.
 - A `7802...` WIU represented with exactly four switches and four signals uses
-  signal order `1W`, `1E`, `2W`, `2E`.
+  signal order `1W`, `2W`, `1E`, `2E`.
 - These rules assign labels only after the represented field count is
   established. They do not convert an ambiguous raw-bit layout into a claimed
   signal/switch layout.

@@ -1,7 +1,7 @@
 {
   "schema": "itcmon.config.manifest.v1",
-  "version": "2026-08-27.3",
-  "generated_utc": "2026-08-27T08:01:48Z",
+  "version": "2026-08-27.4",
+  "generated_utc": "2026-08-27T08:04:17Z",
   "wiu_count": 209,
   "rrdata_path": "rrdata.json",
   "applications": [
@@ -151,7 +151,7 @@
     },
     {
       "path": "runtime/vm202/up-omaha.json",
-      "sha256": "5FEC2F5BF156AAB28594E924B9286451375311346794E1CCC397A286AF0B02E5"
+      "sha256": "409961ECADF9CC3CF122B8183BBE16F909731F9EB2A78F101695F9491DE90769"
     },
     {
       "path": "wius/076/076457.json",
@@ -179,11 +179,11 @@
     },
     {
       "path": "wius/802/802001.json",
-      "sha256": "BB74ADA444F587260F7BC4B29DFC63A19411FADAC1B42686287283F219D42124"
+      "sha256": "A7633DF3BBF9EC0AFF23B62E160D7ED20056FE41CEC334EB46E86A4527FE019F"
     },
     {
       "path": "wius/802/802027.json",
-      "sha256": "8188CA5DCACC6C3DF1205F9A792BF9F9DD55D94DBB1128274FF32A87DA99326C"
+      "sha256": "B77869CD729D5B3B888975639340882F7A78A95234C6A6B1F2DE39991F121A60"
     },
     {
       "path": "wius/802/802029.json",
