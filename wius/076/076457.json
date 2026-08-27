@@ -35,10 +35,10 @@
       "sig": "BNSF",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1W"
         },
         {
-          "signal": "2"
+          "signal": "1E"
         }
       ]
     },
@@ -46,10 +46,10 @@
       "sig": "BNSF",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1W"
         },
         {
-          "signal": "2"
+          "signal": "1E"
         }
       ]
     },
@@ -208,10 +208,10 @@
       "sig": "BNSF",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1W"
         },
         {
-          "signal": "2"
+          "signal": "1E"
         }
       ]
     },
@@ -220,10 +220,10 @@
       "sig": "BNSF",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1W"
         },
         {
-          "signal": "2"
+          "signal": "1E"
         }
       ]
     },
@@ -246,10 +246,10 @@
       "sig": "BNSF",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1W"
         },
         {
-          "signal": "2"
+          "signal": "1E"
         }
       ]
     },
@@ -257,10 +257,10 @@
       "sig": "BNSF",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1W"
         },
         {
-          "signal": "2"
+          "signal": "1E"
         }
       ]
     },
@@ -345,10 +345,10 @@
       "sig": "BNSF",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1W"
         },
         {
-          "signal": "2"
+          "signal": "1E"
         }
       ]
     },
@@ -370,10 +370,10 @@
       "sig": "BNSF",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1W"
         },
         {
-          "signal": "2"
+          "signal": "1E"
         }
       ]
     }
