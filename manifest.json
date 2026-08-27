@@ -1,7 +1,7 @@
 {
   "schema": "itcmon.config.manifest.v1",
-  "version": "2026-08-27.8",
-  "generated_utc": "2026-08-27T23:39:18Z",
+  "version": "2026-08-27.9",
+  "generated_utc": "2026-08-27T23:45:11Z",
   "wiu_count": 209,
   "rrdata_path": "rrdata.json",
   "applications": [
@@ -115,7 +115,7 @@
     },
     {
       "path": "scripts/Start-ITCMon-With-Update.ps1",
-      "sha256": "1F81950E3C54E8C632BC1BBA36CA35D13976201919BBD136CDE72175778A904F"
+      "sha256": "B71427EAFA2ABE4E856B45886B2B467A760E1DB404B018E3FCBB636870CE565A"
     },
     {
       "path": "scripts/Start-ITCMon-With-Update.cmd",

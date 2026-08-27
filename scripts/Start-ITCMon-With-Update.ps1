@@ -44,11 +44,43 @@ $privateArtifactPort = 8080
 $privateArtifactPathPrefix = '/r/8c2e6a/'
 
 # The launcher invokes this script as the upstream command in a logging
-# pipeline. Windows PowerShell 5.1 did not reliably auto-load the module that
-# exports Get-FileHash in that context, even though direct invocation did.
-Import-Module Microsoft.PowerShell.Utility -ErrorAction Stop
-if (-not (Get-Command Get-FileHash -ErrorAction SilentlyContinue)) {
-    throw 'Microsoft.PowerShell.Utility loaded without Get-FileHash.'
+# pipeline. Some Windows PowerShell 5.1 launch contexts do not expose the
+# Microsoft.PowerShell.Utility Get-FileHash cmdlet, even after importing the
+# module. Provide the SHA-256 subset used by this updater directly so integrity
+# validation does not depend on module auto-loading or the caller's runspace.
+function Get-FileHash {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$LiteralPath,
+
+        [ValidateSet('SHA256')]
+        [string]$Algorithm = 'SHA256'
+    )
+
+    $resolvedPath = (Resolve-Path -LiteralPath $LiteralPath -ErrorAction Stop).Path
+    $stream = [System.IO.File]::Open(
+        $resolvedPath,
+        [System.IO.FileMode]::Open,
+        [System.IO.FileAccess]::Read,
+        [System.IO.FileShare]::Read
+    )
+    try {
+        $hasher = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $hashBytes = $hasher.ComputeHash($stream)
+        } finally {
+            $hasher.Dispose()
+        }
+    } finally {
+        $stream.Dispose()
+    }
+
+    return [pscustomobject][ordered]@{
+        Algorithm = $Algorithm
+        Hash = ([System.BitConverter]::ToString($hashBytes) -replace '-', '')
+        Path = $resolvedPath
+    }
 }
 
 function Write-UpdateStage {
