@@ -2,7 +2,7 @@
   "schema": "itcm.observed-base-stations.v1",
   "updated_date": "2026-08-26",
   "coordinate_basis": "Valid nonzero transmitter coordinates decoded from ITCM application 0x02 base beacon payloads, plus operator-verified tower coordinates where explicitly identified.",
-  "station_count": 17,
+  "station_count": 18,
   "stations": [
     {
       "radio_id": "1856C4",
@@ -111,6 +111,14 @@
       "map_url": "https://www.google.com/maps/search/?api=1&query=41.175370,-96.257730"
     },
     {
+      "radio_id": "4800BF",
+      "railroad": "UP",
+      "location": "Gretna, NE",
+      "latitude": 41.17539,
+      "longitude": -96.25773,
+      "map_url": "https://www.google.com/maps/search/?api=1&query=41.175390,-96.257730"
+    },
+    {
       "radio_id": "4800D5",
       "railroad": "UP",
       "location": "Bennington, NE",
@@ -152,6 +160,7 @@
     "Preserved ITCMon output identifies 1858D1 as a channel-93 beacon at 39.310918,-95.064203 advertising channels 127,126,125,114,113,101; the operator identified it as BNSF ITCM Leavenworth, KS on 2026-08-26.",
     "The operator identified 1858D4 as BNSF ITCM Firth, NE and supplied the tower coordinates 40.560982,-96.573618 on 2026-08-25.",
     "The operator identified 480009 as UPRR ITCM Dow City, IA and supplied tower coordinates 41.848990,-95.425300 on 2026-08-26; preserved beacons independently decode 41.848991,-95.425301 on channel 153 and advertise channels 127,126,125,114,113,101.",
+    "Preserved ITCMon output identifies 4800BF as a channel-141 beacon at 41.175390,-96.257730 advertising channels 127,126,125,114,113,101; the operator identified it as an additional UPRR Gretna, NE base on 2026-08-26.",
     "Unlabeled submitted values 2 and 411 are omitted because their semantics were not supplied."
   ]
 }

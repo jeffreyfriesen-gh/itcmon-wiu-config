@@ -26,12 +26,13 @@ The machine-readable inventory is available as
 | `185BE4` | BNSF | York, NE | `40.828248` | `-97.554787` | [Google Maps](https://www.google.com/maps/search/?api=1&query=40.828248,-97.554787) |
 | `480009` | UP | Dow City, IA | `41.848990` | `-95.425300` | [Google Maps](https://www.google.com/maps/search/?api=1&query=41.848990,-95.425300) |
 | `4800AF` | UP | Gretna, NE | `41.175370` | `-96.257730` | [Google Maps](https://www.google.com/maps/search/?api=1&query=41.175370,-96.257730) |
+| `4800BF` | UP | Gretna, NE | `41.175390` | `-96.257730` | [Google Maps](https://www.google.com/maps/search/?api=1&query=41.175390,-96.257730) |
 | `4800D5` | UP | Bennington, NE | `41.367783` | `-96.233933` | [Google Maps](https://www.google.com/maps/search/?api=1&query=41.367783,-96.233933) |
 | `4800D7` | UP | Blair, NE | `41.509610` | `-96.174502` | [Google Maps](https://www.google.com/maps/search/?api=1&query=41.509610,-96.174502) |
 | `4801FB` | UP | Marysville, KS | `39.784330` | `-96.706040` | [Google Maps](https://www.google.com/maps/search/?api=1&query=39.784330,-96.706040) |
 | `48035F` | UP | Weeping Water, NE | `40.868880` | `-96.140510` | [Google Maps](https://www.google.com/maps/search/?api=1&query=40.868880,-96.140510) |
 
-All 17 entries have valid, nonzero transmitter/tower coordinates. Sixteen have
+All 18 entries have valid, nonzero transmitter/tower coordinates. Seventeen have
 preserved coordinate-bearing base beacons. `1858D4` is the operator-verified
 BNSF ITCM Firth tower at `40.560982,-96.573618`. `480009` is the
 operator-identified UPRR ITCM Dow City tower at `41.848990,-95.425300`; its
@@ -42,6 +43,10 @@ and coordinate-less base-like radios are excluded.
 `1858D1` is the operator-identified BNSF ITCM Leavenworth tower. Preserved
 ITCMon output decodes its channel-93 beacon at `39.310918,-95.064203`,
 advertising channels `127,126,125,114,113,101`.
+
+`4800BF` is a second, distinct UPRR Gretna base radio alongside `4800AF`.
+Preserved ITCMon output decodes its channel-141 beacon at
+`41.175390,-96.257730`, advertising channels `127,126,125,114,113,101`.
 
 The originally supplied `1856C4` row duplicated Gretna station `4800AF`'s
 coordinates. This inventory uses the observed North Glenwood coordinates
