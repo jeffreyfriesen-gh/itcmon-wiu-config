@@ -20,6 +20,7 @@ $detail = $null
 $manifestVersion = $null
 $logPath = $null
 $manifestDownload = $null
+$updaterDownload = $null
 
 function ConvertTo-ManifestVersionKey {
     param([Parameter(Mandatory)][string]$Version)
@@ -146,10 +147,23 @@ try {
         return
     }
 
-    $updater = Join-Path $installFull 'Start-ITCMon-With-Update.ps1'
-    if (-not (Test-Path -LiteralPath $updater -PathType Leaf)) {
-        throw "Installed updater is missing: $updater"
+    $updaterEntry = @($remoteManifest.files | Where-Object {
+        [string]$_.path -eq 'scripts/Start-ITCMon-With-Update.ps1'
+    })
+    if ($updaterEntry.Count -ne 1 -or [string]::IsNullOrWhiteSpace([string]$updaterEntry[0].sha256)) {
+        throw 'The GitHub manifest does not contain exactly one hashed Start-ITCMon-With-Update.ps1 entry.'
     }
+    $updaterUri = "https://raw.githubusercontent.com/$owner/$repositoryName/$Branch/scripts/Start-ITCMon-With-Update.ps1"
+    $updaterDownload = Join-Path $env:TEMP "itcm-github-updater-$PID.ps1"
+    if (Test-Path -LiteralPath $updaterDownload) {
+        throw "Refusing to replace unexpected updater staging file: $updaterDownload"
+    }
+    Invoke-WebRequest -UseBasicParsing -Uri $updaterUri -OutFile $updaterDownload -TimeoutSec 60
+    $updaterHash = (Get-FileHash -LiteralPath $updaterDownload -Algorithm SHA256).Hash
+    if ($updaterHash -ne ([string]$updaterEntry[0].sha256).ToUpperInvariant()) {
+        throw "The downloaded GitHub updater failed manifest SHA-256 validation: $updaterHash"
+    }
+    $updater = $updaterDownload
     $arguments = @{
         InstallRoot = $installFull
         RepositoryUrl = $RepositoryUrl
@@ -197,6 +211,9 @@ try {
     }
     if ($manifestDownload -and (Test-Path -LiteralPath $manifestDownload)) {
         Remove-Item -LiteralPath $manifestDownload -Force -ErrorAction SilentlyContinue
+    }
+    if ($updaterDownload -and (Test-Path -LiteralPath $updaterDownload)) {
+        Remove-Item -LiteralPath $updaterDownload -Force -ErrorAction SilentlyContinue
     }
     if ($logPath) {
         Get-ChildItem -LiteralPath (Split-Path -Parent $logPath) -Filter 'update-*.log' -File |
