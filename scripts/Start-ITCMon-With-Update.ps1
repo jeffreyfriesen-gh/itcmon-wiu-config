@@ -43,6 +43,14 @@ $privateArtifactHost = 'svc-cache.lan'
 $privateArtifactPort = 8080
 $privateArtifactPathPrefix = '/r/8c2e6a/'
 
+# The launcher invokes this script as the upstream command in a logging
+# pipeline. Windows PowerShell 5.1 did not reliably auto-load the module that
+# exports Get-FileHash in that context, even though direct invocation did.
+Import-Module Microsoft.PowerShell.Utility -ErrorAction Stop
+if (-not (Get-Command Get-FileHash -ErrorAction SilentlyContinue)) {
+    throw 'Microsoft.PowerShell.Utility loaded without Get-FileHash.'
+}
+
 function Write-UpdateStage {
     param(
         [Parameter(Mandatory)][int]$Number,
