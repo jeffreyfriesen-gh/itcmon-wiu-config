@@ -1,0 +1,52 @@
+{
+  "version": "1.0",
+  "description": "Observed WIU decoders",
+  "waysides": {
+    "780209910103": {
+      "sig": "UP",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        }
+      ]
+    },
+    "780209910403": {
+      "sig": "UP",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        },
+        {
+          "signal": "5"
+        }
+      ]
+    }
+  }
+}

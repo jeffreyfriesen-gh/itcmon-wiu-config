@@ -226,6 +226,12 @@ pattern. Use
   both `itcm-capture` and `itcmhub` must consume.
 - `rrdata.json`: railroad-number and signal-aspect mappings.
 - `wius/`: reviewed WIU decoder definitions.
+  The 2026-08-27 evidence reconciliation unions the full VM202 enriched ledger
+  with 412 preserved local outing/session evidence files. A packet identity is
+  admitted only when it is a 12-digit established family/device form
+  (`7076...05/06` or `7802...03/04`). Packet-supported semantic layouts use
+  signal/switch fields; layouts that remain packet-ambiguous use raw `bit`
+  fields rather than invented signal or switch ownership.
 - `observed-base-stations/`: coordinate-bearing base-beacon inventory in
   human-readable Markdown and machine-readable JSON/CSV.
 - `wius/802/802001.json`: reviewed Omaha-corridor definitions, including the
@@ -264,6 +270,17 @@ pattern. Use
   are intentionally deferred until defined.
 - Use `UP Location - Main 1` or `UP Location - Main 2` for track-specific WIUs.
   Do not abbreviate the track as `M1` or `M2`.
+
+## Operator-specified WIU field rules
+
+- A `7076...` WIU represented with exactly two signals uses `1W`, `1E`.
+- A `7802...03` WIU represented with exactly two signals uses `1W`, `1E`.
+- A `7802...04` WIU represented with exactly two signals uses `2W`, `2E`.
+- A `7802...` WIU represented with exactly four switches and four signals uses
+  signal order `1W`, `1E`, `2W`, `2E`.
+- These rules assign labels only after the represented field count is
+  established. They do not convert an ambiguous raw-bit layout into a claimed
+  signal/switch layout.
 - Use `UP Location (CP Bxxx)` only for a control point tied to a confirmed
   ATCSMon/MCP output, followed by ` - Main 1`/` - Main 2` only when the WIU is
   track-specific. Intermediate automatic signals use `UP Location - Main N`

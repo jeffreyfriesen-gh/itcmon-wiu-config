@@ -1,0 +1,91 @@
+{
+  "version": "1.0",
+  "description": "Observed WIU decoders",
+  "waysides": {
+    "707661715005": {
+      "sig": "BNSF",
+      "ind": [
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
+      ]
+    },
+    "707661715006": {
+      "sig": "BNSF",
+      "ind": [
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
+      ]
+    },
+    "707661730005": {
+      "sig": "BNSF",
+      "ind": [
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
+      ]
+    },
+    "707661732005": {
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        }
+      ]
+    },
+    "707661732006": {
+      "sig": "BNSF",
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "description": "Observed WIU decoders",
+  "waysides": {
+    "780220503403": {
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
+      ]
+    },
+    "780220503404": {
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "2W"
+        },
+        {
+          "signal": "2E"
+        }
+      ]
+    }
+  }
+}

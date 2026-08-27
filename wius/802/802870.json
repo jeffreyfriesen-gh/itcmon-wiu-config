@@ -1,28 +1,111 @@
 {
- "version": "1.0",
- "description": "Auto-generated + merged WIU decoders",
- "waysides": {
+  "version": "1.0",
+  "description": "Auto-generated + merged WIU decoders",
+  "waysides": {
     "780287036103": {
       "name": "",
       "sig": "UP",
-     "ind": [
-        {"switch": "1"},
-        {"switch": "2"},
-        {"switch": "3"},
-        {"switch": "4"},
-        {"switch": "5"},
-        {"switch": "6"},
-        {"switch": "7"},
-        {"switch": "8"},
-        {"switch": "9"},
-        {"signal": "1"},
-        {"signal": "2"},
-        {"signal": "3"},
-        {"signal": "4"},
-        {"signal": "5"},
-        {"signal": "6"},
-        {"signal": "7"}
+      "ind": [
+        {
+          "switch": "1"
+        },
+        {
+          "switch": "2"
+        },
+        {
+          "switch": "3"
+        },
+        {
+          "switch": "4"
+        },
+        {
+          "switch": "5"
+        },
+        {
+          "switch": "6"
+        },
+        {
+          "switch": "7"
+        },
+        {
+          "switch": "8"
+        },
+        {
+          "switch": "9"
+        },
+        {
+          "signal": "1"
+        },
+        {
+          "signal": "2"
+        },
+        {
+          "signal": "3"
+        },
+        {
+          "signal": "4"
+        },
+        {
+          "signal": "5"
+        },
+        {
+          "signal": "6"
+        },
+        {
+          "signal": "7"
+        }
+      ]
+    },
+    "780287071404": {
+      "sig": "UP",
+      "ind": [
+        {
+          "bit": "1"
+        },
+        {
+          "bit": "2"
+        },
+        {
+          "bit": "3"
+        },
+        {
+          "bit": "4"
+        },
+        {
+          "bit": "5"
+        },
+        {
+          "bit": "6"
+        },
+        {
+          "bit": "7"
+        },
+        {
+          "bit": "8"
+        }
+      ]
+    },
+    "780287087903": {
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
+      ]
+    },
+    "780287087904": {
+      "sig": "UP",
+      "ind": [
+        {
+          "signal": "2W"
+        },
+        {
+          "signal": "2E"
+        }
       ]
     }
- }
+  }
 }

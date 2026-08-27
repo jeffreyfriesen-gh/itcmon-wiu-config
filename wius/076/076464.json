@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "description": "Observed WIU decoders",
+  "waysides": {
+    "707646455005": {
+      "sig": "BNSF",
+      "ind": [
+        {
+          "signal": "1W"
+        },
+        {
+          "signal": "1E"
+        }
+      ]
+    }
+  }
+}
