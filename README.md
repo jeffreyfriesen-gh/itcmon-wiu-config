@@ -139,7 +139,7 @@ be able to reach both GitHub and the truck LAN during first installation.
 The applications are installed under the existing managed client directory
 when one can be identified, or `%LOCALAPPDATA%\Programs\ITCM-Client` for a new
 installation. The installer applies the truck-client profile, `rrdata.json`,
-and 95 reviewed WIU definitions, and creates `ITCMon - Truck`,
+and 209 reviewed WIU definitions, and creates `ITCMon - Truck`,
 `ITCWatch - Truck`, `ATCSMon - Truck`, and `Diagnose ITCM Truck Client`
 desktop shortcuts. The ITCMon shortcut uses the managed red-and-white ITCMon
 icon; the updater checksum-validates the icon and repairs both the local icon
@@ -236,7 +236,7 @@ pattern. Use
   human-readable Markdown and machine-readable JSON/CSV.
 - `wius/802/802001.json`: reviewed Omaha-corridor definitions, including the
   v0.9 `MP` field on WIUs whose working site assignment has a known
-  milepost. No `MP` value is synthesized for unresolved WIUs or for 57th
+  milepost. No `MP` value is synthesized for `To Be Identified` WIUs or for 57th
   Street because its WIU has not yet been observed.
 - `manifest.json`: expected counts and SHA-256 for every distributed machine
   file plus the reviewed ITCMon, ITCWatch, and ATCSMon packages and the ITCMon
@@ -264,6 +264,9 @@ pattern. Use
 
 ## WIU naming convention
 
+- Every WIU has a non-empty display name. Until its physical identity is
+  established, use exactly `<railroad abbreviation> To Be Identified`, such as
+  `UP To Be Identified` or `BNSF To Be Identified`.
 - Keep the display `name` free of mileposts; store a known milepost as the
   string property `MP` on the same wayside object.
 - Prefix every non-empty Union Pacific location display name with `UP `. An
@@ -280,6 +283,11 @@ pattern. Use
 - A `7802...04` WIU represented with exactly two signals uses `2W`, `2E`.
 - A `7802...` WIU represented with exactly four switches and four signals uses
   signal order `1W`, `2W`, `1E`, `2E`.
+- At a control point, keep every already directional signal label unchanged.
+  For a signal whose direction is not identified, preserve its sequential
+  number and append `E` (`1E`, `2E`, `3E`, and onward). A nonnumeric placeholder
+  uses its sequential signal-field position, without duplicating an existing
+  directional label.
 - These rules assign labels only after the represented field count is
   established. They do not convert an ambiguous raw-bit layout into a claimed
   signal/switch layout.
@@ -287,11 +295,13 @@ pattern. Use
   ATCSMon/MCP output, followed by ` - Main 1`/` - Main 2` only when the WIU is
   track-specific. Intermediate automatic signals use `UP Location - Main N`
   without a CP designation. If a proposed CP association has no confirmed
-  ATCSMon/MCP mapping, keep the WIU unresolved rather than displaying the CP.
+  ATCSMon/MCP mapping, display the railroad-specific `To Be Identified` name
+  rather than the proposed CP.
 - Keep confidence and evidence status in the supporting records rather than
   adding `candidate`, `automatic`, or `WIU` to a confirmed display name.
 
-Repository validation rejects a non-empty UP location name lacking the `UP `
+Repository validation rejects a WIU with a blank or missing display name and
+rejects a non-empty UP location name lacking the `UP `
 prefix, except for an exact `CP B...` MCP name backed by an `atcs` block. It
 also rejects a name that embeds an `MP` value or uses `M1`/`M2` abbreviations
 outside an exact ATCS-backed MCP name, or a CP name without an `atcs` mapping.

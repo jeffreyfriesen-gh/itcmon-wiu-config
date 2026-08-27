@@ -3,6 +3,7 @@
   "description": "Auto-generated + merged WIU decoders",
   "waysides": {
     "707649802005": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
@@ -14,6 +15,7 @@
       ]
     },
     "707649802505": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
@@ -67,40 +69,43 @@
       ]
     },
     "707649803005": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "707649803505": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "707649804005": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
@@ -112,7 +117,7 @@
       ]
     },
     "707649804505": {
-      "name": "",
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
@@ -122,46 +127,48 @@
           "switch": "2"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         }
       ]
     },
     "707649805005": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "707649805505": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "707649806005": {
-      "name": "",
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
@@ -173,6 +180,7 @@
       ]
     },
     "707649806505": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
@@ -184,6 +192,7 @@
       ]
     },
     "707649807005": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
@@ -195,6 +204,7 @@
       ]
     },
     "707649807505": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
@@ -206,57 +216,61 @@
       ]
     },
     "707649808005": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "707649808505": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "707649809505": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "707649814505": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
@@ -266,30 +280,31 @@
           "switch": "2"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         }
       ]
     },
     "707649815005": {
+      "name": "BNSF To Be Identified",
       "sig": "BNSF",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         },
         {
-          "signal": "4"
+          "signal": "4E"
         },
         {
-          "signal": "5"
+          "signal": "5E"
         }
       ]
     }

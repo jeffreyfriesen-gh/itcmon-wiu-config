@@ -3,7 +3,7 @@
   "description": "Curated UP 802001 WIU decoders; Omaha physical-site sequence and naming reconciled through 2026-08-12",
   "waysides": {
     "780200119403": {
-      "name": "",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -13,45 +13,45 @@
           "switch": "2"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         },
         {
-          "signal": "4"
+          "signal": "4E"
         },
         {
-          "signal": "5"
+          "signal": "5E"
         },
         {
-          "signal": "6"
+          "signal": "6E"
         }
       ]
     },
     "780200119503": {
-      "name": "",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "780200119603": {
-      "name": "",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -67,44 +67,45 @@
           "switch": "4"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         },
         {
-          "signal": "4"
+          "signal": "4E"
         },
         {
-          "signal": "5"
+          "signal": "5E"
         },
         {
-          "signal": "6"
+          "signal": "6E"
         }
       ]
     },
     "780200119703": {
-      "name": "",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "780200119803": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -116,19 +117,20 @@
       ]
     },
     "780200119903": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
@@ -262,7 +264,7 @@
           "signal": "2W"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         },
         {
           "signal": "2E"
@@ -394,6 +396,7 @@
       ]
     },
     "780200120903": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -405,6 +408,7 @@
       ]
     },
     "780200120904": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -419,6 +423,7 @@
       ]
     },
     "780200121003": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -430,6 +435,7 @@
       ]
     },
     "780200121004": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -441,6 +447,7 @@
       ]
     },
     "780200121103": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -452,6 +459,7 @@
       ]
     },
     "780200121104": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -463,6 +471,7 @@
       ]
     },
     "780200121203": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -474,6 +483,7 @@
       ]
     },
     "780200121204": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -485,6 +495,7 @@
       ]
     },
     "780200121303": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -496,6 +507,7 @@
       ]
     },
     "780200121304": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -507,6 +519,7 @@
       ]
     },
     "780200121403": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -518,6 +531,7 @@
       ]
     },
     "780200121404": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -529,6 +543,7 @@
       ]
     },
     "780200121503": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -558,6 +573,7 @@
       ]
     },
     "780200121603": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -569,6 +585,7 @@
       ]
     },
     "780200121604": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -580,6 +597,7 @@
       ]
     },
     "780200121703": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -594,6 +612,7 @@
       ]
     },
     "780200121704": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -605,23 +624,25 @@
       ]
     },
     "780200122003": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "780200122203": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -633,6 +654,7 @@
       ]
     },
     "780200122403": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -644,6 +666,7 @@
       ]
     },
     "780200122603": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -655,6 +678,7 @@
       ]
     },
     "780200122903": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -666,6 +690,7 @@
       ]
     },
     "780200123203": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -677,6 +702,7 @@
       ]
     },
     "780200123303": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -692,19 +718,19 @@
           "switch": "4"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         },
         {
-          "signal": "4"
+          "signal": "4E"
         },
         {
-          "signal": "5"
+          "signal": "5E"
         }
       ]
     }

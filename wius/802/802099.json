@@ -3,23 +3,25 @@
   "description": "Observed WIU decoders",
   "waysides": {
     "780209910103": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "780209910403": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -32,19 +34,19 @@
           "switch": "3"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         },
         {
-          "signal": "4"
+          "signal": "4E"
         },
         {
-          "signal": "5"
+          "signal": "5E"
         }
       ]
     }

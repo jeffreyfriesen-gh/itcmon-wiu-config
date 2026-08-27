@@ -3,6 +3,7 @@
   "description": "Auto-generated + merged WIU decoders",
   "waysides": {
     "780202700203": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -128,6 +129,7 @@
       ]
     },
     "780202700403": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -253,6 +255,7 @@
       ]
     },
     "780202700504": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -264,24 +267,25 @@
       ]
     },
     "780202700703": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "780202701003": {
-      "name": "",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -311,6 +315,7 @@
       ]
     },
     "780202701103": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -322,6 +327,7 @@
       ]
     },
     "780202701104": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -333,6 +339,7 @@
       ]
     },
     "780202701203": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -344,6 +351,7 @@
       ]
     },
     "780202701204": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -355,6 +363,7 @@
       ]
     },
     "780202701303": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -384,25 +393,25 @@
       ]
     },
     "780202701403": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
           "switch": "1"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         }
       ]
     },
     "780202701503": {
-      "name": "UP Waterloo - Main 1",
-      "MP": "24.7",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -414,8 +423,7 @@
       ]
     },
     "780202701504": {
-      "name": "UP Waterloo - Main 2",
-      "MP": "24.7",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -427,8 +435,7 @@
       ]
     },
     "780202701603": {
-      "name": "CP B026 M1",
-      "MP": "26",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -437,17 +444,10 @@
         {
           "signal": "1E"
         }
-      ],
-      "atcs": {
-        "mcp": "8802680070014",
-        "proto": "s",
-        "ibitsn": 32,
-        "ibits": "AWAK,1EAK,1WAK,1LAK,1WGK,1EGK,1EXK,1WXK,1LCK,P0K,,,,,,AEAK,,,,,,,,,,,,,,,,"
-      }
+      ]
     },
     "780202701604": {
-      "name": "CP B026 M2",
-      "MP": "26",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -456,17 +456,10 @@
         {
           "signal": "2E"
         }
-      ],
-      "atcs": {
-        "mcp": "8802680070015",
-        "proto": "s",
-        "ibitsn": 32,
-        "ibits": "BWAK,2EAK,2WAK,2LAK,2WGK,2EGK,2EXK,2WXK,2LCK,P0K,,,,,,BEAK,,,,,,,,,,,,,,,,"
-      }
+      ]
     },
     "780202701703": {
-      "name": "UP Valley - Main 1",
-      "MP": "28.0",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -478,8 +471,7 @@
       ]
     },
     "780202701704": {
-      "name": "UP Valley - Main 2",
-      "MP": "28.0",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -556,19 +548,19 @@
           "switch": "3"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         },
         {
-          "signal": "4"
+          "signal": "4E"
         },
         {
-          "signal": "5"
+          "signal": "5E"
         }
       ]
     },
@@ -595,22 +587,22 @@
           "switch": "6"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         },
         {
-          "signal": "4"
+          "signal": "4E"
         },
         {
-          "signal": "5"
+          "signal": "5E"
         },
         {
-          "signal": "6"
+          "signal": "6E"
         }
       ]
     }

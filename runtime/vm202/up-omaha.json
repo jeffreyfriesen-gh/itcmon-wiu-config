@@ -145,7 +145,7 @@
           "mapping_status": "observed"
         },
         {
-          "signal": "3",
+          "signal": "3E",
           "mapping_status": "unresolved"
         },
         {
@@ -296,6 +296,7 @@
       ]
     },
     "780200120904": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "mapping_status": "unresolved",
       "ind": [
@@ -314,6 +315,7 @@
       ]
     },
     "780200121003": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
@@ -328,6 +330,7 @@
       ]
     },
     "780200121004": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "mapping_status": "provisional",
       "ind": [
@@ -342,8 +345,7 @@
       ]
     },
     "780202701503": {
-      "name": "UP Waterloo - Main 1",
-      "MP": "24.7",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -355,11 +357,10 @@
           "mapping_status": "operator_verified"
         }
       ],
-      "mapping_status": "operator_verified"
+      "mapping_status": "unresolved"
     },
     "780202701504": {
-      "name": "UP Waterloo - Main 2",
-      "MP": "24.7",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -371,11 +372,10 @@
           "mapping_status": "operator_verified"
         }
       ],
-      "mapping_status": "operator_verified"
+      "mapping_status": "unresolved"
     },
     "780202701603": {
-      "name": "CP B026 M1",
-      "MP": "26",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -387,17 +387,10 @@
           "mapping_status": "operator_verified"
         }
       ],
-      "atcs": {
-        "mcp": "8802680070014",
-        "proto": "s",
-        "ibitsn": 32,
-        "ibits": "AWAK,1EAK,1WAK,1LAK,1WGK,1EGK,1EXK,1WXK,1LCK,P0K,,,,,,AEAK,,,,,,,,,,,,,,,,"
-      },
-      "mapping_status": "operator_verified"
+      "mapping_status": "unresolved"
     },
     "780202701604": {
-      "name": "CP B026 M2",
-      "MP": "26",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -409,17 +402,10 @@
           "mapping_status": "operator_verified"
         }
       ],
-      "atcs": {
-        "mcp": "8802680070015",
-        "proto": "s",
-        "ibitsn": 32,
-        "ibits": "BWAK,2EAK,2WAK,2LAK,2WGK,2EGK,2EXK,2WXK,2LCK,P0K,,,,,,BEAK,,,,,,,,,,,,,,,,"
-      },
-      "mapping_status": "operator_verified"
+      "mapping_status": "unresolved"
     },
     "780202701703": {
-      "name": "UP Valley - Main 1",
-      "MP": "28.0",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -431,11 +417,10 @@
           "mapping_status": "operator_verified"
         }
       ],
-      "mapping_status": "operator_verified"
+      "mapping_status": "unresolved"
     },
     "780202701704": {
-      "name": "UP Valley - Main 2",
-      "MP": "28.0",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -447,7 +432,7 @@
           "mapping_status": "operator_verified"
         }
       ],
-      "mapping_status": "operator_verified"
+      "mapping_status": "unresolved"
     },
     "780202701803": {
       "name": "UP Valmont - Main 1",

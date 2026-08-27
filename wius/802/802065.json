@@ -7,22 +7,22 @@
       "sig": "UP",
       "ind": [
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
           "signal": "1W"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         },
         {
-          "signal": "4"
+          "signal": "4E"
         },
         {
-          "signal": "NN"
+          "signal": "5E"
         },
         {
-          "signal": "6"
+          "signal": "6E"
         }
       ],
       "atcs": {
@@ -33,6 +33,7 @@
       }
     },
     "780206500403": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -44,6 +45,7 @@
       ]
     },
     "780206500404": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -55,6 +57,7 @@
       ]
     },
     "780206500504": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -66,6 +69,7 @@
       ]
     },
     "780206509103": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {

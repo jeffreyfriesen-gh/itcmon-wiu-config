@@ -3,7 +3,7 @@
   "description": "Auto-generated + merged WIU decoders",
   "waysides": {
     "780287036103": {
-      "name": "",
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -34,29 +34,30 @@
           "switch": "9"
         },
         {
-          "signal": "1"
+          "signal": "1E"
         },
         {
-          "signal": "2"
+          "signal": "2E"
         },
         {
-          "signal": "3"
+          "signal": "3E"
         },
         {
-          "signal": "4"
+          "signal": "4E"
         },
         {
-          "signal": "5"
+          "signal": "5E"
         },
         {
-          "signal": "6"
+          "signal": "6E"
         },
         {
-          "signal": "7"
+          "signal": "7E"
         }
       ]
     },
     "780287071404": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -86,6 +87,7 @@
       ]
     },
     "780287087903": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
@@ -97,6 +99,7 @@
       ]
     },
     "780287087904": {
+      "name": "UP To Be Identified",
       "sig": "UP",
       "ind": [
         {
