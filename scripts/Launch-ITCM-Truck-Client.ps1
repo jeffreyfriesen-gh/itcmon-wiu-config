@@ -107,7 +107,7 @@ function Read-JsonFile {
     return [IO.File]::ReadAllText($Path).TrimStart([char]0xFEFF) | ConvertFrom-Json
 }
 
-function Set-ITCWatchLocalConfiguration {
+function Set-ITCWatchAggregatorConfiguration {
     $viewer = if (Test-Path -LiteralPath $itcWatchConfigPath -PathType Leaf) {
         Read-JsonFile -Path $itcWatchConfigPath
     } else {
@@ -120,7 +120,7 @@ function Set-ITCWatchLocalConfiguration {
     }
     $servers = @(
         [pscustomobject][ordered]@{
-            host = '127.0.0.1'
+            host = $TruckHost
             port = 18001
             enabled = $true
         }
@@ -145,12 +145,12 @@ function Set-ITCWatchLocalConfiguration {
     $saved = Read-JsonFile -Path $itcWatchConfigPath
     $savedServers = @($saved.servers)
     if ($savedServers.Count -ne 1 -or
-        [string]$savedServers[0].host -ne '127.0.0.1' -or
+        -not [string]::Equals([string]$savedServers[0].host, $TruckHost, [StringComparison]::OrdinalIgnoreCase) -or
         [int]$savedServers[0].port -ne 18001 -or
         -not [bool]$savedServers[0].enabled -or
         [string]$saved.wiusRoot -ne (Join-Path $installFull 'wius') -or
         [string]$saved.rrdataPath -ne (Join-Path $installFull 'local\rrdata.json')) {
-        throw "ITCWatch local endpoint/data-path acceptance failed: $itcWatchConfigPath"
+        throw "ITCWatch aggregator endpoint/data-path acceptance failed: $itcWatchConfigPath"
     }
 }
 
@@ -174,23 +174,6 @@ function Test-TcpEndpoint {
     } finally {
         $client.Close()
     }
-}
-
-function Wait-TcpEndpoint {
-    param(
-        [Parameter(Mandatory)][string]$HostName,
-        [Parameter(Mandatory)][int]$Port,
-        [int]$TimeoutSeconds = 30
-    )
-
-    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
-    do {
-        if (Test-TcpEndpoint -HostName $HostName -Port $Port -TimeoutMilliseconds 750) {
-            return $true
-        }
-        Start-Sleep -Milliseconds 500
-    } while ((Get-Date) -lt $deadline)
-    return $false
 }
 
 function Get-ClientProcesses {
@@ -307,18 +290,10 @@ function Restore-ClientStackAfterUpdate {
     }
 
     Write-LaunchLog "Restoring the client applications that were running before the update: $($resume -join ', ')."
-    if ($resume -contains 'itcmon' -or $resume -contains 'itcwatch') {
-        $null = Start-ClientProcess -Name itcmon
-    }
-    if ($resume -contains 'itcwatch') {
-        Write-LaunchLog 'Waiting up to 30 seconds for restored ITCMon local zjpub at 127.0.0.1:18001.'
-        if (-not (Wait-TcpEndpoint -HostName '127.0.0.1' -Port 18001 -TimeoutSeconds 30)) {
-            throw 'Restored ITCMon did not expose local zjpub 127.0.0.1:18001; ITCWatch was not restarted.'
+    foreach ($name in @('itcmon', 'itcwatch', 'atcsmon')) {
+        if ($resume -contains $name) {
+            $null = Start-ClientProcess -Name $name
         }
-        $null = Start-ClientProcess -Name itcwatch
-    }
-    if ($resume -contains 'atcsmon') {
-        $null = Start-ClientProcess -Name atcsmon
     }
 }
 
@@ -460,12 +435,12 @@ function Get-InstalledClientHealth {
                 $viewerEndpoint = '{0}:{1}' -f $viewerServers[0].host, $viewerServers[0].port
             }
             if ($viewerServers.Count -ne 1 -or
-                [string]$viewerServers[0].host -ne '127.0.0.1' -or
+                -not [string]::Equals([string]$viewerServers[0].host, $TruckHost, [StringComparison]::OrdinalIgnoreCase) -or
                 [int]$viewerServers[0].port -ne 18001 -or
                 -not [bool]$viewerServers[0].enabled -or
                 [string]$viewer.wiusRoot -ne (Join-Path $installFull 'wius') -or
                 [string]$viewer.rrdataPath -ne (Join-Path $installFull 'local\rrdata.json')) {
-                $issues.Add('ITCWatch must use 127.0.0.1:18001 and the managed local rrdata/WIU paths.')
+                $issues.Add("ITCWatch must use the aggregator at $TruckHost`:18001 and the managed local rrdata/WIU paths.")
             }
         } catch {
             $issues.Add("ITCWatch viewer configuration is unreadable: $($_.Exception.Message)")
@@ -523,7 +498,7 @@ function Get-ClientDiagnostics {
             [pscustomobject]@{ id = $_.Id; started = $_.StartTime; main_window = $_.MainWindowTitle }
         })
         endpoints = [ordered]@{
-            local_zjpub_18001 = Test-TcpEndpoint -HostName '127.0.0.1' -Port 18001
+            aggregator_zjpub_18001 = Test-TcpEndpoint -HostName $TruckHost -Port 18001
             telemetry_fr_18101 = Test-TcpEndpoint -HostName $TruckHost -Port 18101
             telemetry_hr_20101 = Test-TcpEndpoint -HostName $TruckHost -Port 20101
             railfan_fr_18077 = Test-TcpEndpoint -HostName $RailfanHost -Port 18077
@@ -626,8 +601,8 @@ try {
     }
 
     if (@(Get-ClientProcesses -Name itcwatch).Count -eq 0) {
-        Set-ITCWatchLocalConfiguration
-        Write-LaunchLog "ITCWatch endpoint validated as 127.0.0.1:18001 in $itcWatchConfigPath."
+        Set-ITCWatchAggregatorConfiguration
+        Write-LaunchLog "ITCWatch endpoint validated as $TruckHost`:18001 in $itcWatchConfigPath."
     } else {
         Write-LaunchLog 'ITCWatch is already running; its viewer configuration was not replaced while in use.' 'WARN'
     }
@@ -640,11 +615,11 @@ try {
         Write-LaunchLog $issue 'ERROR'
     }
     $diagnostics = Get-ClientDiagnostics
-    Write-LaunchLog ("Processes before launch: ITCMon={0}, ITCWatch={1}, ATCSMon={2}. Local zjpub={3}; telemetry FR/HR={4}/{5}; Railfan-01 channel 77 FR/HR={6}/{7}." -f `
+    Write-LaunchLog ("Processes before launch: ITCMon={0}, ITCWatch={1}, ATCSMon={2}. Aggregator zjpub={3}; telemetry FR/HR={4}/{5}; Railfan-01 channel 77 FR/HR={6}/{7}." -f `
         @($diagnostics.itcmon_processes).Count,
         @($diagnostics.itcwatch_processes).Count,
         @($diagnostics.atcsmon_processes).Count,
-        $diagnostics.endpoints.local_zjpub_18001,
+        $diagnostics.endpoints.aggregator_zjpub_18001,
         $diagnostics.endpoints.telemetry_fr_18101,
         $diagnostics.endpoints.telemetry_hr_20101,
         $diagnostics.endpoints.railfan_fr_18077,
@@ -741,12 +716,6 @@ try {
     }
 
     if ($LaunchTarget -eq 'ITCWatch') {
-        $null = Start-ClientProcess -Name itcmon
-        Write-LaunchLog 'Waiting up to 30 seconds for ITCMon local zjpub at 127.0.0.1:18001.'
-        if (-not (Wait-TcpEndpoint -HostName '127.0.0.1' -Port 18001 -TimeoutSeconds 30)) {
-            throw 'ITCMon started but local zjpub 127.0.0.1:18001 did not become reachable; ITCWatch was not started.'
-        }
-        Write-LaunchLog 'ITCMon local zjpub is reachable.'
         $null = Start-ClientProcess -Name itcwatch
     } elseif ($LaunchTarget -eq 'ATCSMon') {
         $null = Start-ClientProcess -Name atcsmon

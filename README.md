@@ -147,10 +147,10 @@ and shortcut on later launches.
 
 ITCMon v1.0's active managed JSON files are under the release-native `local`
 directory. ITCWatch shares ITCMon's `rrdata.json` and `wius` directory.
-Its shortcut starts ITCMon first when necessary because ITCWatch consumes
-ITCMon's local `zjpub` stream. The installer and launcher force ITCWatch's
+Its shortcut starts only ITCWatch; it does not start or depend on a local
+ITCMon process. The installer and launcher force ITCWatch's
 `%APPDATA%\itcmon-viewer\viewer-config.json` to exactly one enabled endpoint,
-`127.0.0.1:18001`; ITCWatch must not point directly at either receiver.
+`telemetry-node.lan:18001`, which is the message aggregator.
 
 The application shortcuts use a common resilient launcher. When all three
 programs are stopped, it fetches and validates the current manifest, updates
@@ -315,9 +315,9 @@ On failure, the error remains in the console, a message box names the persistent
 log, and the batch launcher waits for a keypress.
 
 `Diagnose ITCM Truck Client` validates all three executables, the manifest-selected
-combined server count, ITCWatch's exact local endpoint, `rrdata.json`, the installed
-WIU inventory, DNS resolution, current ITCMon/ITCWatch/ATCSMon processes, local zjpub
-port 18001, representative telemetry-node HR/FR ports, and representative
+combined server count, ITCWatch's exact aggregator endpoint, `rrdata.json`, the installed
+WIU inventory, DNS resolution, current ITCMon/ITCWatch/ATCSMon processes, aggregator
+zjpub port 18001, representative telemetry-node HR/FR ports, and representative
 Railfan-01 HR/FR ports. Endpoint failures are
 reported but do not mark an otherwise valid offline laptop installation as
 corrupt.

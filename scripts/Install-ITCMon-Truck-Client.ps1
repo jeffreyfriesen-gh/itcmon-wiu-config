@@ -1102,12 +1102,12 @@ try {
     $itcWatchViewer = Read-JsonFile -Path $itcWatchConfigPath
     $itcWatchServers = @($itcWatchViewer.servers)
     if ($itcWatchServers.Count -ne 1 -or
-        [string]$itcWatchServers[0].host -ne '127.0.0.1' -or
+        -not [string]::Equals([string]$itcWatchServers[0].host, $TruckHost, [StringComparison]::OrdinalIgnoreCase) -or
         [int]$itcWatchServers[0].port -ne 18001 -or
         -not [bool]$itcWatchServers[0].enabled -or
         [string]$itcWatchViewer.wiusRoot -ne (Join-Path $installFull 'wius') -or
         [string]$itcWatchViewer.rrdataPath -ne (Join-Path $installFull 'local\rrdata.json')) {
-        throw 'ITCWatch viewer configuration failed local endpoint/data-path acceptance.'
+        throw 'ITCWatch viewer configuration failed aggregator endpoint/data-path acceptance.'
     }
 
     $rrdataEntry = @($manifest.files | Where-Object path -eq ([string]$manifest.rrdata_path))
@@ -1201,7 +1201,7 @@ try {
 
     Write-InstallStage -Number 8 -Description 'Run final acceptance checks and record installation status.'
     $connectivity = [ordered]@{
-        local_zjpub_18001 = Test-TcpEndpoint -HostName '127.0.0.1' -Port 18001
+        aggregator_zjpub_18001 = Test-TcpEndpoint -HostName $TruckHost -Port 18001
         telemetry_host = $TruckHost
         telemetry_fr_18101 = Test-TcpEndpoint -HostName $TruckHost -Port 18101
         telemetry_hr_20101 = Test-TcpEndpoint -HostName $TruckHost -Port 20101
@@ -1229,7 +1229,7 @@ try {
         servers = $installedServers.Count
         telemetry_servers = $telemetryServers.Count
         railfan_servers = $railfanServers.Count
-        itcwatch_endpoint = '127.0.0.1:18001'
+        itcwatch_endpoint = "$TruckHost`:18001"
         itcwatch_config = $itcWatchConfigPath
         wius = $wiuIDs.Count
         rrdata_sha256 = $installedRRDataHash

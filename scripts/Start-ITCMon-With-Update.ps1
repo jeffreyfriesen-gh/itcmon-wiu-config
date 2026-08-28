@@ -116,7 +116,9 @@ function ConvertTo-ManifestVersionKey {
 
 function Install-ITCWatchViewerConfiguration {
     param(
-        [Parameter(Mandatory)][string]$BackupRoot
+        [Parameter(Mandatory)][string]$BackupRoot,
+        [Parameter(Mandatory)][string]$AggregatorHost,
+        [Parameter(Mandatory)][int]$AggregatorPort
     )
 
     if ([string]::IsNullOrWhiteSpace($env:APPDATA)) {
@@ -131,15 +133,18 @@ function Install-ITCWatchViewerConfiguration {
         [pscustomobject][ordered]@{}
     }
 
-    $localServer = [pscustomobject][ordered]@{
-        host = '127.0.0.1'
-        port = 18001
+    if ([string]::IsNullOrWhiteSpace($AggregatorHost) -or $AggregatorPort -lt 1 -or $AggregatorPort -gt 65535) {
+        throw 'The ITCWatch aggregator endpoint is invalid.'
+    }
+    $aggregatorServer = [pscustomobject][ordered]@{
+        host = $AggregatorHost.Trim()
+        port = $AggregatorPort
         enabled = $true
     }
     if ($viewer.PSObject.Properties['servers']) {
-        $viewer.servers = @($localServer)
+        $viewer.servers = @($aggregatorServer)
     } else {
-        $viewer | Add-Member -NotePropertyName servers -NotePropertyValue @($localServer)
+        $viewer | Add-Member -NotePropertyName servers -NotePropertyValue @($aggregatorServer)
     }
     foreach ($pathSetting in @(
         [pscustomobject]@{ Name = 'wiusRoot'; Value = (Join-Path $InstallRoot 'wius') },
@@ -180,15 +185,18 @@ function Install-ITCWatchViewerConfiguration {
 
     $installed = Read-JsonFile -Path $viewerPath
     $servers = @($installed.servers)
-    if ($servers.Count -ne 1 -or [string]$servers[0].host -ne '127.0.0.1' -or
-        [int]$servers[0].port -ne 18001 -or -not [bool]$servers[0].enabled -or
+    if ($servers.Count -ne 1 -or
+        -not [string]::Equals([string]$servers[0].host, $AggregatorHost.Trim(), [StringComparison]::OrdinalIgnoreCase) -or
+        [int]$servers[0].port -ne $AggregatorPort -or -not [bool]$servers[0].enabled -or
         [string]$installed.wiusRoot -ne (Join-Path $InstallRoot 'wius') -or
         [string]$installed.rrdataPath -ne (Join-Path $InstallRoot 'local\rrdata.json')) {
-        throw 'Installed ITCWatch configuration failed local endpoint/data-path acceptance.'
+        throw 'Installed ITCWatch configuration failed aggregator endpoint/data-path acceptance.'
     }
     return [pscustomobject]@{
         Path = $viewerPath
         SHA256 = (Get-FileHash -LiteralPath $viewerPath -Algorithm SHA256).Hash
+        Host = $AggregatorHost.Trim()
+        Port = $AggregatorPort
     }
 }
 
@@ -1232,7 +1240,7 @@ function Sync-ClientDesktopShortcuts {
             Name = 'ITCWatch - Truck.lnk'
             Command = 'Start ITCWatch - Truck.cmd'
             Icon = 'itcwatch.exe'
-            Description = 'Check for managed client updates, then start ITCMon and ITCWatch.'
+            Description = 'Check for managed client updates, then start ITCWatch directly against the aggregator.'
         },
         [pscustomobject]@{
             Name = 'ATCSMon - Truck.lnk'
@@ -1508,7 +1516,15 @@ try {
         -BackupRoot $installed.BackupRoot)
     $itcWatchConfiguration = $null
     if ($validated.ProfileSpec -and $validated.ProfileSpec.PSObject.Properties['itcwatch']) {
-        $itcWatchConfiguration = Install-ITCWatchViewerConfiguration -BackupRoot $installed.BackupRoot
+        $itcWatchSpec = $validated.ProfileSpec.itcwatch
+        $itcWatchHost = if (-not [string]::IsNullOrWhiteSpace($ServerHostOverride)) {
+            $ServerHostOverride.Trim()
+        } else {
+            [string]$itcWatchSpec.host
+        }
+        $itcWatchConfiguration = Install-ITCWatchViewerConfiguration `
+            -BackupRoot $installed.BackupRoot -AggregatorHost $itcWatchHost `
+            -AggregatorPort ([int]$itcWatchSpec.port)
     }
     Sync-ClientScripts -TargetRoot $InstallRoot -Validated $validated
     $shortcutStatus = if ($NoDesktopShortcut) {
@@ -1530,7 +1546,9 @@ try {
         wius = $validated.WIUCount
         profile_sha256 = $installed.ProfileSHA256
         rrdata_sha256 = $installed.RRDataSHA256
-        itcwatch_endpoint = if ($itcWatchConfiguration) { 'tcp://127.0.0.1:18001' } else { $null }
+        itcwatch_endpoint = if ($itcWatchConfiguration) {
+            "tcp://$($itcWatchConfiguration.Host):$($itcWatchConfiguration.Port)"
+        } else { $null }
         itcwatch_config = if ($itcWatchConfiguration) { $itcWatchConfiguration.Path } else { $null }
         itcwatch_config_sha256 = if ($itcWatchConfiguration) { $itcWatchConfiguration.SHA256 } else { $null }
         managed_files = @($managedFileStatus)
@@ -1561,12 +1579,10 @@ try {
         if ($LaunchTarget -eq 'ATCSMon') {
             Start-Process -FilePath (Join-Path $InstallRoot 'ATCSMon\atcsmon.exe') `
                 -WorkingDirectory (Join-Path $InstallRoot 'ATCSMon')
+        } elseif ($LaunchTarget -eq 'ITCWatch') {
+            Start-Process -FilePath (Join-Path $InstallRoot 'itcwatch.exe') -WorkingDirectory $InstallRoot
         } else {
             Start-Process -FilePath $installed.Executable -WorkingDirectory $InstallRoot
-        }
-        if ($LaunchTarget -eq 'ITCWatch') {
-            Start-Sleep -Seconds 2
-            Start-Process -FilePath (Join-Path $InstallRoot 'itcwatch.exe') -WorkingDirectory $InstallRoot
         }
     }
     Write-Host ("[update complete] Truck client refresh finished at {0}." -f (Get-Date).ToString('yyyy-MM-dd HH:mm:ss zzz'))

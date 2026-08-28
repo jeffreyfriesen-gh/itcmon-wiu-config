@@ -4,7 +4,7 @@
   "description": "Windows client combining the truck Nationwide/Regional PTC monitor and the resource-bounded Railfan-01 Nationwide subset",
   "expected_server_count": 53,
   "itcwatch": {
-    "host": "127.0.0.1",
+    "host": "telemetry-node.lan",
     "port": 18001
   },
   "sources": [
