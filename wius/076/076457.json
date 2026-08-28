@@ -3,7 +3,7 @@
   "description": "Auto-generated + merged WIU decoders",
   "waysides": {
     "707645701005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645701005",
       "sig": "BNSF",
       "ind": [
         {
@@ -21,7 +21,7 @@
       ]
     },
     "707645701505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645701505",
       "sig": "BNSF",
       "ind": [
         {
@@ -51,7 +51,7 @@
       ]
     },
     "707645702105": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645702105",
       "sig": "BNSF",
       "ind": [
         {
@@ -63,7 +63,7 @@
       ]
     },
     "707645702106": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645702106",
       "sig": "BNSF",
       "ind": [
         {
@@ -75,7 +75,7 @@
       ]
     },
     "707645702505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645702505",
       "sig": "BNSF",
       "ind": [
         {
@@ -87,7 +87,7 @@
       ]
     },
     "707645702506": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645702506",
       "sig": "BNSF",
       "ind": [
         {
@@ -99,7 +99,7 @@
       ]
     },
     "707645703005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645703005",
       "sig": "BNSF",
       "ind": [
         {
@@ -129,7 +129,7 @@
       ]
     },
     "707645703505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645703505",
       "sig": "BNSF",
       "ind": [
         {
@@ -159,7 +159,7 @@
       ]
     },
     "707645704105": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645704105",
       "sig": "BNSF",
       "ind": [
         {
@@ -171,7 +171,7 @@
       ]
     },
     "707645704106": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645704106",
       "sig": "BNSF",
       "ind": [
         {
@@ -183,7 +183,7 @@
       ]
     },
     "707645705005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645705005",
       "sig": "BNSF",
       "ind": [
         {
@@ -213,7 +213,7 @@
       ]
     },
     "707645705105": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645705105",
       "sig": "BNSF",
       "ind": [
         {
@@ -225,7 +225,7 @@
       ]
     },
     "707645705106": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645705106",
       "sig": "BNSF",
       "ind": [
         {
@@ -237,7 +237,7 @@
       ]
     },
     "707645705605": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645705605",
       "sig": "BNSF",
       "ind": [
         {
@@ -249,7 +249,7 @@
       ]
     },
     "707645705606": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645705606",
       "sig": "BNSF",
       "ind": [
         {
@@ -261,7 +261,7 @@
       ]
     },
     "707645706005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645706005",
       "sig": "BNSF",
       "ind": [
         {
@@ -291,7 +291,7 @@
       ]
     },
     "707645706505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645706505",
       "sig": "BNSF",
       "ind": [
         {
@@ -321,7 +321,7 @@
       ]
     },
     "707645707005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645707005",
       "sig": "BNSF",
       "ind": [
         {
@@ -345,7 +345,7 @@
       ]
     },
     "707645707605": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645707605",
       "sig": "BNSF",
       "ind": [
         {
@@ -357,7 +357,7 @@
       ]
     },
     "707645707606": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645707606",
       "sig": "BNSF",
       "ind": [
         {
@@ -400,7 +400,7 @@
       ]
     },
     "707645708505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645708505",
       "sig": "BNSF",
       "ind": [
         {
@@ -412,7 +412,7 @@
       ]
     },
     "707645708506": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645708506",
       "sig": "BNSF",
       "ind": [
         {
@@ -424,7 +424,7 @@
       ]
     },
     "707645709105": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645709105",
       "sig": "BNSF",
       "ind": [
         {
@@ -540,7 +540,7 @@
       ]
     },
     "707645710605": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645710605",
       "sig": "BNSF",
       "ind": [
         {
@@ -552,7 +552,7 @@
       ]
     },
     "707645711005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645711005",
       "sig": "BNSF",
       "ind": [
         {
@@ -630,7 +630,7 @@
       ]
     },
     "707645711505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645711505",
       "sig": "BNSF",
       "ind": [
         {
@@ -642,7 +642,7 @@
       ]
     },
     "707645711506": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645711506",
       "sig": "BNSF",
       "ind": [
         {
@@ -654,7 +654,7 @@
       ]
     },
     "707645712005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645712005",
       "sig": "BNSF",
       "ind": [
         {
@@ -669,7 +669,7 @@
       ]
     },
     "707645712006": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645712006",
       "sig": "BNSF",
       "ind": [
         {
@@ -681,7 +681,7 @@
       ]
     },
     "707645712605": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645712605",
       "sig": "BNSF",
       "ind": [
         {
@@ -699,7 +699,7 @@
       ]
     },
     "707645713005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645713005",
       "sig": "BNSF",
       "ind": [
         {
@@ -711,7 +711,7 @@
       ]
     },
     "707645713505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645713505",
       "sig": "BNSF",
       "ind": [
         {
@@ -729,7 +729,7 @@
       ]
     },
     "707645714005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645714005",
       "sig": "BNSF",
       "ind": [
         {
@@ -750,7 +750,7 @@
       ]
     },
     "707645714505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645714505",
       "sig": "BNSF",
       "ind": [
         {
@@ -774,7 +774,7 @@
       ]
     },
     "707645715005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645715005",
       "sig": "BNSF",
       "ind": [
         {
@@ -786,7 +786,7 @@
       ]
     },
     "707645715006": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645715006",
       "sig": "BNSF",
       "ind": [
         {
@@ -798,7 +798,7 @@
       ]
     },
     "707645715505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645715505",
       "sig": "BNSF",
       "ind": [
         {
@@ -816,7 +816,7 @@
       ]
     },
     "707645715705": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645715705",
       "sig": "BNSF",
       "ind": [
         {
@@ -834,7 +834,7 @@
       ]
     },
     "707645716205": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645716205",
       "sig": "BNSF",
       "ind": [
         {
@@ -852,7 +852,7 @@
       ]
     },
     "707645716505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645716505",
       "sig": "BNSF",
       "ind": [
         {
@@ -864,7 +864,7 @@
       ]
     },
     "707645717505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645717505",
       "sig": "BNSF",
       "ind": [
         {
@@ -900,7 +900,7 @@
       ]
     },
     "707645718005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645718005",
       "sig": "BNSF",
       "ind": [
         {
@@ -924,7 +924,7 @@
       ]
     },
     "707645718505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645718505",
       "sig": "BNSF",
       "ind": [
         {
@@ -936,7 +936,7 @@
       ]
     },
     "707645719005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645719005",
       "sig": "BNSF",
       "ind": [
         {
@@ -951,7 +951,7 @@
       ]
     },
     "707645719006": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645719006",
       "sig": "BNSF",
       "ind": [
         {
@@ -1005,7 +1005,7 @@
       ]
     },
     "707645720505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707645720505",
       "sig": "BNSF",
       "ind": [
         {

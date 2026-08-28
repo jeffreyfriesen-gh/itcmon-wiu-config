@@ -3,7 +3,7 @@
   "description": "Curated UP 802001 WIU decoders; Omaha physical-site sequence and naming reconciled through 2026-08-12",
   "waysides": {
     "780200119403": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200119403",
       "sig": "UP",
       "ind": [
         {
@@ -33,7 +33,7 @@
       ]
     },
     "780200119503": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200119503",
       "sig": "UP",
       "ind": [
         {
@@ -51,7 +51,7 @@
       ]
     },
     "780200119603": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200119603",
       "sig": "UP",
       "ind": [
         {
@@ -87,7 +87,7 @@
       ]
     },
     "780200119703": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200119703",
       "sig": "UP",
       "ind": [
         {
@@ -105,7 +105,7 @@
       ]
     },
     "780200119803": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200119803",
       "sig": "UP",
       "ind": [
         {
@@ -117,7 +117,7 @@
       ]
     },
     "780200119903": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200119903",
       "sig": "UP",
       "ind": [
         {
@@ -396,7 +396,7 @@
       ]
     },
     "780200120903": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200120903",
       "sig": "UP",
       "ind": [
         {
@@ -408,7 +408,7 @@
       ]
     },
     "780200120904": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200120904",
       "sig": "UP",
       "ind": [
         {
@@ -423,7 +423,7 @@
       ]
     },
     "780200121003": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121003",
       "sig": "UP",
       "ind": [
         {
@@ -435,7 +435,7 @@
       ]
     },
     "780200121004": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121004",
       "sig": "UP",
       "ind": [
         {
@@ -447,7 +447,7 @@
       ]
     },
     "780200121103": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121103",
       "sig": "UP",
       "ind": [
         {
@@ -459,7 +459,7 @@
       ]
     },
     "780200121104": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121104",
       "sig": "UP",
       "ind": [
         {
@@ -471,7 +471,7 @@
       ]
     },
     "780200121203": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121203",
       "sig": "UP",
       "ind": [
         {
@@ -483,7 +483,7 @@
       ]
     },
     "780200121204": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121204",
       "sig": "UP",
       "ind": [
         {
@@ -495,7 +495,7 @@
       ]
     },
     "780200121303": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121303",
       "sig": "UP",
       "ind": [
         {
@@ -507,7 +507,7 @@
       ]
     },
     "780200121304": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121304",
       "sig": "UP",
       "ind": [
         {
@@ -519,7 +519,7 @@
       ]
     },
     "780200121403": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121403",
       "sig": "UP",
       "ind": [
         {
@@ -531,7 +531,7 @@
       ]
     },
     "780200121404": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121404",
       "sig": "UP",
       "ind": [
         {
@@ -543,7 +543,7 @@
       ]
     },
     "780200121503": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121503",
       "sig": "UP",
       "ind": [
         {
@@ -573,7 +573,7 @@
       ]
     },
     "780200121603": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121603",
       "sig": "UP",
       "ind": [
         {
@@ -585,7 +585,7 @@
       ]
     },
     "780200121604": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121604",
       "sig": "UP",
       "ind": [
         {
@@ -597,7 +597,7 @@
       ]
     },
     "780200121703": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121703",
       "sig": "UP",
       "ind": [
         {
@@ -612,7 +612,7 @@
       ]
     },
     "780200121704": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200121704",
       "sig": "UP",
       "ind": [
         {
@@ -624,7 +624,7 @@
       ]
     },
     "780200122003": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200122003",
       "sig": "UP",
       "ind": [
         {
@@ -642,7 +642,7 @@
       ]
     },
     "780200122203": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200122203",
       "sig": "UP",
       "ind": [
         {
@@ -654,7 +654,7 @@
       ]
     },
     "780200122403": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200122403",
       "sig": "UP",
       "ind": [
         {
@@ -666,7 +666,7 @@
       ]
     },
     "780200122603": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200122603",
       "sig": "UP",
       "ind": [
         {
@@ -678,7 +678,7 @@
       ]
     },
     "780200122903": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200122903",
       "sig": "UP",
       "ind": [
         {
@@ -690,7 +690,7 @@
       ]
     },
     "780200123203": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200123203",
       "sig": "UP",
       "ind": [
         {
@@ -702,7 +702,7 @@
       ]
     },
     "780200123303": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780200123303",
       "sig": "UP",
       "ind": [
         {

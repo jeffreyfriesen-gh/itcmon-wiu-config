@@ -3,7 +3,7 @@
   "description": "Packet-evidence WIU decoders discovered in the VM202 authoritative capture",
   "waysides": {
     "707648101005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707648101005",
       "sig": "BNSF",
       "ind": [
         {
@@ -15,7 +15,7 @@
       ]
     },
     "707648111505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707648111505",
       "sig": "BNSF",
       "ind": [
         {
@@ -27,7 +27,7 @@
       ]
     },
     "707648112505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707648112505",
       "sig": "BNSF",
       "ind": [
         {
@@ -45,7 +45,7 @@
       ]
     },
     "707648113005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707648113005",
       "sig": "BNSF",
       "ind": [
         {
@@ -63,7 +63,7 @@
       ]
     },
     "707648113505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707648113505",
       "sig": "BNSF",
       "ind": [
         {
@@ -93,7 +93,7 @@
       ]
     },
     "707648120505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707648120505",
       "sig": "BNSF",
       "ind": [
         {
@@ -105,7 +105,7 @@
       ]
     },
     "707648122005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707648122005",
       "sig": "BNSF",
       "ind": [
         {
@@ -117,7 +117,7 @@
       ]
     },
     "707648122505": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707648122505",
       "sig": "BNSF",
       "ind": [
         {
@@ -135,7 +135,7 @@
       ]
     },
     "707648129005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707648129005",
       "sig": "BNSF",
       "ind": [
         {
@@ -189,7 +189,7 @@
       ]
     },
     "707648130005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707648130005",
       "sig": "BNSF",
       "ind": [
         {

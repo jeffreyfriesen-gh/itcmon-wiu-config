@@ -236,8 +236,9 @@ pattern. Use
   human-readable Markdown and machine-readable JSON/CSV.
 - `wius/802/802001.json`: reviewed Omaha-corridor definitions, including the
   v0.9 `MP` field on WIUs whose working site assignment has a known
-  milepost. No `MP` value is synthesized for `To Be Identified` WIUs or for 57th
-  Street because its WIU has not yet been observed.
+  milepost. No `MP` value is synthesized for unidentified WIUs displayed as
+  `<railroad abbreviation> WIU <full WIU number>`, or for 57th Street because
+  its WIU has not yet been observed.
 - `manifest.json`: expected counts and SHA-256 for every distributed machine
   file plus the reviewed ITCMon, ITCWatch, and ATCSMon packages and the ITCMon
   shortcut icon.
@@ -265,8 +266,8 @@ pattern. Use
 ## WIU naming convention
 
 - Every WIU has a non-empty display name. Until its physical identity is
-  established, use exactly `<railroad abbreviation> To Be Identified`, such as
-  `UP To Be Identified` or `BNSF To Be Identified`.
+  established, use exactly `<railroad abbreviation> WIU <full WIU number>`,
+  such as `UP WIU 780200119403` or `BNSF WIU 707645701005`.
 - Keep the display `name` free of mileposts; store a known milepost as the
   string property `MP` on the same wayside object.
 - Prefix every non-empty Union Pacific location display name with `UP `. An
@@ -295,8 +296,8 @@ pattern. Use
   ATCSMon/MCP output, followed by ` - Main 1`/` - Main 2` only when the WIU is
   track-specific. Intermediate automatic signals use `UP Location - Main N`
   without a CP designation. If a proposed CP association has no confirmed
-  ATCSMon/MCP mapping, display the railroad-specific `To Be Identified` name
-  rather than the proposed CP.
+  ATCSMon/MCP mapping, display the railroad-specific WIU-number name rather
+  than the proposed CP.
 - Keep confidence and evidence status in the supporting records rather than
   adding `candidate`, `automatic`, or `WIU` to a confirmed display name.
 

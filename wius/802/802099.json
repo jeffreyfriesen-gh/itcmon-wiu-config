@@ -3,7 +3,7 @@
   "description": "Observed WIU decoders",
   "waysides": {
     "780209910103": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780209910103",
       "sig": "UP",
       "ind": [
         {
@@ -21,7 +21,7 @@
       ]
     },
     "780209910403": {
-      "name": "UP To Be Identified",
+      "name": "UP WIU 780209910403",
       "sig": "UP",
       "ind": [
         {

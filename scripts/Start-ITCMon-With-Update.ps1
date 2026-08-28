@@ -632,7 +632,7 @@ function Test-RepositoryConfiguration {
             }
             $displayName = [string]$property.Value.name
             if ([string]::IsNullOrWhiteSpace($displayName)) {
-                throw "WIU $($property.Name) has no display name; use '<railroad abbreviation> To Be Identified' until the site is identified."
+                throw "WIU $($property.Name) has no display name; use '<railroad abbreviation> WIU $($property.Name)' until the site is identified."
             }
             $isAtcsControlPointName = ($displayName -match '^CP B[0-9]+(?: M[12])?$' -and $null -ne $property.Value.atcs)
             if ([string]$property.Value.sig -eq 'UP' -and

@@ -3,7 +3,7 @@
   "description": "Observed WIU decoders",
   "waysides": {
     "707646455005": {
-      "name": "BNSF To Be Identified",
+      "name": "BNSF WIU 707646455005",
       "sig": "BNSF",
       "ind": [
         {
